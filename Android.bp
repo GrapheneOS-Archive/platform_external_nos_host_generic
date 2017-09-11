@@ -1,0 +1,73 @@
+//
+// Copyright (C) 2017 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+// Build files need to go in these directories in order for protoc to generate
+// files with the correct paths
+subdirs = [
+    "nugget/services/avb",
+    "nugget/services/weaver",
+]
+
+cc_library_headers {
+    name: "nos_headers",
+    defaults: ["nos_shared_cc_defaults"],
+    export_include_dirs: ["nugget/include"],
+}
+
+cc_defaults {
+    name: "nos_app_defaults",
+    cflags: ["-Wno-unused-parameter"],
+    header_libs: ["nos_headers"],
+    shared_libs: ["libnos"],
+}
+
+cc_defaults {
+    name: "nos_app_service_defaults",
+    defaults: [
+        "nos_app_defaults",
+        "nos_cc_defaults",
+    ],
+    proto: { export_proto_headers: true },
+    static_libs: ["nos_proto_options"],
+    export_static_lib_headers: ["nos_proto_options"],
+}
+
+// Soong doesn't allow adding plugins to a protobuf compilation so we need to
+// invoke it directly. If we could pass a plugin, it could use insertion points
+// in the .pb.{cc,h} files rather than needing to generate new .client.{cpp,h}
+// files for each service.
+GEN_SERVICE = "$(location aprotoc) --plugin=protoc-gen-nos-client-cpp=$(location protoc-gen-nos-client-cpp) $(in) -Iexternal/protobuf/src -Iexternal/libnos/nugget/proto"
+
+GEN_SERVICE_SOURCE = GEN_SERVICE + " --nos-client-cpp_out=source:$(genDir) "
+GEN_SERVICE_HEADER = GEN_SERVICE + " --nos-client-cpp_out=header:$(genDir) "
+GEN_SERVICE_MOCK = GEN_SERVICE + " --nos-client-cpp_out=mock:$(genDir) "
+
+// The options proto is pre-generated as the Android build generates from the
+// repo root which causes the repo path to be included in the generated files.
+// Generating manually from util/protobuf means the paths are relative to the
+// protobuf root which is the expected behaviour.
+//
+// protoc --cpp_out=nugget/proto -I/usr/include -Inugget/proto nugget/proto/nugget/protobuf/options.proto
+//
+// This can't be a shared library as that causes double import of the standard
+// proto descriptors resulting an assetion failing.
+cc_library_static {
+    name: "nos_proto_options",
+    srcs: ["nugget/proto/nugget/protobuf/options.pb.cc"],
+    defaults: ["nos_shared_cc_defaults"],
+    shared_libs: ["libprotobuf-cpp-full"],
+    export_include_dirs: ["nugget/proto"],
+}

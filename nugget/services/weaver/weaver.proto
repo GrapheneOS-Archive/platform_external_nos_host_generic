@@ -1,0 +1,61 @@
+// Copyright 2017 The Chromium OS Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+syntax = "proto3";
+
+package nugget.app.weaver;
+
+import "nugget/protobuf/options.proto";
+
+service Weaver {
+	option (nugget.protobuf.app_id) = "WEAVER";
+	option (nugget.protobuf.app_name) = "Weaver";
+	option (nugget.protobuf.app_version) = 1;
+	option (nugget.protobuf.request_buffer_size) = 64;
+	option (nugget.protobuf.response_buffer_size) = 64;
+
+	rpc GetConfig (GetConfigRequest) returns (GetConfigResponse);
+	rpc Write (WriteRequest) returns (WriteResponse);
+	rpc Read (ReadRequest) returns (ReadResponse);
+	rpc EraseValue (EraseValueRequest) returns (EraseValueResponse);
+}
+
+// GetConfig
+message GetConfigRequest {}
+message GetConfigResponse {
+	uint32 number_of_slots = 1;
+	uint32 key_size = 2;
+	uint32 value_size = 3;
+}
+
+// Write
+message WriteRequest {
+	uint32 slot = 1;
+	bytes key = 2;
+	bytes value = 3;
+}
+message WriteResponse {}
+
+// Read
+message ReadRequest {
+	uint32 slot = 1;
+	bytes key = 2;
+}
+message ReadResponse {
+	enum Error {
+		NONE = 0;
+		WRONG_KEY = 1;
+		THROTTLE = 2;
+	}
+
+	Error error = 1;
+	uint32 throttle_msec = 2;
+	bytes value = 3;
+}
+
+// EraseValue
+message EraseValueRequest {
+	uint32 slot = 1;
+}
+message EraseValueResponse {}

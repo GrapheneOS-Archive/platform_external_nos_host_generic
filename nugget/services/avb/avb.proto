@@ -1,0 +1,111 @@
+// Copyright 2017 The Chromium OS Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+syntax = "proto3";
+
+package nugget.app.avb;
+
+import "nugget/protobuf/options.proto";
+
+service Avb {
+	option (nugget.protobuf.app_id) = "AVB";
+	option (nugget.protobuf.app_name) = "Android Verified Boot";
+	option (nugget.protobuf.app_version) = 1;
+	option (nugget.protobuf.request_buffer_size) = 2200;
+	option (nugget.protobuf.response_buffer_size) = 128;
+
+	rpc GetState (GetStateRequest) returns (GetStateResponse);
+	rpc Load (LoadRequest) returns (LoadResponse);
+	rpc Store (StoreRequest) returns (StoreResponse);
+	rpc GetLock (GetLockRequest) returns (GetLockResponse);
+	rpc SetLock (SetLockRequest) returns (SetLockResponse);
+	rpc SetProduction (SetProductionRequest) returns (SetProductionResponse);
+	rpc CarrierLockTest (CarrierLockTestRequest) returns (CarrierLockTestResponse);
+	rpc Reset (ResetRequest) returns (ResetResponse);
+}
+
+enum LockName {
+	CARRIER = 0;
+	DEVICE = 1;
+	BOOT = 2;
+	OWNER = 3;
+}
+
+
+// GetState
+message GetStateRequest {}
+message GetStateResponse {
+	uint64 version = 1;
+	bool bootloader = 2;
+	bool production = 3;
+	uint32 number_of_locks = 4;
+}
+
+// Load
+message LoadRequest {
+	uint32 slot = 1;
+}
+message LoadResponse {
+	uint64 version = 1;
+}
+
+// Store
+message StoreRequest {
+	uint32 slot = 1;
+	uint64 version = 2;
+}
+message StoreResponse {}
+
+// GetLock
+message GetLockRequest {
+	LockName lock = 1;
+}
+message GetLockResponse {
+	bool locked = 1;
+}
+
+// SetLock
+// TODO: this might be better if split into separate RPCs as some locks have
+// different characteristics and specific metadata that could be encoded in this
+// protocol. Especially as each lock is handled as a separate case.
+message SetLockRequest {
+	message CarrierUnlock {
+		uint64 version = 1;
+		uint64 nonce = 2;
+		bytes signature = 3;
+	}
+
+	message CarrierLock {
+		bytes device_data = 1; // TODO: does this have any structure
+	}
+
+	LockName lock = 1;
+	bool locked = 2;
+	oneof metadata {
+		CarrierUnlock carrier_unlock = 3;
+		CarrierLock carrier_lock = 4;
+	}
+}
+message SetLockResponse {}
+
+// SetProduction
+message SetProductionRequest {
+	bool production = 1;
+}
+message SetProductionResponse {}
+
+// CarrierLockTest
+message CarrierLockTestRequest {}
+message CarrierLockTestResponse {}
+
+// Reset
+message ResetRequest {
+	enum ResetKind {
+		FACTORY = 0;
+		LOCKS = 1;
+	}
+
+	ResetKind kind = 1;
+}
+message ResetResponse {}
