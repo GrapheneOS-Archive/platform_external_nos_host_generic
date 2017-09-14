@@ -17,6 +17,7 @@
 // Build files need to go in these directories in order for protoc to generate
 // files with the correct paths
 subdirs = [
+    "libnos",
     "nugget/services/avb",
     "nugget/services/weaver",
 ]
