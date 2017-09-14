@@ -18,6 +18,7 @@
 #define NOS_NUGGET_CLIENT_H
 
 #include <cstdint>
+#include <string>
 #include <vector>
 
 namespace nos {
@@ -61,6 +62,13 @@ public:
     virtual uint32_t callApp(uint32_t appId, uint16_t arg,
                              const std::vector<uint8_t>& request,
                              std::vector<uint8_t>& response) = 0;
+
+    /**
+     * Convert the return value of @callApp() to a human readable string.
+     * @param code The return value of @callApp().
+     * @return A string which represents the meaning of @code.
+     */
+    static std::string StatusCodeString(uint32_t code);
 };
 
 } // namespace nos

@@ -184,7 +184,7 @@ typedef void (write_to_app_fn_t)(uint32_t command,
  * function like so:
  *
  *   uint32_t call_application(uint8_t app_id, uint16_t app_param,
- *                             uint8_t *args, uint16_t arg_len,
+ *                             const uint8_t *args, uint16_t arg_len,
  *                             uint8_t *reply, uint16_t *reply_len);
  *
  * The request or response may be larger than one bus transaction, and the AP

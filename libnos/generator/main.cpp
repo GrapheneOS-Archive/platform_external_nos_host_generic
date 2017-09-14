@@ -26,7 +26,7 @@
 #include <google/protobuf/io/zero_copy_stream.h>
 #include <google/protobuf/stubs/strutil.h>
 
-#include <nugget/protobuf/options.pb.h>
+#include "nugget/protobuf/options.pb.h"
 
 using ::google::protobuf::FileDescriptor;
 using ::google::protobuf::JoinStrings;
@@ -163,7 +163,7 @@ void GenerateClientHeader(Printer& printer, const ServiceDescriptor& service) {
 #include <nos/AppClient.h>
 #include <nos/NuggetClient.h>
 
-#include <$protobuf_header$>)");
+#include "$protobuf_header$")");
 
     OpenNamespaces(printer, service);
 
