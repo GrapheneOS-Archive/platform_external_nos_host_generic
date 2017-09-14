@@ -15,13 +15,14 @@
 //
 
 subdirs = [
-    "citadel",
-    "generator",
     "test",
 ]
 
-cc_library {
-    name: "libnos",
-    defaults: ["nos_shared_cc_defaults"],
-    export_include_dirs: ["include"],
+cc_binary_host {
+    name: "protoc-gen-nos-client-cpp",
+    srcs: ["main.cpp"],
+    defaults: ["nos_base_cc_defaults"],
+    cflags: ["-Wno-unused-parameter"],
+    static_libs: ["nos_proto_options"],
+    shared_libs: ["libprotoc"],
 }
