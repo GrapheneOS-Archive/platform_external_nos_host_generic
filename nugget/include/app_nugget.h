@@ -18,6 +18,10 @@
 #include "application.h"
 #include "config.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /****************************************************************************/
 /*
  * APP_ID_NUGGET uses the Transport API:
@@ -130,5 +134,9 @@ struct nugget_app_write32 {
  * @param reply        <none>
  * @param reply_len    0
  */
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif	/* __CROS_EC_INCLUDE_APP_NUGGET_H */

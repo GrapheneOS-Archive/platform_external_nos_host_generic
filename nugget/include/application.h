@@ -17,6 +17,10 @@
 #define __CROS_EC_INCLUDE_APPLICATION_H
 #include <stdint.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #ifndef __packed
 #define __packed __attribute__((packed))
 #endif
@@ -295,5 +299,9 @@ extern write_to_app_fn_t transaction_api_to_fn;
 #define CMD_TRANSPORT       0x40000000          /* 1=Transport API message */
 #define CMD_IS_DATA         0x20000000		/* 1=data msg 0=status msg */
 #define CMD_MORE_TO_COME    0x10000000		/* 1=continued 0=new */
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif	/* __CROS_EC_INCLUDE_APPLICATION_H */
