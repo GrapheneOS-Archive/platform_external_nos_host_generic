@@ -37,7 +37,7 @@ public:
      * @param appId  ID of the target app.
      */
     AppClient(NuggetClient& client, uint32_t appId)
-            : _client{client}, _appId{appId} {}
+            : _client(client), _appId(appId) {}
 
     /**
      * Call the app.
