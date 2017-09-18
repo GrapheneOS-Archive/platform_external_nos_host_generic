@@ -4,7 +4,7 @@ cc_binary(
         "main.cpp",
     ],
     copts = [
-        "-std=c++1y",
+        "-std=c++11",
     ],
     visibility = ["//visibility:public"],
     deps = [

@@ -133,7 +133,7 @@ void GenerateMockClient(Printer& printer, const ServiceDescriptor& service) {
     printer.Print(vars, R"(
 struct $mock_class$ : public I$class$ {)");
 
-    ForEachMethod(service, [&](auto methodVars) {
+    ForEachMethod(service, [&](std::map<std::string, std::string> methodVars) {
         printer.Print(methodVars, R"(
     MOCK_METHOD2($method_name$, uint32_t(const $method_input_type$&, $method_output_type$&));)");
     });
@@ -173,7 +173,7 @@ class $iface_class$ {
 public:
     virtual ~$iface_class$() = default;)");
 
-    ForEachMethod(service, [&](auto methodVars) {
+    ForEachMethod(service, [&](std::map<std::string, std::string> methodVars) {
         printer.Print(methodVars, R"(
     virtual uint32_t $method_name$(const $method_input_type$&, $method_output_type$&) = 0;)");
     });
@@ -189,7 +189,7 @@ public:
     $class$(::nos::NuggetClient& client) : _app{client, $app_id$} {}
     ~$class$() override = default;)");
 
-    ForEachMethod(service, [&](auto methodVars) {
+    ForEachMethod(service, [&](std::map<std::string, std::string> methodVars) {
         printer.Print(methodVars, R"(
     uint32_t $method_name$(const $method_input_type$&, $method_output_type$&) override;)");
     });
@@ -221,7 +221,7 @@ void GenerateClientSource(Printer& printer, const ServiceDescriptor& service) {
     OpenNamespaces(printer, service);
 
     // Methods
-    ForEachMethod(service, [&](auto methodVars) {
+    ForEachMethod(service, [&](std::map<std::string, std::string>  methodVars) {
         methodVars.insert(vars.begin(), vars.end());
         printer.Print(methodVars, R"(
 uint32_t $class$::$method_name$(const $method_input_type$& request, $method_output_type$& response) {
