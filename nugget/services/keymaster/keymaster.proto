@@ -1,0 +1,268 @@
+/*
+ * Copyright (C) 2017 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto3";
+
+package nugget.app.keymaster;
+
+import "nugget/protobuf/options.proto";
+/* TODO: get imports and build system to work. */
+// import "keymaster_defs.proto";
+// import "keymaster_types.proto";
+
+/*
+ * Keymaster service methods.
+ *
+ * TODO: some methods may be implemented in the host side HAL implementation.
+ */
+service Keymaster {
+	option (nugget.protobuf.app_id) = "KEYMASTER";
+	option (nugget.protobuf.app_name) = "Keymaster";
+	option (nugget.protobuf.app_version) = 1;
+	option (nugget.protobuf.request_buffer_size) = 1024;
+	option (nugget.protobuf.response_buffer_size) = 1024;
+
+	/*
+	 * KM3 methods, from:
+	 *     ::android::hardware::keymaster::V3_0::IKeymasterDevice
+	 */
+	rpc GetHardwareFeatures (GetHardwareFeaturesRequest) returns (GetHardwareFeaturesResponse);
+	rpc AddRngEntropy (AddRngEntropyRequest) returns (AddRngEntropyResponse);
+	rpc GenerateKey (GenerateKeyRequest) returns (GenerateKeyResponse);
+	rpc GetKeyCharacteristics (GetKeyCharacteristicsRequest) returns (GetKeyCharacteristicsResponse);
+	rpc ImportKey (ImportKeyRequest) returns (ImportKeyResponse);
+	rpc ExportKey (ExportKeyRequest) returns (ExportKeyResponse);
+	rpc AttestKey (AttestKeyRequest) returns (AttestKeyResponse);
+	rpc UpgradeKey (UpgradeKeyRequest) returns (UpgradeKeyResponse);
+	rpc DeleteKey (DeleteKeyRequest) returns (DeleteKeyResponse);
+	rpc DeleteAllKeys (DeleteAllKeysRequest) returns (DeleteAllKeysResponse);
+	rpc DestroyAttestationIds (DestroyAttestationIdsRequest) returns (DestroyAttestationIdsResponse);
+	rpc BeginOperation (BeginOperationRequest) returns (BeginOperationResponse);
+	rpc UpdateOperation (UpdateOperationRequest) returns (UpdateOperationResponse);
+	rpc FinishOperation (FinishOperationRequest) returns (FinishOperationResponse);
+	rpc AbortOperation (AbortOperationRequest) returns (AbortOperationResponse);
+
+	/*
+	 * KM4 methods.
+	 */
+	rpc ImportWrappedKey (ImportWrappedKeyRequest) returns (ImportWrappedKeyResponse);
+
+	/*
+	 * Vendor specific methods (manufacturing, status, factory reset, upgrade).
+	 */
+}
+
+/*
+ * Minimal type definitions required for building protos.  Sourced from:
+ *     ::android::hardware::keymaster::V3_0
+ */
+enum KeyPurpose {
+	KM_PURPOSE_ENCRYPT = 0;     /* Usable with RSA, EC and AES keys. */
+	KM_PURPOSE_DECRYPT = 1;     /* Usable with RSA, EC and AES keys. */
+	KM_PURPOSE_SIGN = 2;        /* Usable with RSA, EC and HMAC keys. */
+	KM_PURPOSE_VERIFY = 3;      /* Usable with RSA, EC and HMAC keys. */
+	KM_PURPOSE_DERIVE_KEY = 4;  /* Usable with EC keys. */
+}
+
+enum KeyFormat {
+	KM_KEY_FORMAT_X509 = 0;   /* for public key export */
+	KM_KEY_FORMAT_PKCS8 = 1;  /* for asymmetric key pair import */
+	KM_KEY_FORMAT_RAW = 3;    /* for symmetric key import and export*/
+}
+
+message KeyParameter {
+	uint32 tag = 1; 	/* Possible values defined here
+				 * ::android::hardware::keymaster::V3_0::Tag
+				 */
+	bool boolean = 2;
+	uint32 integer = 3;
+	uint64 long_integer = 4;
+	uint64 date_time = 5;
+	bytes blob = 6;
+}
+
+message KeyParameters {
+	repeated KeyParameter params = 1;
+}
+
+message KeyBlob {
+	bytes blob = 1;
+}
+
+message OperationHandle {
+	bytes handle = 1;
+}
+
+message Certificate {
+	bytes data = 1;
+}
+
+message CertificateChain {
+	repeated Certificate certificates = 1;
+}
+
+message KeyCharacteristics {
+	KeyParameters software_forced = 1;
+	KeyParameters tee_enforced = 2;
+}
+
+/*
+ *  KM3 messages.
+ */
+
+// GetHardwareFeatures
+message GetHardwareFeaturesRequest {}
+message GetHardwareFeaturesResponse {
+	bool is_secure = 1;
+	bool supports_elliptic_curve = 2;
+	bool supports_symmetric_cryptography = 3;
+	bool supports_attestation = 4;
+	bool supports_all_digests = 5;
+	string keymaster_name = 6;
+	string keymaster_author_name = 7;
+}
+
+// AddEntropy
+message AddRngEntropyRequest {
+	bytes data = 1;
+}
+message AddRngEntropyResponse {}
+
+// GenerateKey
+message GenerateKeyRequest {
+	KeyParameters params = 1;
+}
+message GenerateKeyResponse {
+	KeyBlob blob = 1;
+	KeyCharacteristics characteristics = 2;
+}
+
+// GetKeyCharacteristics
+message GetKeyCharacteristicsRequest {
+	KeyBlob blob = 1;
+	bytes client_id = 2;
+	bytes app_data = 3;
+}
+message GetKeyCharacteristicsResponse {
+	KeyCharacteristics characteristics = 1;
+}
+
+// ImportKey
+message ImportKeyRequest {
+	KeyParameters params = 1;
+	KeyFormat format = 2;
+	bytes key_data = 3;
+};
+message ImportKeyResponse {
+	KeyBlob blob = 1;
+	KeyCharacteristics characteristics = 2;
+};
+
+// ExportKey
+message ExportKeyRequest {
+	KeyFormat format = 1;
+	KeyBlob blob = 2;
+	bytes client_id = 3;
+	bytes app_data = 4;
+};
+message ExportKeyResponse {
+    bytes key_material = 1;
+};
+
+// AttestKey
+message AttestKeyRequest {
+	KeyBlob blob = 1;
+	KeyParameters params = 2;
+}
+message AttestKeyResponse {
+	CertificateChain chain = 1;
+}
+
+// UpgradeKey
+message UpgradeKeyRequest {
+	KeyBlob blob = 1;
+	KeyParameters params = 2;
+}
+message UpgradeKeyResponse {
+	KeyBlob blob = 1;
+}
+
+// DeleteKey
+message DeleteKeyRequest {
+	KeyBlob blob = 1;
+}
+message DeleteKeyResponse {}
+
+// DeleteAllKeys
+message DeleteAllKeysRequest {}
+message DeleteAllKeysResponse {}
+
+// DestroyAttestationIds
+message DestroyAttestationIdsRequest {}
+message DestroyAttestationIdsResponse {}
+
+// BeginOperation
+message BeginOperationRequest {
+	KeyPurpose purpose = 1;
+	KeyBlob blob = 2;
+	KeyParameters params = 3;
+}
+message BeginOperationResponse {
+	KeyParameters params = 1;
+	OperationHandle handle = 2;
+}
+
+// UpdateOperation
+message UpdateOperationRequest {
+	OperationHandle handle = 1;
+	KeyParameters params = 2;
+	bytes input = 3;
+}
+message UpdateOperationResponse {
+	uint32 consumed = 1;
+	KeyParameters params = 2;
+	bytes output = 3;
+}
+
+// FinishOperation
+message FinishOperationRequest {
+	OperationHandle handle = 1;
+	KeyParameters params = 2;
+	bytes input = 3;
+};
+message FinishOperationResponse {
+	KeyParameters params = 1;
+	bytes output = 2;
+};
+
+// AbortOperation
+message AbortOperationRequest {
+	OperationHandle handle = 1;
+};
+message AbortOperationResponse {};
+
+/*
+ * KM4 messages.
+ */
+message ImportWrappedKeyRequest {
+	KeyBlob wrapping_key_blob = 1;
+	bytes wrapped_key = 2;
+}
+
+message ImportWrappedKeyResponse {
+	KeyBlob blob = 1;
+	KeyCharacteristics characteristics = 2;
+}

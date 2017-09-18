@@ -19,6 +19,7 @@
 subdirs = [
     "libnos",
     "nugget/services/avb",
+    "nugget/services/keymaster",
     "nugget/services/weaver",
 ]
 

@@ -1,0 +1,37 @@
+/*
+ * Copyright (C) 2017 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto3";
+
+package nugget.app.keymaster;
+
+/*
+ * Minimal type definitions required for building protos.  Sourced from:
+ *     ::android::hardware::keymaster::V3_0
+ */
+enum KeyPurpose {
+	KM_PURPOSE_ENCRYPT = 0;     /* Usable with RSA, EC and AES keys. */
+	KM_PURPOSE_DECRYPT = 1;     /* Usable with RSA, EC and AES keys. */
+	KM_PURPOSE_SIGN = 2;        /* Usable with RSA, EC and HMAC keys. */
+	KM_PURPOSE_VERIFY = 3;      /* Usable with RSA, EC and HMAC keys. */
+	KM_PURPOSE_DERIVE_KEY = 4;  /* Usable with EC keys. */
+}
+
+enum KeyFormat {
+	KM_KEY_FORMAT_X509 = 0;   /* for public key export */
+	KM_KEY_FORMAT_PKCS8 = 1;  /* for asymmetric key pair import */
+	KM_KEY_FORMAT_RAW = 3;    /* for symmetric key import and export*/
+}

@@ -1,0 +1,55 @@
+/*
+ * Copyright (C) 2017 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto3";
+
+package nugget.app.keymaster;
+
+message KeyParameter {
+	uint32 tag = 1; 	/* Possible values defined here
+				 * ::android::hardware::keymaster::V3_0::Tag
+				 */
+	bool boolean = 2;
+	uint32 integer = 3;
+	uint64 long_integer = 4;
+	uint64 date_time = 5;
+	bytes blob = 6;
+}
+
+message KeyParameters {
+	repeated KeyParameter params = 1;
+}
+
+message KeyBlob {
+	bytes blob = 1;
+}
+
+message OperationHandle {
+	bytes handle = 1;
+}
+
+message Certificate {
+	bytes data = 1;
+}
+
+message CertificateChain {
+	repeated Certificate certificates = 1;
+}
+
+message KeyCharacteristics {
+	KeyParameters software_forced = 1;
+	KeyParameters tee_enforced = 2;
+}
