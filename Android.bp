@@ -18,6 +18,8 @@
 // files with the correct paths
 subdirs = [
     "libnos",
+    "libnos_datagram",
+    "libnos_transport",
     "nugget/services/avb",
     "nugget/services/keymaster",
     "nugget/services/weaver",
