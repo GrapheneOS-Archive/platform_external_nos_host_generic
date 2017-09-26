@@ -39,7 +39,6 @@ service Keymaster {
 	 * KM3 methods, from:
 	 *     ::android::hardware::keymaster::V3_0::IKeymasterDevice
 	 */
-	rpc GetHardwareFeatures (GetHardwareFeaturesRequest) returns (GetHardwareFeaturesResponse);
 	rpc AddRngEntropy (AddRngEntropyRequest) returns (AddRngEntropyResponse);
 	rpc GenerateKey (GenerateKeyRequest) returns (GenerateKeyResponse);
 	rpc GetKeyCharacteristics (GetKeyCharacteristicsRequest) returns (GetKeyCharacteristicsResponse);
@@ -122,18 +121,6 @@ message KeyCharacteristics {
 /*
  *  KM3 messages.
  */
-
-// GetHardwareFeatures
-message GetHardwareFeaturesRequest {}
-message GetHardwareFeaturesResponse {
-	bool is_secure = 1;
-	bool supports_elliptic_curve = 2;
-	bool supports_symmetric_cryptography = 3;
-	bool supports_attestation = 4;
-	bool supports_all_digests = 5;
-	string keymaster_name = 6;
-	string keymaster_author_name = 7;
-}
 
 // AddEntropy
 message AddRngEntropyRequest {
