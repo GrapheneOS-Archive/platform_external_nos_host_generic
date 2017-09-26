@@ -86,11 +86,9 @@ message KeyParameter {
 	uint32 tag = 1; 	/* Possible values defined here
 				 * ::android::hardware::keymaster::V3_0::Tag
 				 */
-	bool boolean = 2;
-	uint32 integer = 3;
-	uint64 long_integer = 4;
-	uint64 date_time = 5;
-	bytes blob = 6;
+	uint32 integer = 2;
+	uint64 long_integer = 3;
+	bytes blob = 4;
 }
 
 message KeyParameters {
@@ -114,8 +112,7 @@ message CertificateChain {
 }
 
 message KeyCharacteristics {
-	KeyParameters software_forced = 1;
-	KeyParameters tee_enforced = 2;
+	KeyParameters tee_enforced = 1;
 }
 
 /*
@@ -150,8 +147,9 @@ message GetKeyCharacteristicsResponse {
 // ImportKey
 message ImportKeyRequest {
 	KeyParameters params = 1;
-	KeyFormat format = 2;
-	bytes key_data = 3;
+	RSAKey rsa = 2;
+	ECKey ec = 3;
+	SymmetricKey symmetric_key = 4;
 };
 message ImportKeyResponse {
 	KeyBlob blob = 1;
@@ -252,4 +250,26 @@ message ImportWrappedKeyRequest {
 message ImportWrappedKeyResponse {
 	KeyBlob blob = 1;
 	KeyCharacteristics characteristics = 2;
+}
+
+
+/*
+ * Internal types.
+ */
+message RSAKey {
+	uint32 e = 1;
+	bytes d = 2;
+	bytes n = 3;
+}
+
+message ECKey {
+	uint32 curve_id = 1;
+	bytes d = 2;
+	bytes x = 3;
+	bytes y = 4;
+}
+
+message SymmetricKey {
+	uint32 algorithm = 1;
+	bytes material = 2;
 }
