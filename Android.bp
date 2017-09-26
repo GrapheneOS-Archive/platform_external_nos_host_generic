@@ -31,7 +31,10 @@ cc_library_headers {
 
 cc_defaults {
     name: "nos_app_defaults",
-    cflags: ["-Wno-unused-parameter"],
+    cflags: [
+        "-Wno-extended-offsetof",
+        "-Wno-unused-parameter",
+    ],
     header_libs: ["nos_headers"],
     shared_libs: ["libnos"],
 }

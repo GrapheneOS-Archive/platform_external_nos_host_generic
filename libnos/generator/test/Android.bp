@@ -19,7 +19,7 @@ genrule {
     out: ["Hello.client.cpp"],
     srcs: ["test.proto"],
     tools: ["aprotoc", "protoc-gen-nos-client-cpp"],
-    cmd: GEN_SERVICE_SOURCE + "-Iexternal/libnos/generator/test",
+    cmd: GEN_SERVICE_SOURCE + "-Iexternal/libnos/libnos/generator/test",
 }
 
 genrule {
@@ -27,7 +27,7 @@ genrule {
     out: ["Hello.client.h"],
     srcs: ["test.proto"],
     tools: ["aprotoc", "protoc-gen-nos-client-cpp"],
-    cmd: GEN_SERVICE_HEADER + "-Iexternal/libnos/generator/test",
+    cmd: GEN_SERVICE_HEADER + "-Iexternal/libnos/libnos/generator/test",
 }
 
 genrule {
@@ -35,7 +35,7 @@ genrule {
     out: ["MockHello.client.h"],
     srcs: ["test.proto"],
     tools: ["aprotoc", "protoc-gen-nos-client-cpp"],
-    cmd: GEN_SERVICE_MOCK + "-Iexternal/libnos/generator/test",
+    cmd: GEN_SERVICE_MOCK + "-Iexternal/libnos/libnos/generator/test",
 }
 
 cc_test_host {
