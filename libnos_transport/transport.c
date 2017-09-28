@@ -42,7 +42,8 @@
 /* Logging for other platforms */
 #include <stdio.h>
 
-#define NLOGE(...) do { fprintf(stderr, __VA_ARGS__); fprintf("\n"); } while (0)
+#define NLOGE(...) do { fprintf(stderr, __VA_ARGS__); \
+	fprintf(stderr, "\n"); } while (0)
 #define NLOGV(...) do { if (VERBOSE_LOG) { \
 	printf(__VA_ARGS__); printf("\n"); } } while (0)
 #define NLOGD(...) do { if (DEBUG_LOG) { \
