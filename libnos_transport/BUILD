@@ -1,11 +1,10 @@
 cc_library(
-    name = "libnos_common",
+    name = "libnos_transport",
     srcs = [
-        "NuggetClient.cpp",
+        "transport.c",
     ],
     hdrs = [
-        "include/nos/AppClient.h",
-        "include/nos/NuggetClient.h",
+        "include/nos/transport.h",
     ],
     includes = [
         "./include",
@@ -13,5 +12,6 @@ cc_library(
     visibility = ["//visibility:public"],
     deps = [
         "@nugget_host_generic//:nos_headers",
+        "@nugget_host_generic_libnos_datagram//:libnos_datagram",
     ],
 )
