@@ -46,9 +46,9 @@ public:
      * @param request  Data to send to the app.
      * @param response Buffer to receive data from the app.
      */
-    uint32_t call(uint16_t arg, const std::vector<uint8_t>& request,
-                  std::vector<uint8_t>& response) {
-        return _client.callApp(_appId, arg, request, response);
+    uint32_t Call(uint16_t arg, const std::vector<uint8_t>& request,
+                  std::vector<uint8_t>* response) {
+        return _client.CallApp(_appId, arg, request, response);
     }
 
 

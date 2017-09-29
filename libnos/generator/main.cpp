@@ -135,7 +135,7 @@ struct $mock_class$ : public I$class$ {)");
 
     ForEachMethod(service, [&](std::map<std::string, std::string> methodVars) {
         printer.Print(methodVars, R"(
-    MOCK_METHOD2($method_name$, uint32_t(const $method_input_type$&, $method_output_type$&));)");
+    MOCK_METHOD2($method_name$, uint32_t(const $method_input_type$&, $method_output_type$*));)");
     });
 
     printer.Print(vars, R"(
@@ -175,7 +175,7 @@ public:
 
     ForEachMethod(service, [&](std::map<std::string, std::string> methodVars) {
         printer.Print(methodVars, R"(
-    virtual uint32_t $method_name$(const $method_input_type$&, $method_output_type$&) = 0;)");
+    virtual uint32_t $method_name$(const $method_input_type$&, $method_output_type$*) = 0;)");
     });
 
     printer.Print(vars, R"(
@@ -191,7 +191,7 @@ public:
 
     ForEachMethod(service, [&](std::map<std::string, std::string> methodVars) {
         printer.Print(methodVars, R"(
-    uint32_t $method_name$(const $method_input_type$&, $method_output_type$&) override;)");
+    uint32_t $method_name$(const $method_input_type$&, $method_output_type$*) override;)");
     });
 
     printer.Print(vars, R"(
@@ -224,7 +224,7 @@ void GenerateClientSource(Printer& printer, const ServiceDescriptor& service) {
     ForEachMethod(service, [&](std::map<std::string, std::string>  methodVars) {
         methodVars.insert(vars.begin(), vars.end());
         printer.Print(methodVars, R"(
-uint32_t $class$::$method_name$(const $method_input_type$& request, $method_output_type$& response) {
+uint32_t $class$::$method_name$(const $method_input_type$& request, $method_output_type$* response) {
     const size_t request_size = request.ByteSize();
     if (request_size > $max_request_size$) {
         return APP_ERROR_TOO_MUCH;
@@ -233,10 +233,14 @@ uint32_t $class$::$method_name$(const $method_input_type$& request, $method_outp
     if (!request.SerializeToArray(buffer.data(), buffer.size())) {
         return APP_ERROR_RPC;
     }
-    std::vector<uint8_t> responseBuffer($max_response_size$);
-    const uint32_t appStatus =  _app.call($method_id$, buffer, responseBuffer);
-    if (appStatus == APP_SUCCESS) {
-        if (!response.ParseFromArray(responseBuffer.data(), responseBuffer.size())) {
+    std::vector<uint8_t> responseBuffer;
+    if (response != nullptr) {
+      responseBuffer.resize($max_response_size$);
+    }
+    const uint32_t appStatus = _app.Call($method_id$, buffer,
+                                         (response != nullptr) ? &responseBuffer : nullptr);
+    if (appStatus == APP_SUCCESS && response != nullptr) {
+        if (!response->ParseFromArray(responseBuffer.data(), responseBuffer.size())) {
             return APP_ERROR_RPC;
         }
     }

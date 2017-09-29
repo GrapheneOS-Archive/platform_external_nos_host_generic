@@ -38,17 +38,17 @@ public:
      *
      * If this fails, isOpen() will return false.
      */
-    virtual void open() = 0;
+    virtual void Open() = 0;
 
     /**
      * Closes the connection to Nugget.
      */
-    virtual void close() = 0;
+    virtual void Close() = 0;
 
     /**
      * Checked whether a connection is open to Nugget.
      */
-    virtual bool isOpen() = 0;
+    virtual bool IsOpen() const = 0;
 
     /**
      * Call into and app running on Nugget.
@@ -59,13 +59,13 @@ public:
      * @param response Buffer to receive data from the app.
      * @return         Status code from the app.
      */
-    virtual uint32_t callApp(uint32_t appId, uint16_t arg,
+    virtual uint32_t CallApp(uint32_t appId, uint16_t arg,
                              const std::vector<uint8_t>& request,
-                             std::vector<uint8_t>& response) = 0;
+                             std::vector<uint8_t>* response) = 0;
 
     /**
-     * Convert the return value of @callApp() to a human readable string.
-     * @param code The return value of @callApp().
+     * Convert the return value of @CallApp() to a human readable string.
+     * @param code The return value of @CallApp().
      * @return A string which represents the meaning of @code.
      */
     static std::string StatusCodeString(uint32_t code);

@@ -32,12 +32,12 @@ public:
     CitadelClient() = default;
     ~CitadelClient() override;
 
-    void open() override;
-    void close() override;
-    bool isOpen() override;
-    uint32_t callApp(uint32_t appId, uint16_t arg,
+    void Open() override;
+    void Close() override;
+    bool IsOpen() const override;
+    uint32_t CallApp(uint32_t appId, uint16_t arg,
                      const std::vector<uint8_t>& request,
-                     std::vector<uint8_t>& response) override;
+                     std::vector<uint8_t>* response) override;
 };
 
 } // namespace nos

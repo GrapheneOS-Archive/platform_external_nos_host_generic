@@ -39,7 +39,7 @@ using ::testing::_;
 using ::testing::DoAll;
 using ::testing::Eq;
 using ::testing::Return;
-using ::testing::SetArgReferee;
+using ::testing::SetArgPointee;
 
 MATCHER_P(ProtoMessageEq, msg, "") { return MessageDifferencer::Equals(arg, msg); }
 
@@ -56,16 +56,16 @@ TEST(GeneratedServiceClientTest, MethodsHaveCorrectIds) {
     MockNuggetClient client;
     Hello service{client};
 
-    EXPECT_CALL(client, callApp(APP_ID_TEST, 2, _, _)).WillOnce(Return(APP_SUCCESS));
-    EXPECT_CALL(client, callApp(APP_ID_TEST, 0, _, _)).WillOnce(Return(APP_SUCCESS));
-    EXPECT_CALL(client, callApp(APP_ID_TEST, 1, _, _)).WillOnce(Return(APP_SUCCESS));
+    EXPECT_CALL(client, CallApp(APP_ID_TEST, 2, _, _)).WillOnce(Return(APP_SUCCESS));
+    EXPECT_CALL(client, CallApp(APP_ID_TEST, 0, _, _)).WillOnce(Return(APP_SUCCESS));
+    EXPECT_CALL(client, CallApp(APP_ID_TEST, 1, _, _)).WillOnce(Return(APP_SUCCESS));
 
     EmptyRequest request;
     EmptyResponse response;
 
-    service.Third(request, response);
-    service.First(request, response);
-    service.Second(request, response);
+    service.Third(request, &response);
+    service.First(request, &response);
+    service.Second(request, &response);
 }
 
 // Both request and response messages are exchanged successfully.
@@ -83,12 +83,27 @@ TEST(GeneratedServiceClientTest, DataSuccessfullyExchanged) {
     std::vector<uint8_t> responseBytes(response.ByteSize());
     ASSERT_TRUE(response.SerializeToArray(responseBytes.data(), responseBytes.size()));
 
-    EXPECT_CALL(client, callApp(_, _, DecodesToProtoMessage(request), _))
-            .WillOnce(DoAll(SetArgReferee<3>(responseBytes), Return(APP_SUCCESS)));
+    EXPECT_CALL(client, CallApp(_, _, DecodesToProtoMessage(request), _))
+            .WillOnce(DoAll(SetArgPointee<3>(responseBytes), Return(APP_SUCCESS)));
 
     GreetResponse real_response;
-    EXPECT_THAT(service.Greet(request, real_response), Eq(APP_SUCCESS));
+    EXPECT_THAT(service.Greet(request, &real_response), Eq(APP_SUCCESS));
     EXPECT_THAT(real_response, ProtoMessageEq(response));
+}
+
+// The response can be ignored but the request is still passed on.
+TEST(GeneratedServiceClientTest, NullptrResponseBufferIgnoresResponseData) {
+    MockNuggetClient client;
+    Hello service{client};
+
+    GreetRequest request;
+    request.set_who("Silence");
+    request.set_age(10);
+
+    EXPECT_CALL(client, CallApp(_, _, DecodesToProtoMessage(request), Eq(nullptr)))
+            .WillOnce(Return(APP_SUCCESS));
+
+    EXPECT_THAT(service.Greet(request, nullptr), Eq(APP_SUCCESS));
 }
 
 // Errors from the chip should be forwarded to the caller without decoding the
@@ -103,12 +118,12 @@ TEST(GeneratedServiceClientTest, AppErrorsPropagatedWithoutResponseDecode) {
     std::vector<uint8_t> responseBytes(response.ByteSize());
     ASSERT_TRUE(response.SerializeToArray(responseBytes.data(), responseBytes.size()));
 
-    EXPECT_CALL(client, callApp(_, _, _, _))
-            .WillOnce(DoAll(SetArgReferee<3>(responseBytes), Return(APP_ERROR_BOGUS_ARGS)));
+    EXPECT_CALL(client, CallApp(_, _, _, _))
+            .WillOnce(DoAll(SetArgPointee<3>(responseBytes), Return(APP_ERROR_BOGUS_ARGS)));
 
     GreetRequest request;
     GreetResponse real_response;
-    EXPECT_THAT(service.Greet(request, real_response), Eq(APP_ERROR_BOGUS_ARGS));
+    EXPECT_THAT(service.Greet(request, &real_response), Eq(APP_ERROR_BOGUS_ARGS));
     EXPECT_THAT(real_response, ProtoMessageEq(GreetResponse{}));
 }
 
@@ -118,12 +133,12 @@ TEST(GeneratedServiceClientTest, GarbledResponseIsRpcFailure) {
     Hello service{client};
 
     std::vector<uint8_t> garbledResponse{1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
-    EXPECT_CALL(client, callApp(_, _, _, _))
-            .WillOnce(DoAll(SetArgReferee<3>(garbledResponse), Return(APP_SUCCESS)));
+    EXPECT_CALL(client, CallApp(_, _, _, _))
+            .WillOnce(DoAll(SetArgPointee<3>(garbledResponse), Return(APP_SUCCESS)));
 
     GreetRequest request;
     GreetResponse response;
-    EXPECT_THAT(service.Greet(request, response), Eq(APP_ERROR_RPC));
+    EXPECT_THAT(service.Greet(request, &response), Eq(APP_ERROR_RPC));
 }
 
 // Sending too much data will fail before beginning a transaction with the chip.
@@ -131,13 +146,13 @@ TEST(GeneratedServiceClientTest, RequestLargerThanBuffer) {
     MockNuggetClient client;
     Hello service{client};
 
-    EXPECT_CALL(client, callApp(_, _, _, _)).Times(0);
+    EXPECT_CALL(client, CallApp(_, _, _, _)).Times(0);
 
     GreetRequest request;
     request.set_who("This is far too long for the buffer so should fail");
 
     GreetResponse response;
-    EXPECT_THAT(service.Greet(request, response), Eq(APP_ERROR_TOO_MUCH));
+    EXPECT_THAT(service.Greet(request, &response), Eq(APP_ERROR_TOO_MUCH));
 }
 
 // Example using generate service mocks.
@@ -149,12 +164,12 @@ TEST(GeneratedServiceClientTest, CanUseGeneratedMocks) {
     response.set_greeting(mockGreeting);
 
     EXPECT_CALL(mockService, Greet(_, _))
-            .WillOnce(DoAll(SetArgReferee<1>(response), Return(APP_SUCCESS)));
+            .WillOnce(DoAll(SetArgPointee<1>(response), Return(APP_SUCCESS)));
 
     // Use as an instance of the service to mimic a real test
     IHello& service = mockService;
     GreetRequest request;
     GreetResponse real_response;
-    EXPECT_THAT(service.Greet(request, real_response), Eq(APP_SUCCESS));
+    EXPECT_THAT(service.Greet(request, &real_response), Eq(APP_SUCCESS));
     EXPECT_THAT(real_response, ProtoMessageEq(response));
 }

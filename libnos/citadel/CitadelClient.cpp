@@ -19,25 +19,25 @@
 namespace nos {
 
 CitadelClient::~CitadelClient() {
-    close();
+    Close();
 }
 
-void CitadelClient::open() {
+void CitadelClient::Open() {
     // TODO: implement
 }
 
-void CitadelClient::close() {
+void CitadelClient::Close() {
     // TODO: implement
 }
 
-bool CitadelClient::isOpen() {
+bool CitadelClient::IsOpen() const {
     // TODO: implement
     return false;
 }
 
-uint32_t CitadelClient::callApp(uint32_t appId, uint16_t arg,
+uint32_t CitadelClient::CallApp(uint32_t appId, uint16_t arg,
                                 const std::vector<uint8_t>& request,
-                                std::vector<uint8_t>& response) {
+                                std::vector<uint8_t>* response) {
     // TODO: implement
     (void) appId;
     (void) arg;

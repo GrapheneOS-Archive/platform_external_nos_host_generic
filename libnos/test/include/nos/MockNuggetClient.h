@@ -27,12 +27,12 @@
 namespace nos {
 
 struct MockNuggetClient : public NuggetClient {
-    MOCK_METHOD0(open, void());
-    MOCK_METHOD0(close, void());
-    MOCK_METHOD0(isOpen, bool());
-    MOCK_METHOD4(callApp, uint32_t(uint32_t, uint16_t,
+    MOCK_METHOD0(Open, void());
+    MOCK_METHOD0(Close, void());
+    MOCK_CONST_METHOD0(IsOpen, bool());
+    MOCK_METHOD4(CallApp, uint32_t(uint32_t, uint16_t,
                                    const std::vector<uint8_t>&,
-                                   std::vector<uint8_t>&));
+                                   std::vector<uint8_t>*));
 };
 
 } // namespace nos
