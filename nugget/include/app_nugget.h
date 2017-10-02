@@ -87,6 +87,19 @@ struct nugget_app_flash_block {
  */
 
 /****************************************************************************/
+/* Test related commands */
+
+#define NUGGET_PARAM_CYCLES_SINCE_BOOT 0x0100
+/*
+ * Get the number of cycles since boot
+ *
+ * @param args         <none>
+ * @param arg_len      0
+ * @param reply        uint32_t cycles
+ * @param reply_len    sizeof(uint32_t)
+ */
+
+/****************************************************************************/
 /* These are bringup / debug functions only.
  *
  * TODO(b/65067435): Remove all of these.
