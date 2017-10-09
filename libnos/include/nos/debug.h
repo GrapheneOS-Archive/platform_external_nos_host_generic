@@ -14,36 +14,21 @@
  * limitations under the License.
  */
 
-#include <nos/CitadelClient.h>
+#ifndef NOS_DEBUG_H
+#define NOS_DEBUG_H
+
+#include <cstdint>
+#include <string>
 
 namespace nos {
 
-CitadelClient::~CitadelClient() {
-    Close();
-}
-
-void CitadelClient::Open() {
-    // TODO: implement
-}
-
-void CitadelClient::Close() {
-    // TODO: implement
-}
-
-bool CitadelClient::IsOpen() const {
-    // TODO: implement
-    return false;
-}
-
-uint32_t CitadelClient::CallApp(uint32_t appId, uint16_t arg,
-                                const std::vector<uint8_t>& request,
-                                std::vector<uint8_t>* response) {
-    // TODO: implement
-    (void) appId;
-    (void) arg;
-    (void) request;
-    (void) response;
-    return 3; // Currently APP_ERROR_DRIVER
-}
+/**
+ * Convert the return value of CallApp() to a human readable string.
+ * @param code The return value of CallApp().
+ * @return A string which represents the meaning of @code.
+ */
+std::string StatusCodeString(uint32_t code);
 
 } // namespace nos
+
+#endif // NOS_DEBUG_H

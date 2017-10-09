@@ -40,12 +40,31 @@ struct nos_device_ops {
 	 * Return 0 on success and a negative value on failure.
 	 */
 	int (*write)(void *ctx, uint32_t command, const uint8_t *buf, uint32_t len);
+
+	/**
+	 * Close the connection to the device.
+	 *
+	 * The device must not be used after closing.
+	 */
+	void (*close)(void *ctx);
 };
 
 struct nos_device {
 	void *ctx;
 	struct nos_device_ops ops;
 };
+
+/*
+ * Open a connection to a Nugget device.
+ *
+ * The name parameter identifies which Nugget device to connect to. Passing
+ * NULL connects to the default device.
+ *
+ * This function is implemented by the host specific variants of this library.
+ *
+ * Returns 0 on success or negative on failure.
+ */
+int nos_device_open(const char *name, struct nos_device *device);
 
 #ifdef __cplusplus
 }

@@ -14,8 +14,15 @@
 // limitations under the License.
 //
 
+cc_library_headers {
+    name: "libnos_datagram_headers",
+    defaults: ["nos_shared_cc_defaults"],
+    export_include_dirs: ["include"],
+}
+
 cc_library {
     name: "libnos_datagram",
     defaults: ["nos_shared_cc_defaults"],
-    export_include_dirs: ["include"],
+    header_libs: ["libnos_datagram_headers"],
+    export_header_lib_headers: ["libnos_datagram_headers"],
 }
