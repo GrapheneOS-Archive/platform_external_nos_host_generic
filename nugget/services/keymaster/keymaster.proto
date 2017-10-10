@@ -29,39 +29,39 @@ import "nugget/protobuf/options.proto";
  * TODO: some methods may be implemented in the host side HAL implementation.
  */
 service Keymaster {
-	option (nugget.protobuf.app_id) = "KEYMASTER";
-	option (nugget.protobuf.app_name) = "Keymaster";
-	option (nugget.protobuf.app_version) = 1;
-	option (nugget.protobuf.request_buffer_size) = 1024;
-	option (nugget.protobuf.response_buffer_size) = 1024;
+  option (nugget.protobuf.app_id) = "KEYMASTER";
+  option (nugget.protobuf.app_name) = "Keymaster";
+  option (nugget.protobuf.app_version) = 1;
+  option (nugget.protobuf.request_buffer_size) = 1024;
+  option (nugget.protobuf.response_buffer_size) = 1024;
 
-	/*
-	 * KM3 methods, from:
-	 *     ::android::hardware::keymaster::V3_0::IKeymasterDevice
-	 */
-	rpc AddRngEntropy (AddRngEntropyRequest) returns (AddRngEntropyResponse);
-	rpc GenerateKey (GenerateKeyRequest) returns (GenerateKeyResponse);
-	rpc GetKeyCharacteristics (GetKeyCharacteristicsRequest) returns (GetKeyCharacteristicsResponse);
-	rpc ImportKey (ImportKeyRequest) returns (ImportKeyResponse);
-	rpc ExportKey (ExportKeyRequest) returns (ExportKeyResponse);
-	rpc AttestKey (AttestKeyRequest) returns (AttestKeyResponse);
-	rpc UpgradeKey (UpgradeKeyRequest) returns (UpgradeKeyResponse);
-	rpc DeleteKey (DeleteKeyRequest) returns (DeleteKeyResponse);
-	rpc DeleteAllKeys (DeleteAllKeysRequest) returns (DeleteAllKeysResponse);
-	rpc DestroyAttestationIds (DestroyAttestationIdsRequest) returns (DestroyAttestationIdsResponse);
-	rpc BeginOperation (BeginOperationRequest) returns (BeginOperationResponse);
-	rpc UpdateOperation (UpdateOperationRequest) returns (UpdateOperationResponse);
-	rpc FinishOperation (FinishOperationRequest) returns (FinishOperationResponse);
-	rpc AbortOperation (AbortOperationRequest) returns (AbortOperationResponse);
+  /*
+   * KM3 methods, from:
+   *     ::android::hardware::keymaster::V3_0::IKeymasterDevice
+   */
+  rpc AddRngEntropy (AddRngEntropyRequest) returns (AddRngEntropyResponse);
+  rpc GenerateKey (GenerateKeyRequest) returns (GenerateKeyResponse);
+  rpc GetKeyCharacteristics (GetKeyCharacteristicsRequest) returns (GetKeyCharacteristicsResponse);
+  rpc ImportKey (ImportKeyRequest) returns (ImportKeyResponse);
+  rpc ExportKey (ExportKeyRequest) returns (ExportKeyResponse);
+  rpc AttestKey (AttestKeyRequest) returns (AttestKeyResponse);
+  rpc UpgradeKey (UpgradeKeyRequest) returns (UpgradeKeyResponse);
+  rpc DeleteKey (DeleteKeyRequest) returns (DeleteKeyResponse);
+  rpc DeleteAllKeys (DeleteAllKeysRequest) returns (DeleteAllKeysResponse);
+  rpc DestroyAttestationIds (DestroyAttestationIdsRequest) returns (DestroyAttestationIdsResponse);
+  rpc BeginOperation (BeginOperationRequest) returns (BeginOperationResponse);
+  rpc UpdateOperation (UpdateOperationRequest) returns (UpdateOperationResponse);
+  rpc FinishOperation (FinishOperationRequest) returns (FinishOperationResponse);
+  rpc AbortOperation (AbortOperationRequest) returns (AbortOperationResponse);
 
-	/*
-	 * KM4 methods.
-	 */
-	rpc ImportWrappedKey (ImportWrappedKeyRequest) returns (ImportWrappedKeyResponse);
+  /*
+   * KM4 methods.
+   */
+  rpc ImportWrappedKey (ImportWrappedKeyRequest) returns (ImportWrappedKeyResponse);
 
-	/*
-	 * Vendor specific methods (manufacturing, status, factory reset, upgrade).
-	 */
+  /*
+   * Vendor specific methods (manufacturing, status, factory reset, upgrade).
+   */
 }
 
 /*
@@ -69,50 +69,50 @@ service Keymaster {
  *     ::android::hardware::keymaster::V3_0
  */
 enum KeyPurpose {
-	KM_PURPOSE_ENCRYPT = 0;     /* Usable with RSA, EC and AES keys. */
-	KM_PURPOSE_DECRYPT = 1;     /* Usable with RSA, EC and AES keys. */
-	KM_PURPOSE_SIGN = 2;        /* Usable with RSA, EC and HMAC keys. */
-	KM_PURPOSE_VERIFY = 3;      /* Usable with RSA, EC and HMAC keys. */
-	KM_PURPOSE_DERIVE_KEY = 4;  /* Usable with EC keys. */
+  KM_PURPOSE_ENCRYPT = 0;     /* Usable with RSA, EC and AES keys. */
+  KM_PURPOSE_DECRYPT = 1;     /* Usable with RSA, EC and AES keys. */
+  KM_PURPOSE_SIGN = 2;        /* Usable with RSA, EC and HMAC keys. */
+  KM_PURPOSE_VERIFY = 3;      /* Usable with RSA, EC and HMAC keys. */
+  KM_PURPOSE_DERIVE_KEY = 4;  /* Usable with EC keys. */
 }
 
 enum KeyFormat {
-	KM_KEY_FORMAT_X509 = 0;   /* for public key export */
-	KM_KEY_FORMAT_PKCS8 = 1;  /* for asymmetric key pair import */
-	KM_KEY_FORMAT_RAW = 3;    /* for symmetric key import and export*/
+  KM_KEY_FORMAT_X509 = 0;   /* for public key export */
+  KM_KEY_FORMAT_PKCS8 = 1;  /* for asymmetric key pair import */
+  KM_KEY_FORMAT_RAW = 3;    /* for symmetric key import and export*/
 }
 
 message KeyParameter {
-	uint32 tag = 1; 	/* Possible values defined here
-				 * ::android::hardware::keymaster::V3_0::Tag
-				 */
-	uint32 integer = 2;
-	uint64 long_integer = 3;
-	bytes blob = 4;
+  uint32 tag = 1;   /* Possible values defined here
+         * ::android::hardware::keymaster::V3_0::Tag
+         */
+  uint32 integer = 2;
+  uint64 long_integer = 3;
+  bytes blob = 4;
 }
 
 message KeyParameters {
-	repeated KeyParameter params = 1;
+  repeated KeyParameter params = 1;
 }
 
 message KeyBlob {
-	bytes blob = 1;
+  bytes blob = 1;
 }
 
 message OperationHandle {
-	uint64 handle = 1;
+  uint64 handle = 1;
 }
 
 message Certificate {
-	bytes data = 1;
+  bytes data = 1;
 }
 
 message CertificateChain {
-	repeated Certificate certificates = 1;
+  repeated Certificate certificates = 1;
 }
 
 message KeyCharacteristics {
-	KeyParameters tee_enforced = 1;
+  KeyParameters tee_enforced = 1;
 }
 
 /*
@@ -121,158 +121,158 @@ message KeyCharacteristics {
 
 // AddEntropy
 message AddRngEntropyRequest {
-	bytes data = 1;
+  bytes data = 1;
 }
 message AddRngEntropyResponse {
-	// TODO: replace with ErrorCode enum
-	uint32 error_code = 1;
+  // TODO: replace with ErrorCode enum
+  uint32 error_code = 1;
 }
 
 // GenerateKey
 message GenerateKeyRequest {
-	KeyParameters params = 1;
+  KeyParameters params = 1;
 }
 message GenerateKeyResponse {
-	uint32 error_code = 1;
-	KeyBlob blob = 2;
-	KeyCharacteristics characteristics = 3;
+  uint32 error_code = 1;
+  KeyBlob blob = 2;
+  KeyCharacteristics characteristics = 3;
 }
 
 // GetKeyCharacteristics
 message GetKeyCharacteristicsRequest {
-	KeyBlob blob = 1;
-	bytes client_id = 2;
-	bytes app_data = 3;
+  KeyBlob blob = 1;
+  bytes client_id = 2;
+  bytes app_data = 3;
 }
 message GetKeyCharacteristicsResponse {
-	uint32 error_code = 1;
-	KeyCharacteristics characteristics = 2;
+  uint32 error_code = 1;
+  KeyCharacteristics characteristics = 2;
 }
 
 // ImportKey
 message ImportKeyRequest {
-	KeyParameters params = 1;
-	RSAKey rsa = 2;
-	ECKey ec = 3;
-	SymmetricKey symmetric_key = 4;
+  KeyParameters params = 1;
+  RSAKey rsa = 2;
+  ECKey ec = 3;
+  SymmetricKey symmetric_key = 4;
 };
 message ImportKeyResponse {
-	// TODO: include an ErrorCode field
-	uint32 error_code = 1;
-	KeyBlob blob = 2;
-	KeyCharacteristics characteristics = 3;
+  // TODO: include an ErrorCode field
+  uint32 error_code = 1;
+  KeyBlob blob = 2;
+  KeyCharacteristics characteristics = 3;
 };
 
 // ExportKey
 message ExportKeyRequest {
-	KeyFormat format = 1;
-	KeyBlob blob = 2;
-	bytes client_id = 3;
-	bytes app_data = 4;
+  KeyFormat format = 1;
+  KeyBlob blob = 2;
+  bytes client_id = 3;
+  bytes app_data = 4;
 };
 message ExportKeyResponse {
-	uint32 error_code = 1;
-	bytes key_material = 2;
+  uint32 error_code = 1;
+  bytes key_material = 2;
 };
 
 // AttestKey
 message AttestKeyRequest {
-	KeyBlob blob = 1;
-	KeyParameters params = 2;
+  KeyBlob blob = 1;
+  KeyParameters params = 2;
 }
 message AttestKeyResponse {
-	uint32 error_code = 1;
-	CertificateChain chain = 2;
+  uint32 error_code = 1;
+  CertificateChain chain = 2;
 }
 
 // UpgradeKey
 message UpgradeKeyRequest {
-	KeyBlob blob = 1;
-	KeyParameters params = 2;
+  KeyBlob blob = 1;
+  KeyParameters params = 2;
 }
 message UpgradeKeyResponse {
-	uint32 error_code = 1;
-	KeyBlob blob = 2;
+  uint32 error_code = 1;
+  KeyBlob blob = 2;
 }
 
 // DeleteKey
 message DeleteKeyRequest {
-	KeyBlob blob = 1;
+  KeyBlob blob = 1;
 }
 message DeleteKeyResponse {
-	uint32 error_code = 1;
+  uint32 error_code = 1;
 }
 
 // DeleteAllKeys
 message DeleteAllKeysRequest {}
 message DeleteAllKeysResponse {
-	uint32 error_code = 1;
+  uint32 error_code = 1;
 }
 
 // DestroyAttestationIds
 message DestroyAttestationIdsRequest {}
 message DestroyAttestationIdsResponse {
-	uint32 error_code = 1;
+  uint32 error_code = 1;
 }
 
 // BeginOperation
 message BeginOperationRequest {
-	KeyPurpose purpose = 1;
-	KeyBlob blob = 2;
-	KeyParameters params = 3;
+  KeyPurpose purpose = 1;
+  KeyBlob blob = 2;
+  KeyParameters params = 3;
 }
 message BeginOperationResponse {
-	uint32 error_code = 1;
-	KeyParameters params = 2;
-	OperationHandle handle = 3;
+  uint32 error_code = 1;
+  KeyParameters params = 2;
+  OperationHandle handle = 3;
 }
 
 // UpdateOperation
 message UpdateOperationRequest {
-	OperationHandle handle = 1;
-	KeyParameters params = 2;
-	bytes input = 3;
+  OperationHandle handle = 1;
+  KeyParameters params = 2;
+  bytes input = 3;
 }
 message UpdateOperationResponse {
-	uint32 error_code = 1;
-	uint32 consumed = 2;
-	KeyParameters params = 3;
-	bytes output = 4;
+  uint32 error_code = 1;
+  uint32 consumed = 2;
+  KeyParameters params = 3;
+  bytes output = 4;
 }
 
 // FinishOperation
 message FinishOperationRequest {
-	OperationHandle handle = 1;
-	KeyParameters params = 2;
-	bytes input = 3;
-	bytes signature = 4;
+  OperationHandle handle = 1;
+  KeyParameters params = 2;
+  bytes input = 3;
+  bytes signature = 4;
 };
 message FinishOperationResponse {
-	uint32 error_code = 1;
-	KeyParameters params = 2;
-	bytes output = 3;
+  uint32 error_code = 1;
+  KeyParameters params = 2;
+  bytes output = 3;
 };
 
 // AbortOperation
 message AbortOperationRequest {
-	OperationHandle handle = 1;
+  OperationHandle handle = 1;
 };
 message AbortOperationResponse {
-	uint32 error_code = 1;
+  uint32 error_code = 1;
 };
 
 /*
  * KM4 messages.
  */
 message ImportWrappedKeyRequest {
-	KeyBlob wrapping_key_blob = 1;
-	bytes wrapped_key = 2;
+  KeyBlob wrapping_key_blob = 1;
+  bytes wrapped_key = 2;
 }
 
 message ImportWrappedKeyResponse {
-	uint32 error_code = 1;
-	KeyBlob blob = 2;
-	KeyCharacteristics characteristics = 3;
+  uint32 error_code = 1;
+  KeyBlob blob = 2;
+  KeyCharacteristics characteristics = 3;
 }
 
 
@@ -280,19 +280,19 @@ message ImportWrappedKeyResponse {
  * Internal types.
  */
 message RSAKey {
-	uint32 e = 1;
-	bytes d = 2;
-	bytes n = 3;
+  uint32 e = 1;
+  bytes d = 2;
+  bytes n = 3;
 }
 
 message ECKey {
-	uint32 curve_id = 1;
-	bytes d = 2;
-	bytes x = 3;
-	bytes y = 4;
+  uint32 curve_id = 1;
+  bytes d = 2;
+  bytes x = 3;
+  bytes y = 4;
 }
 
 message SymmetricKey {
-	uint32 algorithm = 1;
-	bytes material = 2;
+  uint32 algorithm = 1;
+  bytes material = 2;
 }

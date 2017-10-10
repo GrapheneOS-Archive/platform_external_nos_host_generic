@@ -21,9 +21,9 @@ package nugget.protobuf;
 import "google/protobuf/descriptor.proto";
 
 extend google.protobuf.ServiceOptions {
-	optional string app_id = 2000;
-	optional string app_name = 2001;
-	optional uint32 app_version = 2002;
-	optional uint32 request_buffer_size = 2003;
-	optional uint32 response_buffer_size = 2004;
+  optional string app_id = 2000;
+  optional string app_name = 2001;
+  optional uint32 app_version = 2002;
+  optional uint32 request_buffer_size = 2003;
+  optional uint32 response_buffer_size = 2004;
 }

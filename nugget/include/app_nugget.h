@@ -36,8 +36,8 @@ extern "C" {
 
 /* App-specific errors */
 enum {
-	NUGGET_ERROR_LOCKED = APP_SPECIFIC_ERROR,
-	NUGGET_ERROR_RETRY,
+  NUGGET_ERROR_LOCKED = APP_SPECIFIC_ERROR,
+  NUGGET_ERROR_RETRY,
 };
 
 /****************************************************************************/
@@ -59,9 +59,9 @@ enum {
 /* Firmware upgrade stuff */
 
 struct nugget_app_flash_block {
-	uint32_t block_digest;	    /* first 4 bytes of sha1 of the rest */
-	uint32_t offset;	    /* from start of flash */
-	uint8_t payload[CHIP_FLASH_BANK_SIZE];	/* data to write */
+  uint32_t block_digest;                 /* first 4 bytes of sha1 of the rest */
+  uint32_t offset;                       /* from start of flash */
+  uint8_t payload[CHIP_FLASH_BANK_SIZE]; /* data to write */
 } __packed;
 
 #define NUGGET_PARAM_FLASH_BLOCK 0x0001
@@ -131,8 +131,8 @@ struct nugget_app_flash_block {
  */
 
 struct nugget_app_write32 {
-	uint32_t address;
-	uint32_t value;
+  uint32_t address;
+  uint32_t value;
 } __packed;
 
 #define NUGGET_PARAM_WRITE32 0xF001
@@ -152,4 +152,4 @@ struct nugget_app_write32 {
 }
 #endif
 
-#endif	/* __CROS_EC_INCLUDE_APP_NUGGET_H */
+#endif  /* __CROS_EC_INCLUDE_APP_NUGGET_H */

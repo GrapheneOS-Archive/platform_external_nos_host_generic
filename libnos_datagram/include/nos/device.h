@@ -27,31 +27,31 @@ extern "C" {
 #define MAX_DEVICE_TRANSFER 2044
 
 struct nos_device_ops {
-	/**
-	 * Read a datagram from the device.
-	 *
-	 * Return 0 on success and a negative value on failure.
-	 */
-	int (*read)(void* ctx, uint32_t command, uint8_t *buf, uint32_t len);
+  /**
+   * Read a datagram from the device.
+   *
+   * Return 0 on success and a negative value on failure.
+   */
+  int (*read)(void* ctx, uint32_t command, uint8_t *buf, uint32_t len);
 
-	/**
-	 * Write a datagram to the device.
-	 *
-	 * Return 0 on success and a negative value on failure.
-	 */
-	int (*write)(void *ctx, uint32_t command, const uint8_t *buf, uint32_t len);
+  /**
+   * Write a datagram to the device.
+   *
+   * Return 0 on success and a negative value on failure.
+   */
+  int (*write)(void *ctx, uint32_t command, const uint8_t *buf, uint32_t len);
 
-	/**
-	 * Close the connection to the device.
-	 *
-	 * The device must not be used after closing.
-	 */
-	void (*close)(void *ctx);
+  /**
+   * Close the connection to the device.
+   *
+   * The device must not be used after closing.
+   */
+  void (*close)(void *ctx);
 };
 
 struct nos_device {
-	void *ctx;
-	struct nos_device_ops ops;
+  void *ctx;
+  struct nos_device_ops ops;
 };
 
 /*

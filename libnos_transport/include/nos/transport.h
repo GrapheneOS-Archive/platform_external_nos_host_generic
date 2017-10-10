@@ -26,9 +26,9 @@ extern "C" {
 
 /* Blocking call using Nugget OS' Transport API */
 uint32_t nos_call_application(const struct nos_device *dev,
-			      uint8_t app_id, uint16_t params,
-			      const uint8_t *args, uint32_t arg_len,
-			      uint8_t *reply, uint32_t *reply_len);
+                              uint8_t app_id, uint16_t params,
+                              const uint8_t *args, uint32_t arg_len,
+                              uint8_t *reply, uint32_t *reply_len);
 
 #ifdef __cplusplus
 }

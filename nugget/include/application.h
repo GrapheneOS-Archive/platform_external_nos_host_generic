@@ -61,8 +61,8 @@ typedef const void * const __private;
 /* Application IDs */
 
 /* These two App IDs shouldn't be changed or used for other purposes */
-#define APP_ID_NUGGET            0x00		/* because we're selfish */
-#define APP_ID_TPM_REGISTER_API  0xD4  		/* mandated by the TCG */
+#define APP_ID_NUGGET            0x00    /* because we're selfish */
+#define APP_ID_TPM_REGISTER_API  0xD4    /* mandated by the TCG */
 /*
  * Other App IDs are defined here. It will help avoid confusion if you use only
  * the values from here and don't change them once they're set. But it's up to
@@ -88,7 +88,7 @@ typedef const void * const __private;
  */
 
 /* Control flag bits */
-#define CMD_IS_READ       0x80000000		/* 1=Read, 0=Write */
+#define CMD_IS_READ       0x80000000    /* 1=Read, 0=Write */
 /* All other control flags bits are reserved */
 
 /* Extracting fields from a command */
@@ -114,9 +114,9 @@ typedef const void * const __private;
  * The last arg is for internal use. Just ignore it.
  */
 typedef uint32_t (read_from_app_fn_t)(uint32_t command,
-				      uint8_t *tx_buffer,
-				      uint32_t max_tx_bytes,
-				      __private priv);
+                                      uint8_t *tx_buffer,
+                                      uint32_t max_tx_bytes,
+                                      __private priv);
 
 /*
  * Functions of this type are invoked when the Master has sent bytes to the
@@ -133,9 +133,9 @@ typedef uint32_t (read_from_app_fn_t)(uint32_t command,
  * The last arg is for internal use. Just ignore it.
  */
 typedef void (write_to_app_fn_t)(uint32_t command,
-				 const uint8_t *rx_buffer,
-				 uint32_t num_rx_bytes,
-				 __private priv);
+                                 const uint8_t *rx_buffer,
+                                 uint32_t num_rx_bytes,
+                                 __private priv);
 
 /*
  * For apps that run asynchronously with little oversight, occasional
@@ -167,11 +167,11 @@ typedef void (write_to_app_fn_t)(uint32_t command,
  * @param  To_fn     A pointer to the app's write_to_app_fn_t handler
  */
 #define DECLARE_APPLICATION_DATAGRAM(Id, Name, Version, From_fn, To_fn) \
-	const struct app_info __keep CONCAT2(app_, Id)			\
-		__attribute__((section(".rodata.app_info")))		\
-		= { .api = { .id = Id,					\
-			     .from_fn = From_fn, .to_fn = To_fn},	\
-		    .version = Version, .name = Name }
+    const struct app_info __keep CONCAT2(app_, Id)                      \
+      __attribute__((section(".rodata.app_info")))                      \
+      = { .api = { .id = Id,                                            \
+             .from_fn = From_fn, .to_fn = To_fn},                       \
+          .version = Version, .name = Name }
 
 /****************************************************************************/
 /* Transport API */
@@ -202,12 +202,12 @@ typedef void (write_to_app_fn_t)(uint32_t command,
  */
 
 struct app_transport {
-	uint32_t command;		       /* from master */
-	volatile uint32_t status;	       /* current application status */
-	uint8_t *request, *response;	       /* input/output data buffer */
-	uint16_t max_request_len, max_response_len; /* data buffer sizes */
-	uint16_t request_len, response_len;	    /* current buffer count */
-	uint16_t request_idx, response_idx;	    /* used internally */
+  uint32_t command;                           /* from master */
+  volatile uint32_t status;                   /* current application status */
+  uint8_t *request, *response;                /* input/output data buffer */
+  uint16_t max_request_len, max_response_len; /* data buffer sizes */
+  uint16_t request_len, response_len;         /* current buffer count */
+  uint16_t request_idx, response_idx;         /* used internally */
 };
 
 /*
@@ -224,24 +224,24 @@ void app_reply(struct app_transport *st, uint32_t status, uint16_t reply_len);
 
 /* Application status codes are uint32_t, but an enum is easier to read. */
 enum app_status {
-	/* A few values are common to all applications */
-	APP_SUCCESS = 0,
-	APP_ERROR_BOGUS_ARGS,			/* caller being stupid */
-	APP_ERROR_INTERNAL,			/* application being stupid */
-	APP_ERROR_TOO_MUCH,			/* caller sent too much data */
-	APP_ERROR_RPC,				/* problem during RPC communication */
-	/* more? */
+  /* A few values are common to all applications */
+  APP_SUCCESS = 0,
+  APP_ERROR_BOGUS_ARGS,      /* caller being stupid */
+  APP_ERROR_INTERNAL,        /* application being stupid */
+  APP_ERROR_TOO_MUCH,        /* caller sent too much data */
+  APP_ERROR_RPC,             /* problem during RPC communication */
+  /* more? */
 
-	APP_SPECIFIC_ERROR = 0x20,	   /* "should be enough for anybody" */
-	/* App-specific error codes can use APP_SPECIFIC_ERROR+0, +1, +2, ... */
+  APP_SPECIFIC_ERROR = 0x20, /* "should be enough for anybody" */
+  /* App-specific error codes can use APP_SPECIFIC_ERROR+0, +1, +2, ... */
 
 
-	/* For debugging, returning a line number might be helpful */
-	APP_LINE_NUMBER_BASE = 0x70000000,
+  /* For debugging, returning a line number might be helpful */
+  APP_LINE_NUMBER_BASE = 0x70000000,
 #define APP_ERROR_LINENO (APP_LINE_NUMBER_BASE + __LINE__)
 
-	/* Bit 31 is reserved for internal use */
-	MAX_APP_STATUS = 0x7fffffff,
+  /* Bit 31 is reserved for internal use */
+  MAX_APP_STATUS = 0x7fffffff,
 };
 
 /**
@@ -257,38 +257,38 @@ enum app_status {
  * @param  State     A pointer to the app's struct app_transport
  * @param  To_fn     A pointer to the app's write_to_app_fn_t handler
  */
-#define DECLARE_APPLICATION_TRANSPORT(Id, Name, Version, State, To_fn)	\
-	const struct app_info __keep CONCAT2(app_, Id)			\
-		__attribute__((section(".rodata.app_info")))		\
-		= { .api = { .id = Id,					\
-			     .from_fn = transaction_api_from_fn,	\
-			     .to_fn = transaction_api_to_fn,		\
-			     .data = &(const struct datagram_api)	\
-			     { .id = Id, .to_fn = To_fn,		\
-			       .data = State } },			\
-		    .version = Version, .name = Name }
+#define DECLARE_APPLICATION_TRANSPORT(Id, Name, Version, State, To_fn)  \
+    const struct app_info __keep CONCAT2(app_, Id)                      \
+      __attribute__((section(".rodata.app_info")))                      \
+      = { .api = { .id = Id,                                            \
+             .from_fn = transaction_api_from_fn,                        \
+             .to_fn = transaction_api_to_fn,                            \
+             .data = &(const struct datagram_api)                       \
+             { .id = Id, .to_fn = To_fn,                                \
+               .data = State } },                                       \
+          .version = Version, .name = Name }
 
 /****************************************************************************/
 /* Pay no attention to that man behind the curtain */
 
 /* We'll allow 31 bits of application status. We need one bit for transport. */
-#define APP_STATUS_IDLE     0x00000000		/* waiting for instructions */
-#define APP_STATUS_DONE     0x80000000		/* finished, reply is ready */
+#define APP_STATUS_IDLE     0x00000000    /* waiting for instructions */
+#define APP_STATUS_DONE     0x80000000    /* finished, reply is ready */
 #define APP_STATUS_CODE(res) ((res) & 0x7fffffff) /* actual status */
 
 /* Datagram API needs this info */
 struct datagram_api {
-	uint8_t id;
-	read_from_app_fn_t * const from_fn;
-	write_to_app_fn_t * const to_fn;
-	const void * const data;
+  uint8_t id;
+  read_from_app_fn_t * const from_fn;
+  write_to_app_fn_t * const to_fn;
+  const void * const data;
 };
 
 /* Here's the struct that keeps track of registered applications */
 struct app_info {
-	struct datagram_api api;
-	uint32_t version;
-	const char * const name;
+  struct datagram_api api;
+  uint32_t version;
+  const char * const name;
 };
 
 /* These handle the Transport API */
@@ -296,12 +296,12 @@ extern read_from_app_fn_t transaction_api_from_fn;
 extern write_to_app_fn_t transaction_api_to_fn;
 
 /* Command flags used internally by Transport API messages */
-#define CMD_TRANSPORT       0x40000000          /* 1=Transport API message */
-#define CMD_IS_DATA         0x20000000		/* 1=data msg 0=status msg */
-#define CMD_MORE_TO_COME    0x10000000		/* 1=continued 0=new */
+#define CMD_TRANSPORT       0x40000000    /* 1=Transport API message */
+#define CMD_IS_DATA         0x20000000    /* 1=data msg 0=status msg */
+#define CMD_MORE_TO_COME    0x10000000    /* 1=continued 0=new */
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif	/* __CROS_EC_INCLUDE_APPLICATION_H */
+#endif  /* __CROS_EC_INCLUDE_APPLICATION_H */
