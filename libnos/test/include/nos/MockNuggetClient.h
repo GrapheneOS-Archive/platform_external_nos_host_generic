@@ -22,11 +22,11 @@
 
 #include <gmock/gmock.h>
 
-#include <nos/NuggetClient.h>
+#include <nos/NuggetClientInterface.h>
 
 namespace nos {
 
-struct MockNuggetClient : public NuggetClient {
+struct MockNuggetClient : public NuggetClientInterface {
     MOCK_METHOD0(Open, void());
     MOCK_METHOD0(Close, void());
     MOCK_CONST_METHOD0(IsOpen, bool());

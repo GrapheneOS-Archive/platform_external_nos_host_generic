@@ -17,5 +17,7 @@
 cc_test_library {
     name: "libnos_mock",
     defaults: ["nos_shared_cc_defaults"],
+    header_libs: ["libnos_headers"],
     export_include_dirs: ["include"],
+    export_header_lib_headers: ["libnos_headers"],
 }

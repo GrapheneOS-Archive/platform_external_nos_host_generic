@@ -15,17 +15,38 @@
 //
 
 subdirs = [
-    "citadel",
     "generator",
     "test",
 ]
 
+cc_library_headers {
+    name: "libnos_headers",
+    defaults: ["nos_shared_cc_defaults"],
+    header_libs: ["libnos_datagram_headers"],
+    export_include_dirs: ["include"],
+    export_header_lib_headers: ["libnos_datagram_headers"],
+}
+
 cc_library {
     name: "libnos",
     srcs: [
+        "debug.cpp",
         "NuggetClient.cpp",
     ],
-    header_libs: ["nos_headers"],
     defaults: ["nos_shared_cc_defaults"],
-    export_include_dirs: ["include"],
+    header_libs: [
+        "nos_headers",
+        "libnos_headers",
+    ],
+    shared_libs: [
+        "libnos_datagram",
+        "libnos_transport",
+
+        // TODO: find a way to let each platform link in a datagram different
+        // datagram implementation to resolce the `nos_device_open()`
+        // dependency from NuggetClient
+        "libnos_datagram_citadel",
+    ],
+    export_header_lib_headers: ["libnos_headers"],
+    export_shared_lib_headers: ["libnos_datagram"],
 }

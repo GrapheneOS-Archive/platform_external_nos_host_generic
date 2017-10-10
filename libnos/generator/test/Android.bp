@@ -60,7 +60,6 @@ cc_test_host {
     header_libs: ["nos_headers"],
     static_libs: [
         "libgmock",
-        "libnos",
         "libnos_mock",
         "nos_proto_options"
     ],

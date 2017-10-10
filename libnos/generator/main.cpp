@@ -161,7 +161,7 @@ void GenerateClientHeader(Printer& printer, const ServiceDescriptor& service) {
 
 #include <application.h>
 #include <nos/AppClient.h>
-#include <nos/NuggetClient.h>
+#include <nos/NuggetClientInterface.h>
 
 #include "$protobuf_header$")");
 
@@ -186,7 +186,7 @@ public:
 class $class$ : public $iface_class$ {
     ::nos::AppClient _app;
 public:
-    $class$(::nos::NuggetClient& client) : _app{client, $app_id$} {}
+    $class$(::nos::NuggetClientInterface& client) : _app{client, $app_id$} {}
     ~$class$() override = default;)");
 
     ForEachMethod(service, [&](std::map<std::string, std::string> methodVars) {

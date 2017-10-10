@@ -14,49 +14,52 @@
  * limitations under the License.
  */
 
-#ifndef NOS_APP_CLIENT_H
-#define NOS_APP_CLIENT_H
+#ifndef NOS_NUGGET_CLIENT_INTERFACE_H
+#define NOS_NUGGET_CLIENT_INTERFACE_H
 
 #include <cstdint>
 #include <vector>
 
-#include <nos/NuggetClientInterface.h>
-
 namespace nos {
 
 /**
- * Client to communicate with an app running on Nugget.
+ * Interface for communication with a Nugget device.
  */
-class AppClient {
+class NuggetClientInterface {
 public:
-    /**
-     * Create a client for an app with the given ID that communicates with
-     * Nugget through the given NuggetClient.
-     *
-     * @param client Client for Nugget.
-     * @param appId  ID of the target app.
-     */
-    AppClient(NuggetClientInterface& client, uint32_t appId)
-            : _client(client), _appId(appId) {}
+    virtual ~NuggetClientInterface() = default;
 
     /**
-     * Call the app.
+     * Opens a connection to the default Nugget device.
      *
+     * If this fails, isOpen() will return false.
+     */
+    virtual void Open() = 0;
+
+    /**
+     * Closes the connection to Nugget.
+     */
+    virtual void Close() = 0;
+
+    /**
+     * Checked whether a connection is open to Nugget.
+     */
+    virtual bool IsOpen() const = 0;
+
+    /**
+     * Call into and app running on Nugget.
+     *
+     * @param app_id   The ID of the app to call.
      * @param arg      Argument to pass to the app.
      * @param request  Data to send to the app.
      * @param response Buffer to receive data from the app.
+     * @return         Status code from the app.
      */
-    uint32_t Call(uint16_t arg, const std::vector<uint8_t>& request,
-                  std::vector<uint8_t>* response) {
-        return _client.CallApp(_appId, arg, request, response);
-    }
-
-
-private:
-    NuggetClientInterface& _client;
-    uint32_t _appId;
+    virtual uint32_t CallApp(uint32_t appId, uint16_t arg,
+                             const std::vector<uint8_t>& request,
+                             std::vector<uint8_t>* response) = 0;
 };
 
 } // namespace nos
 
-#endif // NOS_APP_CLIENT_H
+#endif // NOS_NUGGET_CLIENT_INTERFACE_H

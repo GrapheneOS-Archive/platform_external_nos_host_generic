@@ -21,34 +21,46 @@
 #include <string>
 #include <vector>
 
+#include <nos/device.h>
+#include <nos/NuggetClientInterface.h>
+
 namespace nos {
 
 /**
- * Abstract client to communicate with Nugget via the transport API.
- *
- * This allows different drivers to implement the interface and tests to mock
- * it.
+ * Client to communicate with a Nugget device via the transport API.
  */
-class NuggetClient {
+class NuggetClient : public NuggetClientInterface {
 public:
-    virtual ~NuggetClient() = default;
+    /**
+     * Create a client for the default Nugget device.
+     */
+    NuggetClient();
 
     /**
-     * Opens a connection to Nugget.
+     * Create a client for the named Nugget device.
+     *
+     * Passing an empty device name causes the default device to be selected.
+     */
+    NuggetClient(const std::string& device_name);
+
+    ~NuggetClient() override;
+
+    /**
+     * Opens a connection to the default Nugget device.
      *
      * If this fails, isOpen() will return false.
      */
-    virtual void Open() = 0;
+    void Open() override;
 
     /**
      * Closes the connection to Nugget.
      */
-    virtual void Close() = 0;
+    void Close() override;
 
     /**
      * Checked whether a connection is open to Nugget.
      */
-    virtual bool IsOpen() const = 0;
+    bool IsOpen() const override;
 
     /**
      * Call into and app running on Nugget.
@@ -59,16 +71,29 @@ public:
      * @param response Buffer to receive data from the app.
      * @return         Status code from the app.
      */
-    virtual uint32_t CallApp(uint32_t appId, uint16_t arg,
-                             const std::vector<uint8_t>& request,
-                             std::vector<uint8_t>* response) = 0;
+    uint32_t CallApp(uint32_t appId, uint16_t arg,
+                     const std::vector<uint8_t>& request,
+                     std::vector<uint8_t>* response) override;
 
     /**
-     * Convert the return value of @CallApp() to a human readable string.
-     * @param code The return value of @CallApp().
-     * @return A string which represents the meaning of @code.
+     * Access the underlying device.
+     *
+     * NULL is returned if the connection to the device is not open.
+     *
+     * This can be used by subclasses or to use to use the C API directly.
      */
-    static std::string StatusCodeString(uint32_t code);
+    nos_device* Device();
+    const nos_device* Device() const;
+
+    /**
+     * Access the name of the device this is a client for.
+     */
+    const std::string& DeviceName() const;
+
+private:
+    std::string device_name_;
+    nos_device device_;
+    bool open_;
 };
 
 } // namespace nos
