@@ -19,34 +19,42 @@ subdirs = [
     "test",
 ]
 
-cc_library_headers {
-    name: "libnos_headers",
-    defaults: ["nos_shared_cc_defaults"],
-    header_libs: ["libnos_datagram_headers"],
-    export_include_dirs: ["include"],
-    export_header_lib_headers: ["libnos_datagram_headers"],
-}
-
 cc_library {
     name: "libnos",
     srcs: [
         "debug.cpp",
-        "NuggetClient.cpp",
     ],
     defaults: ["nos_shared_cc_defaults"],
-    header_libs: [
-        "nos_headers",
-        "libnos_headers",
-    ],
-    shared_libs: [
-        "libnos_datagram",
-        "libnos_transport",
-
-        // TODO: find a way to let each platform link in a datagram different
-        // datagram implementation to resolce the `nos_device_open()`
-        // dependency from NuggetClient
-        "libnos_datagram_citadel",
-    ],
-    export_header_lib_headers: ["libnos_headers"],
+    header_libs: ["nos_headers"],
+    shared_libs: ["libnos_datagram"],
+    export_include_dirs: ["include"],
     export_shared_lib_headers: ["libnos_datagram"],
+}
+
+// This part of libnos must be linked with the target's implementation of
+// libnos_datagram. A library should be created for this such as:
+//
+// cc_library {
+//     name: "libnos_client_xxx",
+//     srcs: [":libnos_client"],
+//     defaults: ["libnos_client_defaults"],
+//     shared_libs: ["libnos_datagram_xxx"],
+// }
+//
+// Components that directly use `NuggetClient` must link against it. Other
+// components should be written against `NuggetClientInterface` and can simply
+// link against `libnos`.
+
+filegroup {
+    name: "libnos_client",
+    srcs: ["NuggetClient.cpp"],
+}
+
+cc_defaults {
+    name: "libnos_client_defaults",
+    header_libs: ["nos_headers"],
+    shared_libs: [
+        "libnos",
+        "libnos_transport",
+    ],
 }

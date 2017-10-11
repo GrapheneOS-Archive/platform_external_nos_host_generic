@@ -37,10 +37,8 @@ cc_defaults {
         "-Wno-extended-offsetof",
         "-Wno-unused-parameter",
     ],
-    header_libs: [
-        "nos_headers",
-        "libnos_headers",
-    ],
+    header_libs: ["nos_headers"],
+    shared_libs: ["libnos"]
 }
 
 cc_defaults {
