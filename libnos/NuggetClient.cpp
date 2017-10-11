@@ -58,7 +58,7 @@ uint32_t NuggetClient::CallApp(uint32_t appId, uint16_t arg,
                                const std::vector<uint8_t>& request,
                                std::vector<uint8_t>* response) {
   if (!open_) {
-    return APP_ERROR_RPC;
+    return APP_ERROR_IO;
   }
 
   if (request.size() > std::numeric_limits<uint32_t>::max()) {
