@@ -1,5 +1,7 @@
 syntax = "proto3";
 
+package nugget.app.protoapi;
+
 import "header.proto";
 import "gchips_types.proto";
 

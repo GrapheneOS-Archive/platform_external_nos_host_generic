@@ -1,5 +1,7 @@
 syntax = "proto3";
 
+package nugget.app.protoapi;
+
 message SOCinformation {
   string git_version = 1;
   string complier_version = 2;

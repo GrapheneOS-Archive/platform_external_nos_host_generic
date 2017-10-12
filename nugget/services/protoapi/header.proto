@@ -1,5 +1,7 @@
 syntax = "proto3";
 
+package nugget.app.protoapi;
+
 //  Magic number used to identify the message type
 enum APImessageID {
   AMID_RESERVED = 0;
