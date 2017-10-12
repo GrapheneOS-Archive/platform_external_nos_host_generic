@@ -229,6 +229,7 @@ enum app_status {
   APP_ERROR_BOGUS_ARGS,      /* caller being stupid */
   APP_ERROR_INTERNAL,        /* application being stupid */
   APP_ERROR_TOO_MUCH,        /* caller sent too much data */
+  APP_ERROR_IO,              /* problem sending or receiving data */
   APP_ERROR_RPC,             /* problem during RPC communication */
   /* more? */
 

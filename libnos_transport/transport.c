@@ -51,32 +51,33 @@
 
 #endif
 
-// TODO: report the failure out of here
-#define FAIL do                                   \
-  { NLOGE("FAIL at %s:%d\n", __FILE__, __LINE__); \
-    exit(1);                                      \
-  } while (0)
-
 /* status is non-zero on error */
-static void get_status(const struct nos_device *dev,
-                       uint8_t app_id, uint32_t *status, uint16_t *ulen)
+static int get_status(const struct nos_device *dev,
+                      uint8_t app_id, uint32_t *status, uint16_t *ulen)
 {
   uint8_t buf[6];
   uint32_t command = CMD_ID(app_id) | CMD_IS_READ | CMD_TRANSPORT;
 
-  if (0 != dev->ops.read(dev->ctx, command, buf, sizeof(buf)))
-    FAIL;
+  if (0 != dev->ops.read(dev->ctx, command, buf, sizeof(buf))) {
+    NLOGE("Failed to read device status");
+    return -1;
+  }
 
   *status = *(uint32_t *)buf;
   *ulen = *(uint16_t *)(buf + 4);
+  return 0;
 }
 
-static void clear_status(const struct nos_device *dev, uint8_t app_id)
+static int clear_status(const struct nos_device *dev, uint8_t app_id)
 {
   uint32_t command = CMD_ID(app_id) | CMD_TRANSPORT;
 
-  if (0 != dev->ops.write(dev->ctx, command, 0, 0))
-    FAIL;
+  if (0 != dev->ops.write(dev->ctx, command, 0, 0)) {
+    NLOGE("Failed to clear device status");
+    return -1;
+  }
+
+  return 0;
 }
 
 
@@ -92,7 +93,9 @@ uint32_t nos_call_application(const struct nos_device *dev,
   uint32_t poll_count = 0;
 
   /* Make sure it's idle */
-  get_status(dev, app_id, &status, &ulen);
+  if (get_status(dev, app_id, &status, &ulen) != 0) {
+    return APP_ERROR_IO;
+  }
   NLOGV("%d: query status 0x%08x  ulen 0x%04x", __LINE__, status, ulen);
 
   /* It's not idle, but we're the only ones telling it what to do, so it
@@ -101,16 +104,22 @@ uint32_t nos_call_application(const struct nos_device *dev,
 
     /* Try clearing the status */
     NLOGV("clearing previous status");
-    clear_status(dev, app_id);
+    if (clear_status(dev, app_id) != 0) {
+      return APP_ERROR_IO;
+    }
 
     /* Check again */
-    get_status(dev, app_id, &status, &ulen);
+    if (get_status(dev, app_id, &status, &ulen) != 0) {
+      return APP_ERROR_IO;
+    }
     NLOGV("%d: query status 0x%08x  ulen 0x%04x\n",__LINE__,
           status, ulen);
 
     /* It's ignoring us and is still not ready, so it's broken */
-    if (status != APP_STATUS_IDLE)
-      FAIL;
+    if (status != APP_STATUS_IDLE) {
+      NLOGE("Device is not responding");
+      return APP_ERROR_IO;
+    }
   }
 
   /* Send args data */
@@ -131,8 +140,10 @@ uint32_t nos_call_application(const struct nos_device *dev,
 
     NLOGV("Write command 0x%08x, bytes 0x%x\n", command, ulen);
 
-    if (0 != dev->ops.write(dev->ctx, command, buf, ulen))
-      FAIL;
+    if (0 != dev->ops.write(dev->ctx, command, buf, ulen)) {
+      NLOGE("Failed to send datagram to device");
+      return APP_ERROR_IO;
+    }
 
     /* Additional data needs the additional flag set */
     command |= CMD_MORE_TO_COME;
@@ -144,7 +155,9 @@ uint32_t nos_call_application(const struct nos_device *dev,
   } while (arg_len);
 
   /* See if we had any errors while sending the args */
-  get_status(dev, app_id, &status, &ulen);
+  if (get_status(dev, app_id, &status, &ulen) != 0) {
+    return APP_ERROR_IO;
+  }
   NLOGV("%d: query status 0x%08x  ulen 0x%04x\n", __LINE__, status, ulen);
   if (status & APP_STATUS_DONE)
     /* Yep, problems. It should still be idle. */
@@ -153,12 +166,16 @@ uint32_t nos_call_application(const struct nos_device *dev,
   /* Now tell the app to do whatever */
   command = CMD_ID(app_id) | CMD_PARAM(params);
   NLOGV("Write command 0x%08x\n", command);
-  if (0 != dev->ops.write(dev->ctx, command, 0, 0))
-    FAIL;
+  if (0 != dev->ops.write(dev->ctx, command, 0, 0)) {
+      NLOGE("Failed to send command datagram to device");
+      return APP_ERROR_IO;
+  }
 
   /* Poll the app status until it's done */
   do {
-    get_status(dev, app_id, &status, &ulen);
+    if (get_status(dev, app_id, &status, &ulen) != 0) {
+      return APP_ERROR_IO;
+    }
     NLOGD("%d:  poll status 0x%08x  ulen 0x%04x\n", __LINE__,
           status, ulen);
     poll_count++;
@@ -186,8 +203,10 @@ reply:
       gimme = MIN(left, MAX_DEVICE_TRANSFER);
       NLOGV("Read command 0x%08x, bytes 0x%x\n",
             command, gimme);
-      if (0 != dev->ops.read(dev->ctx, command, buf, gimme))
-        FAIL;
+      if (0 != dev->ops.read(dev->ctx, command, buf, gimme)) {
+        NLOGE("Failed to receive datagram from device");
+        return APP_ERROR_IO;
+      }
 
       memcpy(reply, buf, gimme);
       reply += gimme;
@@ -200,8 +219,10 @@ reply:
 
   /* Clear the reply manually for the next caller */
   command = CMD_ID(app_id) | CMD_TRANSPORT;
-  if (0 != dev->ops.write(dev->ctx, command, 0, 0))
-    FAIL;
+  if (0 != dev->ops.write(dev->ctx, command, 0, 0)) {
+    NLOGE("Failed to clear the reply");
+    return APP_ERROR_IO;
+  }
 
   return APP_STATUS_CODE(status);
 }
