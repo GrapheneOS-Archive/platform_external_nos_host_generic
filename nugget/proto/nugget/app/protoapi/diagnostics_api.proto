@@ -2,8 +2,7 @@ syntax = "proto3";
 
 package nugget.app.protoapi;
 
-import "header.proto";
-import "gchips_types.proto";
+import "nugget/app/protoapi/header.proto";
 
 
 enum DiagnosticAction {

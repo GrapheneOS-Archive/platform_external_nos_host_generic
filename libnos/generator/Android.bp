@@ -21,8 +21,10 @@ subdirs = [
 cc_binary_host {
     name: "protoc-gen-nos-client-cpp",
     srcs: ["main.cpp"],
-    defaults: ["nos_base_cc_defaults"],
-    cflags: ["-Wno-unused-parameter"],
-    static_libs: ["nos_proto_options"],
+    defaults: [
+        "nos_proto_defaults",
+        "nos_base_cc_defaults",
+    ],
+    static_libs: ["libnosprotos"],
     shared_libs: ["libprotoc"],
 }

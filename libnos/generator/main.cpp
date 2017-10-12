@@ -32,6 +32,7 @@ using ::google::protobuf::FileDescriptor;
 using ::google::protobuf::JoinStrings;
 using ::google::protobuf::MethodDescriptor;
 using ::google::protobuf::ServiceDescriptor;
+using ::google::protobuf::Split;
 using ::google::protobuf::SplitStringUsing;
 using ::google::protobuf::StripSuffixString;
 using ::google::protobuf::compiler::CodeGenerator;
@@ -59,7 +60,7 @@ std::string validateServiceOptions(const ServiceDescriptor& service) {
 }
 
 template <typename Descriptor>
-std::vector<std::string> Namespaces(const Descriptor& descriptor) {
+std::vector<std::string> Packages(const Descriptor& descriptor) {
     std::vector<std::string> namespaces;
     SplitStringUsing(descriptor.full_name(), ".", &namespaces);
     namespaces.pop_back(); // just take the package
@@ -68,7 +69,7 @@ std::vector<std::string> Namespaces(const Descriptor& descriptor) {
 
 template <typename Descriptor>
 std::string FullyQualifiedIdentifier(const Descriptor& descriptor) {
-    const auto namespaces = Namespaces(descriptor);
+    const auto namespaces = Packages(descriptor);
     if (namespaces.empty()) {
         return "::" + descriptor.name();
     } else {
@@ -79,8 +80,22 @@ std::string FullyQualifiedIdentifier(const Descriptor& descriptor) {
 }
 
 template <typename Descriptor>
+std::string FullyQualifiedHeader(const Descriptor& descriptor) {
+    const auto packages = Packages(descriptor);
+    const auto file = Split(descriptor.file()->name(), "/").back();
+    const auto header = StripSuffixString(file, ".proto") + ".pb.h";
+    if (packages.empty()) {
+        return header;
+    } else {
+        std::string package_path;
+        JoinStrings(packages, "/", &package_path);
+        return package_path + "/" + header;
+    }
+}
+
+template <typename Descriptor>
 void OpenNamespaces(Printer& printer, const Descriptor& descriptor) {
-    const auto namespaces = Namespaces(descriptor);
+    const auto namespaces = Packages(descriptor);
     for (const auto& ns : namespaces) {
         std::map<std::string, std::string> namespaceVars;
         namespaceVars["namespace"] = ns;
@@ -91,7 +106,7 @@ namespace $namespace$ {)");
 
 template <typename Descriptor>
 void CloseNamespaces(Printer& printer, const Descriptor& descriptor) {
-    const auto namespaces = Namespaces(descriptor);
+    const auto namespaces = Packages(descriptor);
     for (auto it = namespaces.crbegin(); it != namespaces.crend(); ++it) {
         std::map<std::string, std::string> namespaceVars;
         namespaceVars["namespace"] = *it;
@@ -150,7 +165,7 @@ struct $mock_class$ : public I$class$ {)");
 void GenerateClientHeader(Printer& printer, const ServiceDescriptor& service) {
     std::map<std::string, std::string> vars;
     vars["include_guard"] = "PROTOC_GENERATED_" + service.name() + "_CLIENT_H";
-    vars["protobuf_header"] = StripSuffixString(service.file()->name(), ".proto") + ".pb.h";
+    vars["protobuf_header"] = FullyQualifiedHeader(service);
     vars["class"] = service.name();
     vars["iface_class"] = "I" + service.name();
     vars["app_id"] = "APP_ID_" + service.options().GetExtension(app_id);

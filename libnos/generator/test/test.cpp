@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-#include <test.pb.h>
 #include <Hello.client.h>
 #include <MockHello.client.h>
 

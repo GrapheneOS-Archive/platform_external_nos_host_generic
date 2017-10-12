@@ -18,20 +18,21 @@ syntax = "proto3";
 
 package nugget.app.keymaster;
 
-/*
- * Minimal type definitions required for building protos.  Sourced from:
- *     ::android::hardware::keymaster::V3_0
- */
-enum KeyPurpose {
-  KM_PURPOSE_ENCRYPT = 0;     /* Usable with RSA, EC and AES keys. */
-  KM_PURPOSE_DECRYPT = 1;     /* Usable with RSA, EC and AES keys. */
-  KM_PURPOSE_SIGN = 2;        /* Usable with RSA, EC and HMAC keys. */
-  KM_PURPOSE_VERIFY = 3;      /* Usable with RSA, EC and HMAC keys. */
-  KM_PURPOSE_DERIVE_KEY = 4;  /* Usable with EC keys. */
-}
-
-enum KeyFormat {
-  KM_KEY_FORMAT_X509 = 0;   /* for public key export */
-  KM_KEY_FORMAT_PKCS8 = 1;  /* for asymmetric key pair import */
-  KM_KEY_FORMAT_RAW = 3;    /* for symmetric key import and export*/
-}
+// TODO: uncomment when importing from keymaster.proto
+// /*
+//  * Minimal type definitions required for building protos.  Sourced from:
+//  *     ::android::hardware::keymaster::V3_0
+//  */
+// enum KeyPurpose {
+//   KM_PURPOSE_ENCRYPT = 0;     /* Usable with RSA, EC and AES keys. */
+//   KM_PURPOSE_DECRYPT = 1;     /* Usable with RSA, EC and AES keys. */
+//   KM_PURPOSE_SIGN = 2;        /* Usable with RSA, EC and HMAC keys. */
+//   KM_PURPOSE_VERIFY = 3;      /* Usable with RSA, EC and HMAC keys. */
+//   KM_PURPOSE_DERIVE_KEY = 4;  /* Usable with EC keys. */
+// }
+//
+// enum KeyFormat {
+//   KM_KEY_FORMAT_X509 = 0;   /* for public key export */
+//   KM_KEY_FORMAT_PKCS8 = 1;  /* for asymmetric key pair import */
+//   KM_KEY_FORMAT_RAW = 3;    /* for symmetric key import and export*/
+// }

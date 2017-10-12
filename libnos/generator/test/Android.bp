@@ -17,7 +17,7 @@
 genrule {
     name: "nos_generator_test_service_genc++",
     out: ["Hello.client.cpp"],
-    srcs: ["test.proto"],
+    srcs: ["nos/generator/test/test.proto"],
     tools: ["aprotoc", "protoc-gen-nos-client-cpp"],
     cmd: GEN_SERVICE_SOURCE + "-Iexternal/libnos/libnos/generator/test",
 }
@@ -25,7 +25,7 @@ genrule {
 genrule {
     name: "nos_generator_test_service_genc++_headers",
     out: ["Hello.client.h"],
-    srcs: ["test.proto"],
+    srcs: ["nos/generator/test/test.proto"],
     tools: ["aprotoc", "protoc-gen-nos-client-cpp"],
     cmd: GEN_SERVICE_HEADER + "-Iexternal/libnos/libnos/generator/test",
 }
@@ -33,7 +33,7 @@ genrule {
 genrule {
     name: "nos_generator_test_service_genc++_mock",
     out: ["MockHello.client.h"],
-    srcs: ["test.proto"],
+    srcs: ["nos/generator/test/test.proto"],
     tools: ["aprotoc", "protoc-gen-nos-client-cpp"],
     cmd: GEN_SERVICE_MOCK + "-Iexternal/libnos/libnos/generator/test",
 }
@@ -47,12 +47,13 @@ cc_test_host {
     ],
     srcs: [
         "test.cpp",
-        "test.proto",
+        "nos/generator/test/test.proto",
     ],
-    cflags: ["-Wno-unused-parameter"],
+    defaults: ["libnosprotos_defaults"],
     proto: {
         type: "full",
         include_dirs: [
+            ".",
             "external/protobuf/src",
             "external/libnos/nugget/proto",
         ],
@@ -61,6 +62,6 @@ cc_test_host {
     static_libs: [
         "libgmock",
         "libnos_mock",
-        "nos_proto_options"
+        "libnosprotos",
     ],
 }
