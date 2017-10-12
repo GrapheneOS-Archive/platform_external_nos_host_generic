@@ -20,6 +20,9 @@ package nugget.app.weaver;
 
 import "nugget/protobuf/options.proto";
 
+// Weaver is the app used to implement Android's Weaver HAL.
+//
+// The documentation for the HAL applies to this implementation.
 service Weaver {
   option (nugget.protobuf.app_id) = "WEAVER";
   option (nugget.protobuf.app_name) = "Weaver";
@@ -27,9 +30,14 @@ service Weaver {
   option (nugget.protobuf.request_buffer_size) = 64;
   option (nugget.protobuf.response_buffer_size) = 64;
 
+  // RPCs for the Weaver HAL
   rpc GetConfig (GetConfigRequest) returns (GetConfigResponse);
   rpc Write (WriteRequest) returns (WriteResponse);
   rpc Read (ReadRequest) returns (ReadResponse);
+
+  // To support credential FRP, the key should remain to allow the credential to
+  // be verified but the secret value is not required so it is safest to zero it
+  // out so it doesn't leak.
   rpc EraseValue (EraseValueRequest) returns (EraseValueResponse);
 }
 
