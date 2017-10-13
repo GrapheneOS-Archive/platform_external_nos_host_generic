@@ -4,7 +4,6 @@ package nugget.app.protoapi;
 
 import "nugget/app/protoapi/header.proto";
 
-
 enum DiagnosticAction {
   DISABLE     = 0;
   ENABLE      = 1;

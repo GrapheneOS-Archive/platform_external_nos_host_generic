@@ -18,39 +18,35 @@ syntax = "proto3";
 
 package nugget.app.keymaster;
 
-// TODO: uncomment when importing from keymaster.proto
-// message KeyParameter {
-//   uint32 tag = 1;   /* Possible values defined here
-//                      * ::android::hardware::keymaster::V3_0::Tag
-//                      */
-//   bool boolean = 2;
-//   uint32 integer = 3;
-//   uint64 long_integer = 4;
-//   uint64 date_time = 5;
-//   bytes blob = 6;
-// }
-//
-// message KeyParameters {
-//   repeated KeyParameter params = 1;
-// }
-//
-// message KeyBlob {
-//   bytes blob = 1;
-// }
-//
-// message OperationHandle {
-//   bytes handle = 1;
-// }
-//
-// message Certificate {
-//   bytes data = 1;
-// }
-//
-// message CertificateChain {
-//   repeated Certificate certificates = 1;
-// }
-//
-// message KeyCharacteristics {
-//   KeyParameters software_forced = 1;
-//   KeyParameters tee_enforced = 2;
-// }
+message KeyParameter {
+  uint32 tag = 1;   /* Possible values defined here
+                     * ::android::hardware::keymaster::V3_0::Tag
+                     */
+  uint32 integer = 2;
+  uint64 long_integer = 3;
+  bytes blob = 4;
+}
+
+message KeyParameters {
+  repeated KeyParameter params = 1;
+}
+
+message KeyBlob {
+  bytes blob = 1;
+}
+
+message OperationHandle {
+  uint64 handle = 1;
+}
+
+message Certificate {
+  bytes data = 1;
+}
+
+message CertificateChain {
+  repeated Certificate certificates = 1;
+}
+
+message KeyCharacteristics {
+  KeyParameters tee_enforced = 1;
+}

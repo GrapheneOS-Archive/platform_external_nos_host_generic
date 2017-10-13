@@ -142,6 +142,8 @@ genrule(
     name = "keymaster_proto_client_cc_genrule",
     srcs = [
         "nugget/app/keymaster/keymaster.proto",
+        "nugget/app/keymaster/keymaster_defs.proto",
+        "nugget/app/keymaster/keymaster_types.proto",
         "nugget/protobuf/options.proto",
         "google/protobuf/descriptor.proto",
     ],
@@ -161,6 +163,8 @@ genrule(
     name = "keymaster_proto_client_h_genrule",
     srcs = [
         "nugget/app/keymaster/keymaster.proto",
+        "nugget/app/keymaster/keymaster_defs.proto",
+        "nugget/app/keymaster/keymaster_types.proto",
         "nugget/protobuf/options.proto",
         "google/protobuf/descriptor.proto",
     ],
@@ -191,6 +195,8 @@ proto_library(
     name = "nugget_app_keymaster_keymaster_proto",
     srcs = [
         "nugget/app/keymaster/keymaster.proto",
+        "nugget/app/keymaster/keymaster_defs.proto",
+        "nugget/app/keymaster/keymaster_types.proto",
     ],
     deps = [
         "nugget_protobuf_options_proto",
@@ -213,7 +219,6 @@ proto_library(
         "nugget/app/protoapi/diagnostics_api.proto",
     ],
     deps = [
-        "nugget_app_protoapi_gchips_types_proto",
         "nugget_app_protoapi_header_proto",
     ],
 )
