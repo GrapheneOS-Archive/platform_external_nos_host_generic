@@ -14,8 +14,6 @@
 // limitations under the License.
 //
 
-// Build files need to go in these directories in order for protoc to generate
-// files with the correct paths
 subdirs = [
     "libnos",
     "libnos_datagram",
