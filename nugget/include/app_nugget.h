@@ -16,7 +16,7 @@
 #ifndef __CROS_EC_INCLUDE_APP_NUGGET_H
 #define __CROS_EC_INCLUDE_APP_NUGGET_H
 #include "application.h"
-#include "config.h"
+#include "flash_layout.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -24,13 +24,7 @@ extern "C" {
 
 /****************************************************************************/
 /*
- * APP_ID_NUGGET uses the Transport API:
- *
- *   uint32_t call_application(uint8_t app_id, uint16_t app_param,
- *                             uint8_t *args, uint16_t arg_len,
- *                             uint8_t *reply, uint16_t *reply_len);
- *
- * Refer to application.h for details.
+ * APP_ID_NUGGET uses the Transport API
  */
 /****************************************************************************/
 
