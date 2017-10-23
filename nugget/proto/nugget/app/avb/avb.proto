@@ -37,7 +37,7 @@ service Avb {
   rpc Reset (ResetRequest) returns (ResetResponse);
 }
 
-enum LockName {
+enum LockIndex {
   CARRIER = 0;
   DEVICE = 1;
   BOOT = 2;
@@ -52,6 +52,7 @@ message GetStateResponse {
   bool bootloader = 2;
   bool production = 3;
   uint32 number_of_locks = 4;
+  bytes locks = 5;
 }
 
 // Load
@@ -71,7 +72,7 @@ message StoreResponse {}
 
 // GetLock
 message GetLockRequest {
-  LockName lock = 1;
+  LockIndex lock = 1;
 }
 message GetLockResponse {
   bool locked = 1;
@@ -92,7 +93,7 @@ message SetLockRequest {
     bytes device_data = 1; // TODO: does this have any structure
   }
 
-  LockName lock = 1;
+  LockIndex lock = 1;
   bool locked = 2;
   oneof metadata {
     CarrierUnlock carrier_unlock = 3;
