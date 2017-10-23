@@ -101,6 +101,44 @@ GEN_SERVICE = "$(location @com_google_protobuf//:protoc) --plugin=protoc-gen-nos
 PROTO_ROOT = "$$(dirname $$(dirname $$(dirname $(location nugget/protobuf/options.proto))))"
 
 genrule(
+    name = "avb_proto_client_cc_genrule",
+    srcs = [
+        "nugget/app/avb/avb.proto",
+        "nugget/protobuf/options.proto",
+        "google/protobuf/descriptor.proto",
+    ],
+    outs = [
+        "nugget/app/avb/Avb.client.cpp",
+    ],
+    cmd = GEN_SERVICE + " --proto_path=" + PROTO_ROOT +
+          " --nos-client-cpp_out=source:$$(dirname $(location nugget/app/avb/Avb.client.cpp)) " +
+          "$(location nugget/app/avb/avb.proto)",
+    tools = [
+        "@com_google_protobuf//:protoc",
+        "@nugget_host_generic_libnos_generator//:protoc_gen_nos_client_cpp",
+    ],
+)
+
+genrule(
+    name = "avb_proto_client_h_genrule",
+    srcs = [
+        "nugget/app/avb/avb.proto",
+        "nugget/protobuf/options.proto",
+        "google/protobuf/descriptor.proto",
+    ],
+    outs = [
+        "nugget/app/avb/Avb.client.cpp",
+    ],
+    cmd = GEN_SERVICE + " --proto_path=" + PROTO_ROOT +
+          " --nos-client-cpp_out=header:$$(dirname $(location nugget/app/weaver/Weaver.client.h)) " +
+          "$(location nugget/app/weaver/weaver.proto)",
+    tools = [
+        "@com_google_protobuf//:protoc",
+        "@nugget_host_generic_libnos_generator//:protoc_gen_nos_client_cpp",
+    ],
+)
+
+genrule(
     name = "weaver_proto_client_cc_genrule",
     srcs = [
         "nugget/app/weaver/weaver.proto",
@@ -188,6 +226,16 @@ proto_library(
     name = "google_protobuf_descriptor_proto",
     srcs = [
         "google/protobuf/descriptor.proto",
+    ],
+)
+
+proto_library(
+    name = "nugget_app_avb_avb_proto",
+    srcs = [
+        "nugget/app/keymaster/avb.proto",
+    ],
+    deps = [
+        "nugget_protobuf_options_proto",
     ],
 )
 
