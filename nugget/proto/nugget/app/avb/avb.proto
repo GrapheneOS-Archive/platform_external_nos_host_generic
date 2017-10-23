@@ -81,13 +81,13 @@ message GetLockResponse {
 // TODO: this might be better if split into separate RPCs as some locks have
 // different characteristics and specific metadata that could be encoded in this
 // protocol. Especially as each lock is handled as a separate case.
-message SetLockRequest {
-  message CarrierUnlock {
-    uint64 version = 1;
-    uint64 nonce = 2;
-    bytes signature = 3;
-  }
+message CarrierUnlock {
+  uint64 version = 1;
+  uint64 nonce = 2;
+  bytes signature = 3;
+}
 
+message SetLockRequest {
   message CarrierLock {
     bytes device_data = 1; // TODO: does this have any structure
   }
@@ -108,7 +108,13 @@ message SetProductionRequest {
 message SetProductionResponse {}
 
 // CarrierLockTest
-message CarrierLockTestRequest {}
+message CarrierLockTestRequest {
+  uint64 last_nonce = 1;
+  uint64 version = 2;
+  bytes device_data = 3;
+  CarrierUnlock token = 4;
+}
+
 message CarrierLockTestResponse {}
 
 // Reset
