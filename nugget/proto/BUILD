@@ -43,6 +43,14 @@ cc_proto_library(
 )
 
 cc_proto_library(
+    name = "nugget_app_avb_avb_cc_proto",
+    visibility = ["//visibility:public"],
+    deps = [
+        "nugget_app_avb_avb_proto",
+    ],
+)
+
+cc_proto_library(
     name = "nugget_protobuf_options_cc_proto",
     visibility = ["//visibility:public"],
     deps = [
@@ -92,6 +100,25 @@ cc_library(
     ],
 )
 
+cc_library(
+    name = "avb_client_proto",
+    srcs = [
+        "nugget/app/avb/Avb.client.cpp",
+    ],
+    hdrs = [
+        "nugget/app/avb/Avb.client.h",
+    ],
+    includes = [
+        "./nugget/app/avb/",
+    ],
+    visibility = ["//visibility:public"],
+    deps = [
+        "nugget_app_avb_avb_cc_proto",
+        "nugget_protobuf_options_cc_proto",
+        "@nugget_host_generic_libnos//:libnos",
+    ],
+)
+
 ################################################################################
 # rpc proto genrules.
 ################################################################################
@@ -127,11 +154,11 @@ genrule(
         "google/protobuf/descriptor.proto",
     ],
     outs = [
-        "nugget/app/avb/Avb.client.cpp",
+        "nugget/app/avb/Avb.client.h",
     ],
     cmd = GEN_SERVICE + " --proto_path=" + PROTO_ROOT +
-          " --nos-client-cpp_out=header:$$(dirname $(location nugget/app/weaver/Weaver.client.h)) " +
-          "$(location nugget/app/weaver/weaver.proto)",
+          " --nos-client-cpp_out=header:$$(dirname $(location nugget/app/avb/Avb.client.h)) " +
+          "$(location nugget/app/avb/avb.proto)",
     tools = [
         "@com_google_protobuf//:protoc",
         "@nugget_host_generic_libnos_generator//:protoc_gen_nos_client_cpp",
@@ -232,7 +259,7 @@ proto_library(
 proto_library(
     name = "nugget_app_avb_avb_proto",
     srcs = [
-        "nugget/app/keymaster/avb.proto",
+        "nugget/app/avb/avb.proto",
     ],
     deps = [
         "nugget_protobuf_options_proto",
