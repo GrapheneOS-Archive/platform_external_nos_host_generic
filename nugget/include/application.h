@@ -181,7 +181,7 @@ typedef void (write_to_app_fn_t)(uint32_t command,
  * app to do something and waits for it to finish and return the result.
  *
  * Seen from the AP's side, the application would be invoked using a blocking
- * function like so:
+ * function something like this:
  *
  *   uint32_t call_application(uint8_t app_id, uint16_t app_param,
  *                             const uint8_t *args, uint16_t arg_len,
@@ -208,6 +208,8 @@ struct app_transport {
   uint16_t max_request_len, max_response_len; /* data buffer sizes */
   uint16_t request_len, response_len;         /* current buffer count */
   uint16_t request_idx, response_idx;         /* used internally */
+  void (*done_fn)(struct app_transport *);    /* optional cleanup function */
+  /* Note: Any done_fn() is called in interrupt context. Be quick. */
 };
 
 /*
