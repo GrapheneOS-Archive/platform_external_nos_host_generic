@@ -216,31 +216,8 @@ message ImportWrappedKeyRequest {
   KeyBlob wrapping_key_blob = 1;
   bytes wrapped_key = 2;
 }
-
 message ImportWrappedKeyResponse {
   uint32 error_code = 1;
   KeyBlob blob = 2;
   KeyCharacteristics characteristics = 3;
-}
-
-
-/*
- * Internal types.
- */
-message RSAKey {
-  uint32 e = 1;
-  bytes d = 2;
-  bytes n = 3;
-}
-
-message ECKey {
-  uint32 curve_id = 1;
-  bytes d = 2;
-  bytes x = 3;
-  bytes y = 4;
-}
-
-message SymmetricKey {
-  uint32 algorithm = 1;
-  bytes material = 2;
 }
