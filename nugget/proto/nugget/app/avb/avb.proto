@@ -75,7 +75,7 @@ message GetLockRequest {
   LockIndex lock = 1;
 }
 message GetLockResponse {
-  bool locked = 1;
+  uint32 locked = 1;
 }
 
 // SetLock
@@ -94,7 +94,7 @@ message SetLockRequest {
   }
 
   LockIndex lock = 1;
-  bool locked = 2;
+  uint32 locked = 2;
   oneof metadata {
     CarrierUnlock carrier_unlock = 3;
     CarrierLock carrier_lock = 4;
