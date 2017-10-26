@@ -18,8 +18,10 @@ syntax = "proto3";
 
 package nugget.app.keymaster;
 
+import "nugget/app/keymaster/keymaster_defs.proto";
+
 message KeyParameter {
-  uint32 tag = 1;   /* Possible values defined here
+  Tag tag = 1;      /* Possible values defined here
                      * ::android::hardware::keymaster::V3_0::Tag
                      */
   uint32 integer = 2;
