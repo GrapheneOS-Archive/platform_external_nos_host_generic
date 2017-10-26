@@ -80,6 +80,11 @@ struct nugget_app_flash_block {
  * @param reply_len    0
  */
 
+enum NUGGET_REBOOT_ARG_TYPE {
+  NUGGET_REBOOT_SOFT = 0,
+  NUGGET_REBOOT_HARD = 1,
+};
+
 /****************************************************************************/
 /* Test related commands */
 
