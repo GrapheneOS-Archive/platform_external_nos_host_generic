@@ -31,7 +31,11 @@ service Avb {
   rpc Load (LoadRequest) returns (LoadResponse);
   rpc Store (StoreRequest) returns (StoreResponse);
   rpc GetLock (GetLockRequest) returns (GetLockResponse);
-  rpc SetLock (SetLockRequest) returns (SetLockResponse);
+  rpc CarrierLock (CarrierLockRequest) returns (CarrierLockResponse);
+  rpc CarrierUnlock (CarrierUnlockRequest) returns (CarrierUnlockResponse);
+  rpc SetDeviceLock (SetDeviceLockRequest) returns (SetDeviceLockResponse);
+  rpc SetBootLock (SetBootLockRequest) returns (SetBootLockResponse);
+  rpc SetOwnerLock (SetOwnerLockRequest) returns (SetOwnerLockResponse);
   rpc SetProduction (SetProductionRequest) returns (SetProductionResponse);
   rpc CarrierLockTest (CarrierLockTestRequest) returns (CarrierLockTestResponse);
   rpc Reset (ResetRequest) returns (ResetResponse);
@@ -78,29 +82,42 @@ message GetLockResponse {
   uint32 locked = 1;
 }
 
-// SetLock
-// TODO: this might be better if split into separate RPCs as some locks have
-// different characteristics and specific metadata that could be encoded in this
-// protocol. Especially as each lock is handled as a separate case.
 message CarrierUnlock {
   uint64 version = 1;
   uint64 nonce = 2;
   bytes signature = 3;
 }
 
-message SetLockRequest {
-  message CarrierLock {
-    bytes device_data = 1; // TODO: does this have any structure
-  }
-
-  LockIndex lock = 1;
-  uint32 locked = 2;
-  oneof metadata {
-    CarrierUnlock carrier_unlock = 3;
-    CarrierLock carrier_lock = 4;
-  }
+// Carrier lock
+message CarrierLockRequest {
+  uint32 locked = 1;
+  bytes device_data = 2;
 }
-message SetLockResponse {}
+message CarrierLockResponse {}
+
+message CarrierUnlockRequest {
+  CarrierUnlock token = 1;
+}
+message CarrierUnlockResponse {}
+
+// Device lock
+message SetDeviceLockRequest {
+  uint32 locked = 1;
+}
+message SetDeviceLockResponse {}
+
+// Boot lock
+message SetBootLockRequest {
+  uint32 locked = 1;
+}
+message SetBootLockResponse {}
+
+// Owner lock
+message SetOwnerLockRequest {
+  uint32 locked = 1;
+  bytes key = 2;
+}
+message SetOwnerLockResponse {}
 
 // SetProduction
 message SetProductionRequest {
