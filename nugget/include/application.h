@@ -238,7 +238,6 @@ enum app_status {
   APP_SPECIFIC_ERROR = 0x20, /* "should be enough for anybody" */
   /* App-specific error codes can use APP_SPECIFIC_ERROR+0, +1, +2, ... */
 
-
   /* For debugging, returning a line number might be helpful */
   APP_LINE_NUMBER_BASE = 0x70000000,
 #define APP_ERROR_LINENO (APP_LINE_NUMBER_BASE + __LINE__)
