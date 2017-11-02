@@ -39,6 +39,7 @@ service Avb {
   rpc SetProduction (SetProductionRequest) returns (SetProductionResponse);
   rpc CarrierLockTest (CarrierLockTestRequest) returns (CarrierLockTestResponse);
   rpc Reset (ResetRequest) returns (ResetResponse);
+  rpc BootloaderDone (BootloaderDoneRequest) returns (BootloaderDoneResponse);
 }
 
 enum LockIndex {
@@ -145,3 +146,8 @@ message ResetRequest {
   ResetKind kind = 1;
 }
 message ResetResponse {}
+
+// BootloaderDone
+message BootloaderDoneRequest {}
+
+message BootloaderDoneResponse {}
