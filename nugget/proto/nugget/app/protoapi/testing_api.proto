@@ -23,6 +23,7 @@ enum OneofTestParametersCase {
   kTrngTest = 1;
   kAesCbcEncryptTest = 2;
   kAesGcmEncryptTest = 3;
+  kAesCmacTest = 4;
 }
 
 // TODO remove this when oneof support is added to nanopb
@@ -31,6 +32,7 @@ enum OneofTestResultsCase {
   kTrngTestResult = 1;
   kAesCbcEncryptTestResult = 2;
   kAesGcmEncryptTestResult = 3;
+  kAesCmacTestResult = 4;
 }
 
 message AesCbcEncryptTest {
@@ -67,6 +69,16 @@ message AesGcmEncryptTestResult {
 message TrngTest {
   uint32 number_of_bytes = 1;
 }
+
+message AesCmacTest {
+  bytes key = 1;
+  bytes plain_text = 2;
+};
+
+message AesCmacTestResult {
+  DcryptError result_code = 1;
+  bytes cmac = 2;
+};
 
 message TrngTestResult {
   bytes random_bytes = 1;
