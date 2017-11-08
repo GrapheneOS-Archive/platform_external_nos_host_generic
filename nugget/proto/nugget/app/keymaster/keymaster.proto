@@ -68,8 +68,13 @@ service Keymaster {
   rpc ImportWrappedKey (ImportWrappedKeyRequest) returns (ImportWrappedKeyResponse);
 
   /*
-   * Vendor specific methods (manufacturing, status, factory reset, upgrade).
+   * Vendor specific methods (bootloader, manufacturing, status,
+   * factory reset, upgrade).
    */
+  // Only callable by the Bootloader.
+  rpc SetRootOfTrust (SetRootOfTrustRequest) returns (SetRootOfTrustResponse);
+  // Only callable by the Bootloader.
+  rpc SetBootState (SetBootStateRequest) returns (SetBootStateResponse);
 }
 
 /*
@@ -221,6 +226,8 @@ message AbortOperationResponse {
 /*
  * KM4 messages.
  */
+
+// ImportWrappedKey
 message ImportWrappedKeyRequest {
   bytes wrapped_key_der = 1;
   KeyBlob wrapping_key_blob = 2;
@@ -231,4 +238,32 @@ message ImportWrappedKeyResponse {
   uint32 error_code = 1;
   KeyBlob blob = 2;
   KeyCharacteristics characteristics = 3;
+}
+
+/*
+ * Vendor HAL.
+ */
+
+// SetRootOfTrustRequest
+// Only callable by the Bootloader.
+message SetRootOfTrustRequest {
+  bytes digest = 1;
+}
+message SetRootOfTrustResponse {
+  // Specified in keymaster_defs.proto:ErrorCode
+  uint32 error_code = 1;
+}
+
+// SetBootStateRequest
+// Only callable by the Bootloader.
+message SetBootStateRequest {
+  bool is_unlocked = 1;
+  bytes public_key = 2;
+  uint32 color = 3;
+  uint32 system_version = 4;
+  uint32 system_security_level = 5;
+}
+message SetBootStateResponse {
+  // Specified in keymaster_defs.proto:ErrorCode
+  uint32 error_code = 1;
 }

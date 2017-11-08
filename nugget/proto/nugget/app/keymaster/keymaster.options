@@ -1,0 +1,2 @@
+nugget.app.keymaster.SetRootOfTrustRequest.digest max_size:32
+nugget.app.keymaster.SetBootStateRequest.public_key max_size:32
