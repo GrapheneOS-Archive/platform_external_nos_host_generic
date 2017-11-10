@@ -52,7 +52,7 @@ cc_defaults {
 // invoke it directly. If we could pass a plugin, it could use insertion points
 // in the .pb.{cc,h} files rather than needing to generate new .client.{cpp,h}
 // files for each service.
-GEN_SERVICE = "$(location aprotoc) --plugin=protoc-gen-nos-client-cpp=$(location protoc-gen-nos-client-cpp) $(in) -Iexternal/protobuf/src -Iexternal/libnos/nugget/proto"
+GEN_SERVICE = "$(location aprotoc) --plugin=protoc-gen-nos-client-cpp=$(location protoc-gen-nos-client-cpp) $(in) -Iexternal/protobuf/src -Iexternal/nos/host/generic/nugget/proto"
 
 GEN_SERVICE_SOURCE = GEN_SERVICE + " --nos-client-cpp_out=source:$(genDir) "
 GEN_SERVICE_HEADER = GEN_SERVICE + " --nos-client-cpp_out=header:$(genDir) "

@@ -24,15 +24,15 @@ cc_defaults {
         // defines to solve the problem.
 
 
-        "-Dprotobuf_AddDesc_nugget_2fprotobuf_2foptions_2eproto=protobuf_AddDesc_external_2flibnos_2fnugget_2fproto_2fnugget_2fprotobuf_2foptions_2eproto",
+        "-Dprotobuf_AddDesc_nugget_2fprotobuf_2foptions_2eproto=protobuf_AddDesc_external_2fnos_2fhost_2fgeneric_2fnugget_2fproto_2fnugget_2fprotobuf_2foptions_2eproto",
 
         // keymaster
-        "-Dprotobuf_AddDesc_nugget_2fapp_2fkeymaster_2fkeymaster_5ftypes_2eproto=protobuf_AddDesc_external_2flibnos_2fnugget_2fproto_2fnugget_2fapp_2fkeymaster_2fkeymaster_5ftypes_2eproto",
-        "-Dprotobuf_AddDesc_nugget_2fapp_2fkeymaster_2fkeymaster_5fdefs_2eproto=protobuf_AddDesc_external_2flibnos_2fnugget_2fproto_2fnugget_2fapp_2fkeymaster_2fkeymaster_5fdefs_2eproto",
+        "-Dprotobuf_AddDesc_nugget_2fapp_2fkeymaster_2fkeymaster_5ftypes_2eproto=protobuf_AddDesc_external_2fnos_2fhost_2fgeneric_2fnugget_2fproto_2fnugget_2fapp_2fkeymaster_2fkeymaster_5ftypes_2eproto",
+        "-Dprotobuf_AddDesc_nugget_2fapp_2fkeymaster_2fkeymaster_5fdefs_2eproto=protobuf_AddDesc_external_2fnos_2fhost_2fgeneric_2fnugget_2fproto_2fnugget_2fapp_2fkeymaster_2fkeymaster_5fdefs_2eproto",
 
         // protoapi
-        "-Dprotobuf_AddDesc_nugget_2fapp_2fprotoapi_2fgchips_5ftypes_2eproto=protobuf_AddDesc_external_2flibnos_2fnugget_2fproto_2fnugget_2fapp_2fprotoapi_2fgchips_5ftypes_2eproto",
-        "-Dprotobuf_AddDesc_nugget_2fapp_2fprotoapi_2fheader_2eproto=protobuf_AddDesc_external_2flibnos_2fnugget_2fproto_2fnugget_2fapp_2fprotoapi_2fheader_2eproto",
+        "-Dprotobuf_AddDesc_nugget_2fapp_2fprotoapi_2fgchips_5ftypes_2eproto=protobuf_AddDesc_external_2fnos_2fhost_2fgeneric_2fnugget_2fproto_2fnugget_2fapp_2fprotoapi_2fgchips_5ftypes_2eproto",
+        "-Dprotobuf_AddDesc_nugget_2fapp_2fprotoapi_2fheader_2eproto=protobuf_AddDesc_external_2fnos_2fhost_2fgeneric_2fnugget_2fproto_2fnugget_2fapp_2fprotoapi_2fheader_2eproto",
     ],
 }
 
@@ -52,7 +52,7 @@ cc_library {
             // have the path expected by soong
             ".",
 
-            "external/libnos/nugget/proto",
+            "external/nos/host/generic/nugget/proto",
             "external/protobuf/src",
         ],
     },
