@@ -14,13 +14,6 @@
 // limitations under the License.
 //
 
-subdirs = [
-    "libnos",
-    "libnos_datagram",
-    "libnos_transport",
-    "nugget/proto",
-]
-
 cc_library_headers {
     name: "nos_headers",
     defaults: ["nos_shared_cc_defaults"],

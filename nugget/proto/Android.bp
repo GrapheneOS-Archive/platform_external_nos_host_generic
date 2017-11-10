@@ -14,12 +14,6 @@
 // limitations under the License.
 //
 
-subdirs = [
-    "nugget/app/avb",
-    "nugget/app/keymaster",
-    "nugget/app/weaver",
-]
-
 cc_defaults {
     name: "libnosprotos_defaults",
     defaults: ["nos_proto_defaults"],
