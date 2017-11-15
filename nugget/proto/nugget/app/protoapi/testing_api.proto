@@ -15,6 +15,7 @@ enum DcryptError {
   INVALID_PLAINTEXT = 2;
   MISSING_PARAMETER = 3;
   KEYSIZE_MISMATCH = 4;
+  ASN1_TAG_PARSE_FAILURE = 5;
 }
 
 // TODO remove this when oneof support is added to nanopb
@@ -24,6 +25,7 @@ enum OneofTestParametersCase {
   kAesCbcEncryptTest = 2;
   kAesGcmEncryptTest = 3;
   kAesCmacTest = 4;
+  kAsn1TagTest = 5;
 }
 
 // TODO remove this when oneof support is added to nanopb
@@ -33,6 +35,7 @@ enum OneofTestResultsCase {
   kAesCbcEncryptTestResult = 2;
   kAesGcmEncryptTestResult = 3;
   kAesCmacTestResult = 4;
+  kAsn1TagTestResult = 5;
 }
 
 message AesCbcEncryptTest {
@@ -45,7 +48,6 @@ message AesCbcEncryptTest {
   // inside of a oneof.
   bytes plain_text = 5;
 }
-
 message AesCbcEncryptTestResult {
   DcryptError result_code = 1;
   bytes initialization_vector = 2;
@@ -59,27 +61,35 @@ message AesGcmEncryptTest {
   bytes aad = 4;
   uint32 tag_len = 5;
 }
-
 message AesGcmEncryptTestResult {
   DcryptError result_code = 1;
   bytes cipher_text = 2;
   bytes tag = 3;
 }
 
-message TrngTest {
-  uint32 number_of_bytes = 1;
-}
-
 message AesCmacTest {
   bytes key = 1;
   bytes plain_text = 2;
 };
-
 message AesCmacTestResult {
   DcryptError result_code = 1;
   bytes cmac = 2;
 };
 
+message Asn1TagTest {
+  bytes tag = 1;
+};
+message Asn1TagTestResult {
+  DcryptError result_code = 1;
+  uint32 tag_class = 2;
+  bool constructed = 3;
+  uint32 tag_number = 4;
+  uint32 remaining = 5;
+};
+
+message TrngTest {
+  uint32 number_of_bytes = 1;
+}
 message TrngTestResult {
   bytes random_bytes = 1;
 }
