@@ -231,7 +231,6 @@ message AbortOperationResponse {
 message ImportWrappedKeyRequest {
   bytes wrapped_key_der = 1;
   KeyBlob wrapping_key_blob = 2;
-  /* TODO: may be fixed size. */
   bytes masking_key = 3;
 }
 message ImportWrappedKeyResponse {
