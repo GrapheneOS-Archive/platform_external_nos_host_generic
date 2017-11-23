@@ -25,7 +25,7 @@ service Avb {
   option (nugget.protobuf.app_name) = "Android Verified Boot";
   option (nugget.protobuf.app_version) = 1;
   option (nugget.protobuf.request_buffer_size) = 2200;
-  option (nugget.protobuf.response_buffer_size) = 128;
+  option (nugget.protobuf.response_buffer_size) = 640;
 
   rpc GetState (GetStateRequest) returns (GetStateResponse);
   rpc Load (LoadRequest) returns (LoadResponse);
@@ -40,6 +40,7 @@ service Avb {
   rpc CarrierLockTest (CarrierLockTestRequest) returns (CarrierLockTestResponse);
   rpc Reset (ResetRequest) returns (ResetResponse);
   rpc BootloaderDone (BootloaderDoneRequest) returns (BootloaderDoneResponse);
+  rpc GetOwnerKey (GetOwnerKeyRequest) returns (GetOwnerKeyResponse);
 }
 
 enum LockIndex {
@@ -48,7 +49,6 @@ enum LockIndex {
   BOOT = 2;
   OWNER = 3;
 }
-
 
 // GetState
 message GetStateRequest {}
@@ -119,6 +119,14 @@ message SetOwnerLockRequest {
   bytes key = 2;
 }
 message SetOwnerLockResponse {}
+
+message GetOwnerKeyRequest {
+  uint32 offset = 1;
+  uint32 size = 2;
+}
+message GetOwnerKeyResponse {
+  bytes chunk = 1;
+}
 
 // SetProduction
 message SetProductionRequest {
