@@ -338,6 +338,6 @@ proto_library(
         "nugget/protobuf/options.proto",
     ],
     deps = [
-        "google_protobuf_descriptor_proto",
+        "@com_google_protobuf//:descriptor_proto",
     ],
 )
