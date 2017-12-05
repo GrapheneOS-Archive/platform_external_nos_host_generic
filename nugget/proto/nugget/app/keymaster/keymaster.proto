@@ -65,7 +65,7 @@ service Keymaster {
   /*
    * KM4 methods.
    */
-  rpc ImportWrappedKey (ImportWrappedKeyRequest) returns (ImportWrappedKeyResponse);
+  rpc ImportWrappedKey (ImportWrappedKeyRequest) returns (ImportKeyResponse);
 
   /*
    * Vendor specific methods (bootloader, manufacturing, status,
@@ -119,7 +119,6 @@ message ImportKeyRequest {
   SymmetricKey symmetric_key = 4;
 };
 message ImportKeyResponse {
-  // TODO: include an ErrorCode field
   uint32 error_code = 1;
   KeyBlob blob = 2;
   KeyCharacteristics characteristics = 3;
@@ -229,15 +228,17 @@ message AbortOperationResponse {
 
 // ImportWrappedKey
 message ImportWrappedKeyRequest {
-  bytes wrapped_key_der = 1;
-  KeyBlob wrapping_key_blob = 2;
-  bytes masking_key = 3;
+  uint32 key_format = 1;
+  KeyParameters params = 2;
+  bytes rsa_envelope = 3;
+  bytes initialization_vector = 4;   // Fixed sized array.
+  bytes encrypted_import_key = 5;
+  bytes aad = 6;
+  bytes gcm_tag = 7;                 // Fixed sized array.
+  KeyBlob wrapping_key_blob = 8;
+  bytes masking_key = 9;             // Fixed sized array.
 }
-message ImportWrappedKeyResponse {
-  uint32 error_code = 1;
-  KeyBlob blob = 2;
-  KeyCharacteristics characteristics = 3;
-}
+// ImportWrappedKey returns a ImportKeyResponse.
 
 /*
  * Vendor HAL.

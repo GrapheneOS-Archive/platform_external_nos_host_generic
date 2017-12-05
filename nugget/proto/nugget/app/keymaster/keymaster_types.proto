@@ -54,6 +54,19 @@ message KeyCharacteristics {
   KeyParameters tee_enforced = 2;
 }
 
+message HmacSharingParameters {
+  bytes seed = 1;
+  bytes nonce = 2;
+}
+
+message VerificationToken {
+  uint64 challenge = 1;
+  uint64 timestamp = 2;
+  KeyParameters params_verified = 3;
+  SecurityLevel security_level = 4;
+  bytes mac = 5;
+}
+
 /*
  * Internal types.
  */

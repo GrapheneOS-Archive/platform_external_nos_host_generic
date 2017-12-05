@@ -31,7 +31,7 @@ enum TagType {
   ULONG = 0x50000;         /* 5 << 16 */
   DATE = 0x60000;          /* 6 << 16 */
   BOOL = 0x70000;          /* 7 << 16 */
-/*  BIGNUM = 0x80000;         8 << 16 */  /* Unused. */
+  /*  BIGNUM = 0x80000;         8 << 16 */  /* Unused. */
   BYTES = 0x90000;         /* 9 << 16 */
   ULONG_REP = 0xA0000;     /* 10 << 16 */
 };
@@ -46,32 +46,34 @@ enum Tag {
   PADDING = 0x20006; // (TagType:ENUM_REP | 6)
   CALLER_NONCE = 0x70007; // (TagType:BOOL | 7)
   MIN_MAC_LENGTH = 0x30008; // (TagType:UINT | 8)
-  KDF = 0x20009; // (TagType:ENUM_REP | 9)
+  /* RESERVED: KDF = 0x20009; // (TagType:ENUM_REP | 9) */
   EC_CURVE = 0x1000a; // (TagType:ENUM | 10)
   RSA_PUBLIC_EXPONENT = 0x500c8; // (TagType:ULONG | 200)
-  ECIES_SINGLE_HASH_MODE = 0x700c9; // (TagType:BOOL | 201)
+  /* RESERVED: ECIES_SINGLE_HASH_MODE = 0x700c9; // (TagType:BOOL | 201) */
   INCLUDE_UNIQUE_ID = 0x700ca; // (TagType:BOOL | 202)
   BLOB_USAGE_REQUIREMENTS = 0x1012d; // (TagType:ENUM | 301)
   BOOTLOADER_ONLY = 0x7012e; // (TagType:BOOL | 302)
+  ROLLBACK_RESISTANCE = 0x7012f; // (TagType:BOOL | 303)
+  HARDWARE_TYPE = 0x10130; // TagType:ENUM | 304,
   ACTIVE_DATETIME = 0x60190; // (TagType:DATE | 400)
   ORIGINATION_EXPIRE_DATETIME = 0x60191; // (TagType:DATE | 401)
   USAGE_EXPIRE_DATETIME = 0x60192; // (TagType:DATE | 402)
   MIN_SECONDS_BETWEEN_OPS = 0x30193; // (TagType:UINT | 403)
   MAX_USES_PER_BOOT = 0x30194; // (TagType:UINT | 404)
-  ALL_USERS = 0x701f4; // (TagType:BOOL | 500)
-  USER_ID = 0x301f5; // (TagType:UINT | 501)
+  /* RESERVED: ALL_USERS = 0x701f4; // (TagType:BOOL | 500) */
+  /* RESERVED: USER_ID = 0x301f5; // (TagType:UINT | 501) */
   USER_SECURE_ID = 0xa01f6; // (TagType:ULONG_REP | 502)
   NO_AUTH_REQUIRED = 0x701f7; // (TagType:BOOL | 503)
   USER_AUTH_TYPE = 0x101f8; // (TagType:ENUM | 504)
   AUTH_TIMEOUT = 0x301f9; // (TagType:UINT | 505)
   ALLOW_WHILE_ON_BODY = 0x701fa; // (TagType:BOOL | 506)
-  ALL_APPLICATIONS = 0x70258; // (TagType:BOOL | 600)
+  /* RESERVED: ALL_APPLICATIONS = 0x70258; // (TagType:BOOL | 600) */
   APPLICATION_ID = 0x90259; // (TagType:BYTES | 601)
-  EXPORTABLE = 0x7025a; // (TagType:BOOL | 602)
+  /* RESERVED: EXPORTABLE = 0x7025a; // (TagType:BOOL | 602) */
   APPLICATION_DATA = 0x902bc; // (TagType:BYTES | 700)
   CREATION_DATETIME = 0x602bd; // (TagType:DATE | 701)
   ORIGIN = 0x102be; // (TagType:ENUM | 702)
-  ROLLBACK_RESISTANT = 0x702bf; // (TagType:BOOL | 703)
+  /* RESERVED: ROLLBACK_RESISTANT = 0x702bf; // (TagType:BOOL | 703) */
   ROOT_OF_TRUST = 0x902c0; // (TagType:BYTES | 704)
   OS_VERSION = 0x302c1; // (TagType:UINT | 705)
   OS_PATCHLEVEL = 0x302c2; // (TagType:UINT | 706)
@@ -88,7 +90,7 @@ enum Tag {
   ATTESTATION_ID_MODEL = 0x902cd; // (TagType:BYTES | 717)
   ASSOCIATED_DATA = 0x903e8; // (TagType:BYTES | 1000)
   NONCE = 0x903e9; // (TagType:BYTES | 1001)
-  AUTH_TOKEN = 0x903ea; // (TagType:BYTES | 1002)
+  /* RESERVED: AUTH_TOKEN = 0x903ea; // (TagType:BYTES | 1002) */
   MAC_LENGTH = 0x303eb; // (TagType:UINT | 1003)
   RESET_SINCE_ID_ROTATION = 0x703ec; // (TagType:BOOL | 1004)
 };
@@ -144,7 +146,8 @@ enum KeyOrigin {
   DERIVED = 1;
   IMPORTED = 2;
   UNKNOWN = 3;
-  KEY_ORIGIN_MAX = 4;
+  SECURELY_IMPORTED = 4;
+  KEY_ORIGIN_MAX = 5;
 };
 
 enum KeyBlobUsageRequirements {
@@ -158,7 +161,7 @@ enum KeyPurpose {
   DECRYPT = 1;
   SIGN = 2;
   VERIFY = 3;
-  DERIVE_KEY = 4;
+  /* RESERVED: DERIVE_KEY = 4; */
   WRAP_KEY = 5;
   PURPOSE_MAX = 6;
 };
@@ -231,17 +234,9 @@ enum ErrorCode {
   CANNOT_ATTEST_IDS = 64;
   UNIMPLEMENTED = 65;
   VERSION_MISMATCH = 66;
-  UNKNOWN_ERROR = 67;
-};
-
-enum KeyDerivationFunction {
-  KDF_NONE = 0;
-  KDF_RFC5869_SHA256 = 1;
-  KDF_ISO18033_2_KDF1_SHA1 = 2;
-  KDF_ISO18033_2_KDF1_SHA256 = 3;
-  KDF_ISO18033_2_KDF2_SHA1 = 4;
-  KDF_ISO18033_2_KDF2_SHA256 = 5;
-  KDF_MAX = 6;
+  ROLLBACK_RESISTANCE_UNAVAILABLE = 67;
+  HARDWARE_TYPE_UNAVAILABLE = 68;
+  UNKNOWN_ERROR = 69;
 };
 
 enum HardwareAuthenticatorType {
@@ -255,10 +250,11 @@ enum HardwareAuthenticatorType {
 enum SecurityLevel {
   SOFTWARE = 0;
   TRUSTED_ENVIRONMENT = 1;
+  STRONGBOX = 2;
 };
 
 enum KeyFormat {
   X509 = 0;   /* for public key export */
   PKCS8 = 1;  /* for asymmetric key pair import */
-  RAW = 2;    /* for symmetric key import and export*/
+  RAW = 3;    /* for symmetric key import and export*/
 }
