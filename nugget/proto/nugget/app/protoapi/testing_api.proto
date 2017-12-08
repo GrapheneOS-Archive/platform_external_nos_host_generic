@@ -26,6 +26,7 @@ enum OneofTestParametersCase {
   kAesGcmEncryptTest = 3;
   kAesCmacTest = 4;
   kAsn1TagTest = 5;
+  kFullStressTest = 6;
 }
 
 // TODO remove this when oneof support is added to nanopb
@@ -36,6 +37,7 @@ enum OneofTestResultsCase {
   kAesGcmEncryptTestResult = 3;
   kAesCmacTestResult = 4;
   kAsn1TagTestResult = 5;
+  kFullStressResult = 6;
 }
 
 message AesCbcEncryptTest {
