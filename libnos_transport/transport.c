@@ -20,6 +20,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 #include <application.h>
 
@@ -59,7 +60,7 @@ static int get_status(const struct nos_device *dev,
   uint32_t command = CMD_ID(app_id) | CMD_IS_READ | CMD_TRANSPORT;
 
   if (0 != dev->ops.read(dev->ctx, command, buf, sizeof(buf))) {
-    NLOGE("Failed to read device status");
+    NLOGV("Failed to read device status");
     return -1;
   }
 
@@ -91,9 +92,18 @@ uint32_t nos_call_application(const struct nos_device *dev,
   uint32_t status;
   uint16_t ulen;
   uint32_t poll_count = 0;
+  uint16_t retries = 10;
 
   /* Make sure it's idle */
-  if (get_status(dev, app_id, &status, &ulen) != 0) {
+  while (retries) {
+    if (get_status(dev, app_id, &status, &ulen) == 0) {
+      break;
+    }
+    --retries;
+    usleep(5000);
+  }
+  if (!retries) {
+    NLOGE("Failed to read device status");
     return APP_ERROR_IO;
   }
   NLOGV("%d: query status 0x%08x  ulen 0x%04x", __LINE__, status, ulen);
