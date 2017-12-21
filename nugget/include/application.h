@@ -211,6 +211,8 @@ struct app_transport {
   void (*done_fn)(struct app_transport *);    /* optional cleanup function */
   /* Note: Any done_fn() is called in interrupt context. Be quick. */
 };
+/* For debugging if needed */
+extern void dump_transport_state(const struct app_transport *s);
 
 /*
  * The application will need to provide a write_to_app_fn_t function that will
