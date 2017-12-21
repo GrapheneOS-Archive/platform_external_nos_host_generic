@@ -211,6 +211,16 @@ struct app_transport {
   void (*done_fn)(struct app_transport *);    /* optional cleanup function */
   /* Note: Any done_fn() is called in interrupt context. Be quick. */
 };
+
+/*
+ * TODO(b/66104849): Note that request and response buffers are transferred as
+ * byte streams. However, if they will eventually represent structs, the usual
+ * ABI alignment requirements will be required. Until we've declared all
+ * applications structs in a union, we will need to align the buffers manually.
+ * Use this to declare the uint8_t buffers until then:
+ */
+#define __TRANSPORT_ALIGNED__ __attribute__((aligned(8)))
+
 /* For debugging if needed */
 extern void dump_transport_state(const struct app_transport *s);
 
