@@ -39,6 +39,8 @@
 #define NLOGV(...) do { if (VERBOSE_LOG) { ALOGV(__VA_ARGS__); } } while (0)
 #define NLOGD(...) do { if (DEBUG_LOG) { ALOGD(__VA_ARGS__); } } while (0)
 
+extern int usleep (uint32_t usec);
+
 #else
 /* Logging for other platforms */
 #include <stdio.h>
