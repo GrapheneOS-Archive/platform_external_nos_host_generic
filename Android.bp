@@ -42,7 +42,7 @@ cc_defaults {
     name: "nos_app_service_defaults",
     defaults: [
         "nos_app_defaults",
-        "nos_cc_defaults",
+        "nos_base_cc_defaults",
     ],
     shared_libs: ["libnosprotos"],
     export_shared_lib_headers: ["libnosprotos"],
