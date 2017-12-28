@@ -86,8 +86,7 @@ message AddRngEntropyRequest {
   bytes data = 1;
 }
 message AddRngEntropyResponse {
-  // TODO: replace with ErrorCode enum
-  uint32 error_code = 1;
+  ErrorCode error_code = 1;
 }
 
 // GenerateKey
@@ -95,7 +94,7 @@ message GenerateKeyRequest {
   KeyParameters params = 1;
 }
 message GenerateKeyResponse {
-  uint32 error_code = 1;
+  ErrorCode error_code = 1;
   KeyBlob blob = 2;
   KeyCharacteristics characteristics = 3;
 }
@@ -107,7 +106,7 @@ message GetKeyCharacteristicsRequest {
   bytes app_data = 3;
 }
 message GetKeyCharacteristicsResponse {
-  uint32 error_code = 1;
+  ErrorCode error_code = 1;
   KeyCharacteristics characteristics = 2;
 }
 
@@ -119,7 +118,7 @@ message ImportKeyRequest {
   SymmetricKey symmetric_key = 4;
 };
 message ImportKeyResponse {
-  uint32 error_code = 1;
+  ErrorCode error_code = 1;
   KeyBlob blob = 2;
   KeyCharacteristics characteristics = 3;
 };
@@ -132,7 +131,7 @@ message ExportKeyRequest {
   bytes app_data = 4;
 };
 message ExportKeyResponse {
-  uint32 error_code = 1;
+  ErrorCode error_code = 1;
   bytes key_material = 2;
 };
 
@@ -142,7 +141,7 @@ message AttestKeyRequest {
   KeyParameters params = 2;
 }
 message AttestKeyResponse {
-  uint32 error_code = 1;
+  ErrorCode error_code = 1;
   CertificateChain chain = 2;
 }
 
@@ -152,7 +151,7 @@ message UpgradeKeyRequest {
   KeyParameters params = 2;
 }
 message UpgradeKeyResponse {
-  uint32 error_code = 1;
+  ErrorCode error_code = 1;
   KeyBlob blob = 2;
 }
 
@@ -161,19 +160,19 @@ message DeleteKeyRequest {
   KeyBlob blob = 1;
 }
 message DeleteKeyResponse {
-  uint32 error_code = 1;
+  ErrorCode error_code = 1;
 }
 
 // DeleteAllKeys
 message DeleteAllKeysRequest {}
 message DeleteAllKeysResponse {
-  uint32 error_code = 1;
+  ErrorCode error_code = 1;
 }
 
 // DestroyAttestationIds
 message DestroyAttestationIdsRequest {}
 message DestroyAttestationIdsResponse {
-  uint32 error_code = 1;
+  ErrorCode error_code = 1;
 }
 
 // BeginOperation
@@ -183,7 +182,7 @@ message BeginOperationRequest {
   KeyParameters params = 3;
 }
 message BeginOperationResponse {
-  uint32 error_code = 1;
+  ErrorCode error_code = 1;
   KeyParameters params = 2;
   OperationHandle handle = 3;
 }
@@ -195,7 +194,7 @@ message UpdateOperationRequest {
   bytes input = 3;
 }
 message UpdateOperationResponse {
-  uint32 error_code = 1;
+  ErrorCode error_code = 1;
   uint32 consumed = 2;
   KeyParameters params = 3;
   bytes output = 4;
@@ -209,7 +208,7 @@ message FinishOperationRequest {
   bytes signature = 4;
 };
 message FinishOperationResponse {
-  uint32 error_code = 1;
+  ErrorCode error_code = 1;
   KeyParameters params = 2;
   bytes output = 3;
 };
@@ -219,7 +218,7 @@ message AbortOperationRequest {
   OperationHandle handle = 1;
 };
 message AbortOperationResponse {
-  uint32 error_code = 1;
+  ErrorCode error_code = 1;
 };
 
 /*
@@ -251,7 +250,7 @@ message SetRootOfTrustRequest {
 }
 message SetRootOfTrustResponse {
   // Specified in keymaster_defs.proto:ErrorCode
-  uint32 error_code = 1;
+  ErrorCode error_code = 1;
 }
 
 // SetBootStateRequest
@@ -265,5 +264,5 @@ message SetBootStateRequest {
 }
 message SetBootStateResponse {
   // Specified in keymaster_defs.proto:ErrorCode
-  uint32 error_code = 1;
+  ErrorCode error_code = 1;
 }
