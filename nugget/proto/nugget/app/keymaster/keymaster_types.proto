@@ -84,6 +84,5 @@ message ECKey {
 }
 
 message SymmetricKey {
-  uint32 algorithm = 1;
-  bytes material = 2;
+  bytes material = 1;
 }
