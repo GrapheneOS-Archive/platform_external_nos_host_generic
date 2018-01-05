@@ -15,6 +15,7 @@
 #endif
 
 #include <assert.h>
+#include <inttypes.h>
 #include <stdint.h>
 #include <string.h>
 
@@ -89,7 +90,7 @@ typedef struct SignedHeader {
     printf("hdr.epoch          : %08x\n", epoch_);
     printf("hdr.major          : %08x\n", major_);
     printf("hdr.minor          : %08x\n", minor_);
-    printf("hdr.timestamp      : %016lx, %s", timestamp_,
+    printf("hdr.timestamp      : %016" PRIu64 "x, %s", timestamp_,
            asctime(localtime(reinterpret_cast<const time_t*>(&timestamp_))));
     printf("hdr.img_chk        : %08x\n", be32toh(img_chk_));
     printf("hdr.fuses_chk      : %08x\n", be32toh(fuses_chk_));
