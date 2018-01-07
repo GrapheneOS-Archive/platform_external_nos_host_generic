@@ -1,0 +1,5 @@
+nugget.app.keymaster.ImportWrappedKeyRequest.initialization_vector max_size:12
+nugget.app.keymaster.ImportWrappedKeyRequest.gcm_tag max_size:16
+nugget.app.keymaster.ImportWrappedKeyRequest.masking_key max_size:32
+nugget.app.keymaster.SetRootOfTrustRequest.digest max_size:32
+nugget.app.keymaster.SetBootStateRequest.public_key max_size:32
