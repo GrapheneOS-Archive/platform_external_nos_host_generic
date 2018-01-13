@@ -57,9 +57,6 @@ struct options_s {
   int reboot;
   /* generic connection options */
   const char *device;
-#ifdef ANDROID
-  int citadeld;
-#endif
 } options;
 
 enum no_short_opts_for_these {
@@ -67,9 +64,6 @@ enum no_short_opts_for_these {
   OPT_RO,
   OPT_RW,
   OPT_REBOOT,
-#ifdef ANDROID
-  OPT_CITADELD
-#endif
 };
 
 const char *short_opts = ":hv";
@@ -80,9 +74,6 @@ const struct option long_opts[] = {
   {"rw",          0, NULL, OPT_RW},
   {"reboot",      0, NULL, OPT_REBOOT},
   {"device",      1, NULL, OPT_DEVICE},
-#ifdef ANDROID
-  {"citadeld",    0, NULL, OPT_CITADELD},
-#endif
   {"help",        0, NULL, 'h'},
   {NULL, 0, NULL, 0},
 };
@@ -116,12 +107,6 @@ void usage(const char *progname)
     "      --rw          Update RW firmware from the image file\n"
     "      --ro          Update RO firmware from the image file\n"
     "      --reboot      Tell Citadel to reboot\n"
-#ifdef ANDROID
-    "\n"
-    "Android options:\n"
-    "\n"
-    "      --citadeld    Communicate with Citadel via citadeld\n"
-#endif
     "\n",
     progname);
 }
@@ -332,14 +317,11 @@ uint32_t do_reboot(AppClient &app)
 std::unique_ptr<NuggetClientInterface> select_client()
 {
 #ifdef ANDROID
-  if (options.citadeld) {
-    return std::unique_ptr<NuggetClientInterface>(
-        new CitadeldProxyClient());
-  }
-#endif
-  /* Default to a direct client */
+  return std::unique_ptr<NuggetClientInterface>(new CitadeldProxyClient());
+#else
   return std::unique_ptr<NuggetClientInterface>(
       new NuggetClient(options.device ? options.device : ""));
+#endif
 }
 
 int update_to_image(const std::vector<uint8_t> &image)
@@ -421,11 +403,6 @@ int main(int argc, char *argv[])
     case OPT_DEVICE:
       options.device = optarg;
       break;
-#ifdef ANDROID
-    case OPT_CITADELD:
-      options.citadeld = 1;
-      break;
-#endif
     case 'h':
       usage(this_prog);
       return 0;
