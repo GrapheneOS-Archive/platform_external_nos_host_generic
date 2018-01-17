@@ -19,7 +19,7 @@ cc_binary_host {
     srcs: ["main.cpp"],
     defaults: [
         "nos_proto_defaults",
-        "nos_base_cc_defaults",
+        "nos_cc_defaults",
     ],
     static_libs: ["libnosprotos"],
     shared_libs: ["libprotoc"],

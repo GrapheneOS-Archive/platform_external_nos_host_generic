@@ -19,7 +19,7 @@ cc_library {
     srcs: [
         "debug.cpp",
     ],
-    defaults: ["nos_shared_cc_defaults"],
+    defaults: ["nos_cc_host_supported_defaults"],
     header_libs: ["nos_headers"],
     shared_libs: ["libnos_datagram"],
     export_include_dirs: ["include"],

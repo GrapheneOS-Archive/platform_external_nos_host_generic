@@ -19,7 +19,7 @@ cc_binary {
     srcs: [
         "updater.cpp"
     ],
-    defaults: ["nos_cc_defaults"],
+    defaults: ["nos_cc_hw_defaults"],
     cflags: [
         // for openssl/sha.h
         "-Wno-gnu-anonymous-struct",

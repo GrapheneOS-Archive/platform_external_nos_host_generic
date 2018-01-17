@@ -87,11 +87,11 @@ uint32_t NuggetClient::CallApp(uint32_t appId, uint16_t arg,
 }
 
 nos_device* NuggetClient::Device() {
-  return open_ ? nullptr : &device_;
+  return open_ ? &device_ : nullptr;
 }
 
 const nos_device* NuggetClient::Device() const {
-  return open_ ? nullptr : &device_;
+  return open_ ? &device_ : nullptr;
 }
 
 const std::string& NuggetClient::DeviceName() const {
