@@ -19,7 +19,7 @@ cc_library {
     srcs: [
         "transport.c",
     ],
-    defaults: ["nos_shared_cc_defaults"],
+    defaults: ["nos_cc_host_supported_defaults"],
     cflags: [
         "-Wno-zero-length-array",
     ],

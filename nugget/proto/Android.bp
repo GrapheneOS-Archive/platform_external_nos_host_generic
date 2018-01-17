@@ -42,7 +42,7 @@ cc_library {
     exclude_srcs: ["google/protobuf/descriptor.proto"], // Used for bazel build
     defaults: [
         "libnosprotos_defaults",
-        "nos_shared_cc_defaults",
+        "nos_cc_host_supported_defaults",
     ],
     proto: {
         type: "full",
