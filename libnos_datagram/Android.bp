@@ -16,6 +16,6 @@
 
 cc_library {
     name: "libnos_datagram",
-    defaults: ["nos_shared_cc_defaults"],
+    defaults: ["nos_cc_host_supported_defaults"],
     export_include_dirs: ["include"],
 }
