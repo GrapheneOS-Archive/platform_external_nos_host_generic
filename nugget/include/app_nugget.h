@@ -104,18 +104,6 @@ enum NUGGET_REBOOT_ARG_TYPE {
  * TODO(b/65067435): Remove all of these.
  */
 
-#define NUGGET_PARAM_REVERSE 0xbeef
-/*
- * Reverse a sequence of bytes, just to have something to demonstrate.
- *
- * @param args         any arbitrary bytes
- * @param arg_len      any arbitrary length, within reason
- * @param reply        input bytes, in reverse order
- * @param reply_len    same as arg_len
- *
- * @errors             APP_ERROR_TOO_MUCH
- */
-
 #define NUGGET_PARAM_READ32 0xF000
 /*
  * Read a 32-bit value from memory.
