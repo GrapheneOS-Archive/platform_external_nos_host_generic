@@ -172,6 +172,19 @@ struct nugget_app_change_update_password {
  */
 
 /****************************************************************************/
+/* Power HAL */
+
+#define NUGGET_PARAM_GET_LOW_POWER_STATS 0x200
+/*
+ * Get the number of cycles since boot
+ *
+ * @param args         <none>
+ * @param arg_len      0
+ * @param reply        TODO(b/70510004): Return meaningful values
+ * @param reply_len    0 for now
+ */
+
+/****************************************************************************/
 /* These are bringup / debug functions only.
  *
  * TODO(b/65067435): Remove all of these.
