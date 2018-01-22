@@ -379,7 +379,6 @@ static uint32_t do_change_pw(AppClient &app,
 
 static uint32_t do_enable(AppClient &app, const char *pw)
 {
-
   std::vector<uint8_t> data(sizeof(struct nugget_app_enable_update));
   struct nugget_app_enable_update *s =
     (struct nugget_app_enable_update*)data.data();
@@ -577,7 +576,7 @@ int main(int argc, char *argv[])
   if (options.ro || options.rw) {
     if (optind < argc) {
       /* Sets errorcnt on failure */
-      image = read_image_from_file(argv[optind]);
+      image = read_image_from_file(argv[optind++]);
       if (errorcnt)
         goto out;
     } else {
