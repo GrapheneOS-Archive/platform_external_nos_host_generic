@@ -112,7 +112,7 @@ enum NUGGET_ENABLE_HEADER {
 struct nugget_app_enable_update {
   struct nugget_app_password  password;
   uint8_t which_headers;                        /* bit 0 = RO, bit 1 = RW */
-};
+} __packed;
 #define NUGGET_PARAM_ENABLE_UPDATE 0x0003
 /*
  * Mark the specified image header(s) as valid, if the provided password
@@ -130,7 +130,7 @@ struct nugget_app_enable_update {
 struct nugget_app_change_update_password {
   struct nugget_app_password  old_password;
   struct nugget_app_password  new_password;
-};
+} __packed;
 #define NUGGET_PARAM_CHANGE_UPDATE_PASSWORD 0x0004
 /*
  * Change the update password.
@@ -142,7 +142,6 @@ struct nugget_app_change_update_password {
  *
  * @errors             APP_ERROR_BOGUS_ARGS
  */
-
 
 #define NUGGET_PARAM_NUKE_FROM_ORBIT 0x0005
 #define ERASE_CONFIRMATION 0xc05fefee
@@ -172,17 +171,40 @@ struct nugget_app_change_update_password {
  */
 
 /****************************************************************************/
-/* Power HAL */
+/* Support for Power 1.1 HAL */
+
+/*
+ * This struct is specific to Citadel and Nugget OS, but it's enough for the
+ * AP-side implementation to translate into the info required for the HAL
+ * structs.
+ */
+struct nugget_app_low_power_stats {
+  /* All times in usecs */
+  uint64_t hard_reset_count;                    /* Cleared by power loss */
+  uint64_t time_since_hard_reset;
+  /* Below are only since the last hard reset */
+  uint64_t wake_count;
+  uint64_t time_at_last_wake;
+  uint64_t time_spent_awake;
+  uint64_t deep_sleep_count;
+  uint64_t time_at_last_deep_sleep;
+  uint64_t time_spent_in_deep_sleep;
+} __packed;
 
 #define NUGGET_PARAM_GET_LOW_POWER_STATS 0x200
 /*
- * Get the number of cycles since boot
+ * Return information regarding deep sleep transitions
  *
  * @param args         <none>
  * @param arg_len      0
- * @param reply        TODO(b/70510004): Return meaningful values
- * @param reply_len    0 for now
+ * @param reply        struct nugget_param_get_low_power_stats
+ * @param reply_len    sizeof(struct nugget_param_get_low_power_stats)
  */
+
+/* UNIMPLEMENTED */
+/* Reseved just in case we decide we need it */
+#define NUGGET_PARAM_CLEAR_LOW_POWER_STATS 0x201
+/* UNIMPLEMENTED */
 
 /****************************************************************************/
 /* These are bringup / debug functions only.
