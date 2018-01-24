@@ -333,7 +333,7 @@ uint32_t do_version(AppClient &app)
 uint32_t do_reboot(AppClient &app)
 {
   uint32_t retval;
-  std::vector<uint8_t> data = {0};
+  std::vector<uint8_t> data = {NUGGET_REBOOT_HARD};
 
   retval = app.Call(NUGGET_PARAM_REBOOT, data, nullptr);
 
