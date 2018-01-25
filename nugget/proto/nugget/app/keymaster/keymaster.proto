@@ -132,7 +132,9 @@ message ExportKeyRequest {
 };
 message ExportKeyResponse {
   ErrorCode error_code = 1;
-  bytes key_material = 2;
+  Algorithm algorithm = 2;
+  RSAKey rsa = 3;
+  ECKey ec = 4;
 };
 
 // AttestKey
