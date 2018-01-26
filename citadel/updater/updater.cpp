@@ -52,6 +52,7 @@ using nos::CitadeldProxyClient;
 struct options_s {
   /* actions to take */
   int version;
+  int stats;
   int ro;
   int rw;
   int reboot;
@@ -65,6 +66,7 @@ struct options_s {
 
 enum no_short_opts_for_these {
   OPT_DEVICE = 1000,
+  OPT_STATS,
   OPT_RO,
   OPT_RW,
   OPT_REBOOT,
@@ -78,6 +80,7 @@ const char *short_opts = ":hv";
 const struct option long_opts[] = {
   /* name    hasarg *flag val */
   {"version",     0, NULL, 'v'},
+  {"stats",       0, NULL, OPT_STATS},
   {"ro",          0, NULL, OPT_RO},
   {"rw",          0, NULL, OPT_RW},
   {"reboot",      0, NULL, OPT_REBOOT},
@@ -118,6 +121,7 @@ void usage(const char *progname)
     "Actions:\n"
     "\n"
     "  -v, --version     Display the Citadel version info\n"
+    "      --stats       Display Low Power stats\n"
     "      --rw          Update RW firmware from the image file\n"
     "      --ro          Update RO firmware from the image file\n"
     "      --reboot      Tell Citadel to reboot\n"
@@ -341,6 +345,39 @@ uint32_t do_version(AppClient &app)
   return retval;
 }
 
+uint32_t do_stats(AppClient &app)
+{
+  struct nugget_app_low_power_stats stats;
+  std::vector<uint8_t> buffer;
+  uint32_t retval;
+
+  buffer.reserve(sizeof(stats));
+
+  retval = app.Call(NUGGET_PARAM_GET_LOW_POWER_STATS, buffer, &buffer);
+
+  if (is_app_success(retval)) {
+    if (buffer.size() < sizeof(stats)) {
+      fprintf(stderr, "Only got %lud / %lud bytes back",
+              buffer.size(), sizeof(stats));
+      return -1;
+    }
+
+    memcpy(&stats, buffer.data(), sizeof(stats));
+
+    printf("hard_reset_count         %lu\n", stats.hard_reset_count);
+    printf("time_since_hard_reset    %lu\n", stats.time_since_hard_reset);
+    printf("wake_count               %lu\n", stats.wake_count);
+    printf("time_at_last_wake        %lu\n", stats.time_at_last_wake);
+    printf("time_spent_awake         %lu\n", stats.time_spent_awake);
+    printf("deep_sleep_count         %lu\n", stats.deep_sleep_count);
+    printf("time_at_last_deep_sleep  %lu\n", stats.time_at_last_deep_sleep);
+    printf("time_spent_in_deep_sleep %lu\n", stats.time_spent_in_deep_sleep);
+  }
+
+  return retval;
+}
+
+
 uint32_t do_reboot(AppClient &app)
 {
   uint32_t retval;
@@ -459,6 +496,11 @@ int execute_commands(const std::vector<uint8_t> &image,
     return 2;
   }
 
+  if (options.stats &&
+      do_stats(app) != APP_SUCCESS) {
+    return 2;
+  }
+
   if (options.rw &&
       do_update(app, image,
           CHIP_RW_A_MEM_OFF, CHIP_RW_B_MEM_OFF) != APP_SUCCESS) {
@@ -520,6 +562,10 @@ int main(int argc, char *argv[])
       /* program-specific options */
     case 'v':
       options.version = 1;
+      got_action = 1;
+      break;
+    case OPT_STATS:
+      options.stats = 1;
       got_action = 1;
       break;
     case OPT_RO:
