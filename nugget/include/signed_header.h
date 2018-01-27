@@ -7,6 +7,8 @@
 
 /* This is citadel */
 #define CHIP_C
+#define MAGIC_DEFAULT (-1u)
+#define MAGIC_VALID  (-2u)
 
 #ifdef __cplusplus
 #include <endian.h>

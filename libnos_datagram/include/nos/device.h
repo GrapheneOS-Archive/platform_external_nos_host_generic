@@ -42,6 +42,11 @@ struct nos_device_ops {
   int (*write)(void *ctx, uint32_t command, const uint8_t *buf, uint32_t len);
 
   /**
+   * Block until an event has happened on the device.
+   */
+  void (*wait_for_interrupt)(void *ctx);
+
+  /**
    * Close the connection to the device.
    *
    * The device must not be used after closing.
