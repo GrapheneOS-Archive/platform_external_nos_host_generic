@@ -77,6 +77,7 @@ message RSAKey {
 }
 
 message ECKey {
+  /* TODO: should this be EcCurve. */
   uint32 curve_id = 1;
   bytes d = 2;
   bytes x = 3;

@@ -40,7 +40,7 @@ service Keymaster {
    * require that the keymaster app switch from the
    * transport API to the datagram API.
    */
-  option (nugget.protobuf.request_buffer_size) = 2048;
+  option (nugget.protobuf.request_buffer_size) = 3072;
   option (nugget.protobuf.response_buffer_size) = 2048;
 
   /*
@@ -132,7 +132,9 @@ message ExportKeyRequest {
 };
 message ExportKeyResponse {
   ErrorCode error_code = 1;
-  bytes key_material = 2;
+  Algorithm algorithm = 2;
+  RSAKey rsa = 3;
+  ECKey ec = 4;
 };
 
 // AttestKey
