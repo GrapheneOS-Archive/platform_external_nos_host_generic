@@ -47,6 +47,13 @@ struct nos_device_ops {
   void (*wait_for_interrupt)(void *ctx);
 
   /**
+   * Reset the device.
+   *
+   * Return 0 on success and a negative value on failure.
+   */
+  int (*reset)(void *ctx);
+
+  /**
    * Close the connection to the device.
    *
    * The device must not be used after closing.
