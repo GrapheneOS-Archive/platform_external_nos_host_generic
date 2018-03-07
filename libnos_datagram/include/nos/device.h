@@ -42,9 +42,19 @@ struct nos_device_ops {
   int (*write)(void *ctx, uint32_t command, const uint8_t *buf, uint32_t len);
 
   /**
-   * Block until an event has happened on the device.
+   * Block until an event has happened on the device, or until timed out.
+   *
+   * Values for msecs
+   *  <0 wait forever
+   *   0 return immediately (why?)
+   *  >0 timeout after this many milliseconds
+   *
+   * Returns:
+   *  <0 on error
+   *   0 timed out
+   *  >0 interrupt occurred
    */
-  void (*wait_for_interrupt)(void *ctx);
+  int (*wait_for_interrupt)(void *ctx, int msecs);
 
   /**
    * Reset the device.
