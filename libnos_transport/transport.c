@@ -34,7 +34,7 @@
 /* Logging for Android */
 #define LOG_TAG "libnos_transport"
 #include <sys/types.h>
-#include <cutils/log.h>
+#include <log/log.h>
 
 #define NLOGE(...) ALOGE(__VA_ARGS__)
 #define NLOGV(...) ALOGV(__VA_ARGS__)
