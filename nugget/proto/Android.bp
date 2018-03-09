@@ -14,44 +14,19 @@
 // limitations under the License.
 //
 
-cc_defaults {
-    name: "libnosprotos_defaults",
-    defaults: ["nos_proto_defaults"],
-    cflags: [
-        // HACK: Work around the limitations of protobuf in the Android build.
-        // When importing a file, the symbols generated in the importee don't
-        // match the expectations of the importer. These are case-by-case
-        // defines to solve the problem.
-
-
-        "-Dprotobuf_AddDesc_nugget_2fprotobuf_2foptions_2eproto=protobuf_AddDesc_external_2fnos_2fhost_2fgeneric_2fnugget_2fproto_2fnugget_2fprotobuf_2foptions_2eproto",
-
-        // keymaster
-        "-Dprotobuf_AddDesc_nugget_2fapp_2fkeymaster_2fkeymaster_5ftypes_2eproto=protobuf_AddDesc_external_2fnos_2fhost_2fgeneric_2fnugget_2fproto_2fnugget_2fapp_2fkeymaster_2fkeymaster_5ftypes_2eproto",
-        "-Dprotobuf_AddDesc_nugget_2fapp_2fkeymaster_2fkeymaster_5fdefs_2eproto=protobuf_AddDesc_external_2fnos_2fhost_2fgeneric_2fnugget_2fproto_2fnugget_2fapp_2fkeymaster_2fkeymaster_5fdefs_2eproto",
-
-        // protoapi
-        "-Dprotobuf_AddDesc_nugget_2fapp_2fprotoapi_2fgchips_5ftypes_2eproto=protobuf_AddDesc_external_2fnos_2fhost_2fgeneric_2fnugget_2fproto_2fnugget_2fapp_2fprotoapi_2fgchips_5ftypes_2eproto",
-        "-Dprotobuf_AddDesc_nugget_2fapp_2fprotoapi_2fheader_2eproto=protobuf_AddDesc_external_2fnos_2fhost_2fgeneric_2fnugget_2fproto_2fnugget_2fapp_2fprotoapi_2fheader_2eproto",
-    ],
-}
-
 cc_library {
     name: "libnosprotos",
     srcs: ["**/*.proto"],
     exclude_srcs: ["google/protobuf/descriptor.proto"], // Used for bazel build
     defaults: [
-        "libnosprotos_defaults",
+        "nos_proto_defaults",
         "nos_cc_host_supported_defaults",
     ],
     proto: {
         type: "full",
+        canonical_path_from_root: false,
         export_proto_headers: true,
         include_dirs: [
-            // HACK: This must be the first path to force generated files to
-            // have the path expected by soong
-            ".",
-
             "external/nos/host/generic/nugget/proto",
             "external/protobuf/src",
         ],

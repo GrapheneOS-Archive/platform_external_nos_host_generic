@@ -49,11 +49,11 @@ cc_test_host {
         "test.cpp",
         "nos/generator/test/test.proto",
     ],
-    defaults: ["libnosprotos_defaults"],
+    defaults: ["nos_proto_defaults"],
     proto: {
         type: "full",
+        canonical_path_from_root: false,
         include_dirs: [
-            ".",
             "external/protobuf/src",
             "external/nos/host/generic/nugget/proto",
         ],
