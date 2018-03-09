@@ -85,7 +85,9 @@ const struct option long_opts[] = {
   {"enable_rw",   0, NULL, OPT_ENABLE_RW},
   {"change_pw",   0, NULL, OPT_CHANGE_PW},
   {"erase",       1, NULL, OPT_ERASE},
+#ifndef ANDROID
   {"device",      1, NULL, OPT_DEVICE},
+#endif
   {"help",        0, NULL, 'h'},
   {NULL, 0, NULL, 0},
 };
@@ -110,7 +112,7 @@ void usage(const char *progname)
     "inactive copy (A/B) of each stage (RO/RW) can be modified.\n"
     "The tool will update the correct copies automatically.\n"
     "\n"
-    "You must specify the actions to perform. With no options,\n"
+    "You must specify the actions to perform. With no actions,\n"
     "this help message is displayed.\n"
     "\n"
     "Actions:\n"
@@ -127,6 +129,15 @@ void usage(const char *progname)
     "\n\n"
     "      --erase=CODE  Erase all user secrets and reboot.\n"
     "                    This skips all other actions.\n"
+#ifndef ANDROID
+    "\n"
+    "Options:\n"
+    "\n"
+    "      --device=SN   Connect to the FDTI device with the given\n"
+    "                    serial number (try \"lsusb -v\"). A default\n"
+    "                    can be specified with the CITADEL_DEVICE\n"
+    "                    environment variable.\n"
+#endif
     "\n",
     progname);
 }
@@ -490,13 +501,19 @@ int main(int argc, char *argv[])
   char *e = 0;
 
   this_prog= strrchr(argv[0], '/');
-        if (this_prog) {
+  if (this_prog) {
     this_prog++;
   } else {
     this_prog = argv[0];
   }
 
-        opterr = 0;        /* quiet, you */
+#ifndef ANDROID
+  options.device = secure_getenv("CITADEL_DEVICE");
+  if (options.device)
+    fprintf(stderr, "-- $CITADEL_DEVICE=%s --\n", options.device);
+#endif
+
+  opterr = 0;        /* quiet, you */
   while ((i = getopt_long(argc, argv,
         short_opts, long_opts, &idx)) != -1) {
     switch (i) {
