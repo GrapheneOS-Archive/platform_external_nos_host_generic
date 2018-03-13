@@ -23,7 +23,6 @@ cc_library_headers {
 cc_defaults {
     name: "nos_proto_defaults",
     cflags: [
-        "-Wno-extended-offsetof",
         "-Wno-unused-parameter",
     ],
 }
