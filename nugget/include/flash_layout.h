@@ -69,4 +69,13 @@
 /* The flash controller prevents bulk writes that cross row boundaries */
 #define CHIP_FLASH_ROW_SIZE          256	/* row size */
 
+/* Manufacturing related data. */
+/* Certs in the RO region are written as a 4-kB + 3-kB block. */
+#define RO_CERTS_A_ADDR                     0x43000
+#define RO_CERTS_B_ADDR                     0x83000
+#define RO_CERTS_A_SIZE                     0x1000
+#define RO_CERTS_B_SIZE                     0x0c00
+#define RO_PROVISION_DATA_ADDR              (RO_CERTS_B_ADDR + RO_CERTS_B_SIZE)
+#define RO_PROVISION_DATA_SIZE              0x0400
+
 #endif	/* __CROS_EC_FLASH_LAYOUT_H */
