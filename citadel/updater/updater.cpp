@@ -56,6 +56,7 @@ struct options_s {
   int ro;
   int rw;
   int reboot;
+  int force_reset;
   int enable_ro;
   int enable_rw;
   int change_pw;
@@ -70,6 +71,7 @@ enum no_short_opts_for_these {
   OPT_RO,
   OPT_RW,
   OPT_REBOOT,
+  OPT_FORCE_RESET,
   OPT_ENABLE_RO,
   OPT_ENABLE_RW,
   OPT_CHANGE_PW,
@@ -84,6 +86,7 @@ const struct option long_opts[] = {
   {"ro",          0, NULL, OPT_RO},
   {"rw",          0, NULL, OPT_RW},
   {"reboot",      0, NULL, OPT_REBOOT},
+  {"force_reset", 0, NULL, OPT_FORCE_RESET},
   {"enable_ro",   0, NULL, OPT_ENABLE_RO},
   {"enable_rw",   0, NULL, OPT_ENABLE_RW},
   {"change_pw",   0, NULL, OPT_CHANGE_PW},
@@ -120,27 +123,28 @@ void usage(const char *progname)
     "\n"
     "Actions:\n"
     "\n"
-    "  -v, --version     Display the Citadel version info\n"
-    "      --stats       Display Low Power stats\n"
-    "      --rw          Update RW firmware from the image file\n"
-    "      --ro          Update RO firmware from the image file\n"
-    "      --reboot      Tell Citadel to reboot\n"
+    "  -v, --version       Display the Citadel version info\n"
+    "      --stats         Display Low Power stats\n"
+    "      --rw            Update RW firmware from the image file\n"
+    "      --ro            Update RO firmware from the image file\n"
+    "      --reboot        Tell Citadel to reboot\n"
+    "      --force_reset   Pulse Citadel's reset line\n"
     "\n"
-    "      --enable_ro   Mark new RO image as good\n"
-    "      --enable_rw   Mark new RW image as good\n"
+    "      --enable_ro     Mark new RO image as good\n"
+    "      --enable_rw     Mark new RW image as good\n"
     "\n"
-    "      --change_pw   Change update password\n"
+    "      --change_pw     Change update password\n"
     "\n\n"
-    "      --erase=CODE  Erase all user secrets and reboot.\n"
-    "                    This skips all other actions.\n"
+    "      --erase=CODE    Erase all user secrets and reboot.\n"
+    "                      This skips all other actions.\n"
 #ifndef ANDROID
     "\n"
     "Options:\n"
     "\n"
-    "      --device=SN   Connect to the FDTI device with the given\n"
-    "                    serial number (try \"lsusb -v\"). A default\n"
-    "                    can be specified with the CITADEL_DEVICE\n"
-    "                    environment variable.\n"
+    "      --device=SN     Connect to the FDTI device with the given\n"
+    "                      serial number (try \"lsusb -v\"). A default\n"
+    "                      can be specified with the CITADEL_DEVICE\n"
+    "                      environment variable.\n"
 #endif
     "\n",
     progname);
@@ -377,7 +381,6 @@ uint32_t do_stats(AppClient &app)
   return retval;
 }
 
-
 uint32_t do_reboot(AppClient &app)
 {
   uint32_t retval;
@@ -463,26 +466,38 @@ static uint32_t do_erase(AppClient &app)
   return rv;
 }
 
-std::unique_ptr<NuggetClientInterface> select_client()
-{
+// This is currently device-specific, but could be abstracted further
 #ifdef ANDROID
-  return std::unique_ptr<NuggetClientInterface>(new CitadeldProxyClient());
-#else
-  return std::unique_ptr<NuggetClientInterface>(
-      new NuggetClient(options.device ? options.device : ""));
-#endif
+static uint32_t do_force_reset(CitadeldProxyClient &client)
+{
+    bool b = false;
+
+    return !client.Citadeld().reset(&b).isOk();
 }
+#else
+static uint32_t do_force_reset(NuggetClient &client)
+{
+  struct nos_device *d = client.Device();
+
+  return d->ops.reset(d->ctx);
+}
+#endif
 
 int execute_commands(const std::vector<uint8_t> &image,
                      const char *old_passwd, const char *passwd)
 {
-  auto client = select_client();
-  client->Open();
-  if (!client->IsOpen()) {
+#ifdef ANDROID
+  CitadeldProxyClient client;
+#else
+  NuggetClient client(options.device ? options.device : "");
+#endif
+
+  client.Open();
+  if (!client.IsOpen()) {
     Error("Unable to connect");
     return 1;
   }
-  AppClient app(*client, APP_ID_NUGGET);
+  AppClient app(client, APP_ID_NUGGET);
 
   /* Try all requested actions in reasonable order, bail out on error */
 
@@ -524,6 +539,11 @@ int execute_commands(const std::vector<uint8_t> &image,
   if (options.reboot &&
       do_reboot(app) != APP_SUCCESS) {
     return 7;
+  }
+
+  if (options.force_reset &&
+      do_force_reset(client) != APP_SUCCESS) {
+    return 1;
   }
 
   return 0;
@@ -578,6 +598,10 @@ int main(int argc, char *argv[])
       break;
     case OPT_REBOOT:
       options.reboot = 1;
+      got_action = 1;
+      break;
+    case OPT_FORCE_RESET:
+      options.force_reset = 1;
       got_action = 1;
       break;
     case OPT_ENABLE_RO:
