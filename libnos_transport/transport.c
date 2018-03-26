@@ -16,6 +16,7 @@
 
 #include <nos/transport.h>
 
+#include <errno.h>
 #include <stdarg.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -62,14 +63,33 @@ static int get_status(const struct nos_device *dev,
   uint8_t buf[6];
   uint32_t command = CMD_ID(app_id) | CMD_IS_READ | CMD_TRANSPORT;
 
-  if (0 != dev->ops.read(dev->ctx, command, buf, sizeof(buf))) {
-    NLOGV("Failed to read device status");
+  uint16_t retries = 10;
+  while (retries--) {
+    int err = dev->ops.read(dev->ctx, command, buf, sizeof(buf));
+
+    if (err == 0) {
+      /* The read operation is successful */
+      *status = *(uint32_t *)buf;
+      *ulen = *(uint16_t *)(buf + 4);
+
+      return 0;
+    }
+
+    if (err == -EAGAIN) {
+      /* Linux driver returns EAGAIN error if Citadel chip is asleep.
+       * Give to the chip a little bit of time to awake and retry reading
+       * status again. */
+      usleep(5000);
+      continue;
+    }
+
+    /* Citadel driver returned an error */
+    NLOGE("Failed to read device status: %d", err);
     return -1;
   }
 
-  *status = *(uint32_t *)buf;
-  *ulen = *(uint16_t *)(buf + 4);
-  return 0;
+  NLOGE("Failed to read device status");
+  return -1;
 }
 
 static int clear_status(const struct nos_device *dev, uint8_t app_id)
@@ -94,18 +114,8 @@ uint32_t nos_call_application(const struct nos_device *dev,
   uint32_t status;
   uint16_t ulen;
   uint32_t poll_count = 0;
-  uint16_t retries = 10;
 
-  /* Make sure it's idle */
-  while (retries) {
-    if (get_status(dev, app_id, &status, &ulen) == 0) {
-      break;
-    }
-    --retries;
-    usleep(5000);
-  }
-  if (!retries) {
-    NLOGE("Failed to read device status");
+  if (get_status(dev, app_id, &status, &ulen) != 0) {
     return APP_ERROR_IO;
   }
   NLOGV("%d: query status 0x%08x  ulen 0x%04x", __LINE__, status, ulen);
