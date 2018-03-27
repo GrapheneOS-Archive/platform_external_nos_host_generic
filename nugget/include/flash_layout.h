@@ -70,12 +70,17 @@
 #define CHIP_FLASH_ROW_SIZE          256	/* row size */
 
 /* Manufacturing related data. */
-/* Certs in the RO region are written as a 4-kB + 3-kB block. */
-#define RO_CERTS_A_ADDR                     0x43000
-#define RO_CERTS_B_ADDR                     0x83000
-#define RO_CERTS_A_SIZE                     0x1000
-#define RO_CERTS_B_SIZE                     0x0c00
-#define RO_PROVISION_DATA_ADDR              (RO_CERTS_B_ADDR + RO_CERTS_B_SIZE)
-#define RO_PROVISION_DATA_SIZE              0x0400
+/* Certs in the RO region are written as 4-kB + 3-kB blocks to the A &
+ * B banks respectively.
+ */
+#define RO_CERTS_A_OFF                     (CHIP_RO_A_MEM_OFF + 0x2800)
+#define RO_CERTS_B_OFF                     (CHIP_RO_B_MEM_OFF + 0x2800)
+#define RO_CERTS_A_SIZE                     0x01000
+#define RO_CERTS_B_SIZE                     0x00c00
+/* We have an unused 3-kB region in the B bank, for future proofing. */
+#define RO_CERTS_PAD_B_SIZE                 0x00c00
+/* Factory provision data is written as a 2-kB block to the A bank. */
+#define RO_PROVISION_DATA_A_OFF             0x3800
+#define RO_PROVISION_DATA_A_SIZE            0x0800
 
 #endif	/* __CROS_EC_FLASH_LAYOUT_H */
