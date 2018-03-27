@@ -240,6 +240,8 @@ enum ErrorCode {
   PROOF_OF_PRESENCE_REQUIRED = 69;
   CONCURRENT_PROOF_OF_PRESENCE_REQUESTED = 70;
   UNKNOWN_ERROR = 71;
+  INVALID_DEVICE_IDS = 72;                // Vendor specific.
+  PRODUCTION_MODE_PROVISIONING = 73;      // Vendor specific.
 };
 
 enum HardwareAuthenticatorType {
