@@ -57,3 +57,25 @@ GEN_SERVICE = "$(location aprotoc) --plugin=protoc-gen-nos-client-cpp=$(location
 GEN_SERVICE_SOURCE = GEN_SERVICE + " --nos-client-cpp_out=source:$(genDir) "
 GEN_SERVICE_HEADER = GEN_SERVICE + " --nos-client-cpp_out=header:$(genDir) "
 GEN_SERVICE_MOCK = GEN_SERVICE + " --nos-client-cpp_out=mock:$(genDir) "
+
+// A special target to be statically linkeed into recovery which is a system
+// (not vendor) component.
+cc_library_static {
+    name: "libnos_for_recovery",
+    cflags: [
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-Wno-zero-length-array",
+    ],
+    export_include_dirs: [
+        "nugget/include",
+        "libnos/include",
+        "libnos_datagram/include",
+        "libnos_transport/include",
+    ],
+    srcs: [
+        "libnos/debug.cpp",
+        "libnos_transport/transport.c",
+    ],
+}
