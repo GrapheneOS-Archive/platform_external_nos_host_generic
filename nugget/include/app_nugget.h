@@ -156,6 +156,16 @@ struct nugget_app_change_update_password {
  * @errors             APP_ERROR_BOGUS_ARGS
  */
 
+#define NUGGET_PARAM_DEVICE_ID 0x0006
+/*
+ * Get the device ID of the chip.
+ *
+ * @param args         <none>
+ * @param arg_len      0
+ * @param reply        Null-terminated ASCII string
+ * @param reply_len    Max length to return
+ */
+
 
 /****************************************************************************/
 /* Test related commands */

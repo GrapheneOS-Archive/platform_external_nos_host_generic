@@ -52,6 +52,7 @@ using nos::CitadeldProxyClient;
 struct options_s {
   /* actions to take */
   int version;
+  int id;
   int stats;
   int ro;
   int rw;
@@ -67,6 +68,7 @@ struct options_s {
 
 enum no_short_opts_for_these {
   OPT_DEVICE = 1000,
+  OPT_ID,
   OPT_STATS,
   OPT_RO,
   OPT_RW,
@@ -82,6 +84,7 @@ const char *short_opts = ":hv";
 const struct option long_opts[] = {
   /* name    hasarg *flag val */
   {"version",     0, NULL, 'v'},
+  {"id",          0, NULL, OPT_ID},
   {"stats",       0, NULL, OPT_STATS},
   {"ro",          0, NULL, OPT_RO},
   {"rw",          0, NULL, OPT_RW},
@@ -124,6 +127,7 @@ void usage(const char *progname)
     "Actions:\n"
     "\n"
     "  -v, --version       Display the Citadel version info\n"
+    "      --id            Display the Citadel device ID\n"
     "      --stats         Display Low Power stats\n"
     "      --rw            Update RW firmware from the image file\n"
     "      --ro            Update RO firmware from the image file\n"
@@ -349,6 +353,21 @@ uint32_t do_version(AppClient &app)
   return retval;
 }
 
+uint32_t do_id(AppClient &app)
+{
+  uint32_t retval;
+  std::vector<uint8_t> buffer;
+  buffer.reserve(32);
+
+  retval = app.Call(NUGGET_PARAM_DEVICE_ID, buffer, &buffer);
+
+  if (is_app_success(retval)) {
+    printf("%.*s\n", (int) buffer.size(), buffer.data());
+  }
+
+  return retval;
+}
+
 uint32_t do_stats(AppClient &app)
 {
   struct nugget_app_low_power_stats stats;
@@ -511,6 +530,11 @@ int execute_commands(const std::vector<uint8_t> &image,
     return 2;
   }
 
+  if (options.id &&
+      do_id(app) != APP_SUCCESS) {
+    return 2;
+  }
+
   if (options.stats &&
       do_stats(app) != APP_SUCCESS) {
     return 2;
@@ -582,6 +606,10 @@ int main(int argc, char *argv[])
       /* program-specific options */
     case 'v':
       options.version = 1;
+      got_action = 1;
+      break;
+    case OPT_ID:
+      options.id = 1;
       got_action = 1;
       break;
     case OPT_STATS:
