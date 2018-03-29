@@ -41,6 +41,8 @@ service Avb {
   rpc Reset (ResetRequest) returns (ResetResponse);
   rpc BootloaderDone (BootloaderDoneRequest) returns (BootloaderDoneResponse);
   rpc GetOwnerKey (GetOwnerKeyRequest) returns (GetOwnerKeyResponse);
+  rpc GetResetChallenge (GetResetChallengeRequest) returns (GetResetChallengeResponse);
+  rpc ProductionResetTest (ProductionResetTestRequest) returns (ProductionResetTestResponse);
 }
 
 enum LockIndex {
@@ -131,6 +133,7 @@ message GetOwnerKeyResponse {
 // SetProduction
 message SetProductionRequest {
   bool production = 1;
+  bytes device_data = 2;
 }
 message SetProductionResponse {}
 
@@ -145,15 +148,42 @@ message CarrierLockTestRequest {
 message CarrierLockTestResponse {}
 
 // Reset
+message ResetToken {
+  enum Selectors {
+    INVALID = 0;
+    CURRENT = 1;
+  };
+  uint32 selector = 1;
+  bytes signature = 2;
+}
+
 message ResetRequest {
   enum ResetKind {
-    FACTORY = 0;
+    PRODUCTION = 0;
     LOCKS = 1;
-  }
+  };
 
   ResetKind kind = 1;
+  ResetToken token = 2; // optional
 }
 message ResetResponse {}
+
+// GetResetChallenge
+message GetResetChallengeRequest {}
+message GetResetChallengeResponse {
+  uint32 selector = 1;
+  uint64 nonce = 2;
+  bytes device_data = 3;
+}
+
+// ProductionResetTest
+message ProductionResetTestRequest {
+  uint32 selector = 1;
+  uint64 nonce = 2;
+  bytes device_data = 3;
+  bytes signature = 4;
+}
+message ProductionResetTestResponse {}
 
 // BootloaderDone
 message BootloaderDoneRequest {}

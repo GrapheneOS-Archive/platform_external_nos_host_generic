@@ -33,5 +33,6 @@ cc_binary {
         "libnos",
         "libnos_citadeld_proxy",
         "libnos_client_citadel",
+        "libutils",
     ],
 }
