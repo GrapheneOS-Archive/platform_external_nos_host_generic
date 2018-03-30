@@ -380,7 +380,7 @@ uint32_t do_stats(AppClient &app)
 
   if (is_app_success(retval)) {
     if (buffer.size() < sizeof(stats)) {
-      fprintf(stderr, "Only got %lud / %lud bytes back",
+      fprintf(stderr, "Only got %zd / %zd bytes back",
               buffer.size(), sizeof(stats));
       return -1;
     }
