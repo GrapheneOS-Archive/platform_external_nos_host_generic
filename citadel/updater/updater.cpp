@@ -387,14 +387,16 @@ uint32_t do_stats(AppClient &app)
 
     memcpy(&stats, buffer.data(), sizeof(stats));
 
-    printf("hard_reset_count         %lu\n", stats.hard_reset_count);
-    printf("time_since_hard_reset    %lu\n", stats.time_since_hard_reset);
-    printf("wake_count               %lu\n", stats.wake_count);
-    printf("time_at_last_wake        %lu\n", stats.time_at_last_wake);
-    printf("time_spent_awake         %lu\n", stats.time_spent_awake);
-    printf("deep_sleep_count         %lu\n", stats.deep_sleep_count);
-    printf("time_at_last_deep_sleep  %lu\n", stats.time_at_last_deep_sleep);
-    printf("time_spent_in_deep_sleep %lu\n", stats.time_spent_in_deep_sleep);
+    printf("hard_reset_count         "PRIu64"\n", stats.hard_reset_count);
+    printf("time_since_hard_reset    "PRIu64"\n", stats.time_since_hard_reset);
+    printf("wake_count               "PRIu64"\n", stats.wake_count);
+    printf("time_at_last_wake        "PRIu64"\n", stats.time_at_last_wake);
+    printf("time_spent_awake         "PRIu64"\n", stats.time_spent_awake);
+    printf("deep_sleep_count         "PRIu64"\n", stats.deep_sleep_count);
+    printf("time_at_last_deep_sleep  "PRIu64"\n",
+           stats.time_at_last_deep_sleep);
+    printf("time_spent_in_deep_sleep "PRIu64"\n",
+           stats.time_spent_in_deep_sleep);
   }
 
   return retval;
