@@ -75,6 +75,10 @@ service Keymaster {
   rpc SetRootOfTrust (SetRootOfTrustRequest) returns (SetRootOfTrustResponse);
   // Only callable by the Bootloader.
   rpc SetBootState (SetBootStateRequest) returns (SetBootStateResponse);
+  // Only callable at the Device Factory.
+  rpc ProvisionDeviceIds (ProvisionDeviceIdsRequest) returns (ProvisionDeviceIdsResponse);
+  // Only callable at the Device Factory.
+  rpc ReadTeeBatchCertificate (ReadTeeBatchCertificateRequest) returns (ReadTeeBatchCertificateResponse);
 }
 
 /*
@@ -267,4 +271,33 @@ message SetBootStateRequest {
 message SetBootStateResponse {
   // Specified in keymaster_defs.proto:ErrorCode
   ErrorCode error_code = 1;
+}
+
+// ProvisionDeviceIds
+// Only callable at the Device Factory
+message ProvisionDeviceIdsRequest {
+  bytes product_brand = 1;
+  bytes product_device = 2;
+  bytes product_name = 3;
+  bytes serialno = 4;
+  bytes product_manufacturer = 5;
+  bytes product_model = 6;
+  bytes imei = 7;
+  bytes meid = 8;
+}
+message ProvisionDeviceIdsResponse {
+  // Specified in keymaster_defs.proto:ErrorCode
+  ErrorCode error_code = 1;
+}
+
+// ReadTeeBatchCertificate
+// Only callable at the Device Factory
+message ReadTeeBatchCertificateRequest {
+  Algorithm algorithm = 1;
+}
+message ReadTeeBatchCertificateResponse {
+  ErrorCode error_code = 1;
+  RSAKey rsa = 2;   // rsa or ec set based on request algorithm selector.
+  ECKey ec = 3;
+  bytes batch_cert = 4;
 }
