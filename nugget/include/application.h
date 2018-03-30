@@ -73,6 +73,9 @@ typedef const void * const __private;
 #define APP_ID_WEAVER            0x03
 #define APP_ID_PROTOBUF          0x04
 
+/* Fake apps used only for testing */
+#define APP_ID_AVB_TEST          0x11
+
 /* This app ID should only be used by tests. */
 #define APP_ID_TEST              0xff
 
