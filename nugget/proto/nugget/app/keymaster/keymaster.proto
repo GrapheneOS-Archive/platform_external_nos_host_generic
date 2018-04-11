@@ -85,6 +85,12 @@ service Keymaster {
    */
   rpc GetHmacSharingParameters (GetHmacSharingParametersRequest) returns (GetHmacSharingParametersResponse);
   rpc ComputeSharedHmac (ComputeSharedHmacRequest) returns (ComputeSharedHmacResponse);
+
+  /*
+   * DTup input session methods.
+   */
+  rpc HandshakeDTup (DTupHandshakeRequest) returns (DTupHandshakeResponse);
+  rpc FetchDTupInputEvent (DTupFetchInputEventRequest) returns (DTupFetchInputEventResponse);
 }
 
 /*
@@ -322,4 +328,22 @@ message ComputeSharedHmacRequest {
 message ComputeSharedHmacResponse {
   ErrorCode error_code = 1;
   bytes sharing_check = 2;
+}
+
+message DTupHandshakeRequest {
+  bytes nonce_client = 1;
+}
+
+message DTupHandshakeResponse {
+  DTupError error_code = 1;
+  bytes nonce_citadel = 2;
+  bytes signature = 3;
+}
+
+message DTupFetchInputEventRequest {}
+
+message DTupFetchInputEventResponse {
+  DTupError error_code = 1;
+  DTupKeyEvent event = 2;
+  bytes signature = 3;
 }
