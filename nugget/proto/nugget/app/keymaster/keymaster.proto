@@ -79,6 +79,12 @@ service Keymaster {
   rpc ProvisionDeviceIds (ProvisionDeviceIdsRequest) returns (ProvisionDeviceIdsResponse);
   // Only callable at the Device Factory.
   rpc ReadTeeBatchCertificate (ReadTeeBatchCertificateRequest) returns (ReadTeeBatchCertificateResponse);
+
+  /*
+   * More KM4 methods.
+   */
+  rpc GetHmacSharingParameters (GetHmacSharingParametersRequest) returns (GetHmacSharingParametersResponse);
+  rpc ComputeSharedHmac (ComputeSharedHmacRequest) returns (ComputeSharedHmacResponse);
 }
 
 /*
@@ -300,4 +306,20 @@ message ReadTeeBatchCertificateResponse {
   RSAKey rsa = 2;   // rsa or ec set based on request algorithm selector.
   ECKey ec = 3;
   bytes batch_cert = 4;
+}
+
+message GetHmacSharingParametersRequest {}
+
+message GetHmacSharingParametersResponse {
+  ErrorCode error_code = 1;
+  HmacSharingParameters hmac_sharing_params = 2;
+}
+
+message ComputeSharedHmacRequest {
+  repeated HmacSharingParameters hmac_sharing_params = 1;
+}
+
+message ComputeSharedHmacResponse {
+  ErrorCode error_code = 1;
+  bytes sharing_check = 2;
 }
