@@ -56,6 +56,56 @@ extern int usleep (uint32_t usec);
 
 #endif
 
+/* Citadel might take up to 100ms to wake up */
+#define RETRY_COUNT 25
+#define RETRY_WAIT_TIME_US 5000
+
+static int nos_device_read(const struct nos_device *dev, uint32_t command,
+                           uint8_t *buf, uint32_t len) {
+  int retries = RETRY_COUNT;
+  while (retries--) {
+    int err = dev->ops.read(dev->ctx, command, buf, len);
+
+    if (err == -EAGAIN) {
+      /* Linux driver returns EAGAIN error if Citadel chip is asleep.
+       * Give to the chip a little bit of time to awake and retry reading
+       * status again. */
+      usleep(RETRY_WAIT_TIME_US);
+      continue;
+    }
+
+    if (err) {
+      NLOGE("Failed to read: %s", strerror(-err));
+    }
+    return -err;
+  }
+
+  return ETIMEDOUT;
+}
+
+static int nos_device_write(const struct nos_device *dev, uint32_t command,
+                            uint8_t *buf, uint32_t len) {
+  int retries = RETRY_COUNT;
+  while (retries--) {
+    int err = dev->ops.write(dev->ctx, command, buf, len);
+
+    if (err == -EAGAIN) {
+      /* Linux driver returns EAGAIN error if Citadel chip is asleep.
+       * Give to the chip a little bit of time to awake and retry reading
+       * status again. */
+      usleep(RETRY_WAIT_TIME_US);
+      continue;
+    }
+
+    if (err) {
+      NLOGE("Failed to write: %s", strerror(-err));
+    }
+    return -err;
+  }
+
+  return ETIMEDOUT;
+}
+
 /* status is non-zero on error */
 static int get_status(const struct nos_device *dev,
                       uint8_t app_id, uint32_t *status, uint16_t *ulen)
@@ -63,40 +113,22 @@ static int get_status(const struct nos_device *dev,
   uint8_t buf[6];
   uint32_t command = CMD_ID(app_id) | CMD_IS_READ | CMD_TRANSPORT;
 
-  uint16_t retries = 10;
-  while (retries--) {
-    int err = dev->ops.read(dev->ctx, command, buf, sizeof(buf));
-
-    if (err == 0) {
-      /* The read operation is successful */
-      *status = *(uint32_t *)buf;
-      *ulen = *(uint16_t *)(buf + 4);
-
-      return 0;
-    }
-
-    if (err == -EAGAIN) {
-      /* Linux driver returns EAGAIN error if Citadel chip is asleep.
-       * Give to the chip a little bit of time to awake and retry reading
-       * status again. */
-      usleep(5000);
-      continue;
-    }
-
-    /* Citadel driver returned an error */
-    NLOGE("Failed to read device status: %d", err);
+  if (0 != nos_device_read(dev, command, buf, sizeof(buf))) {
+    NLOGE("Failed to read device status");
     return -1;
   }
 
-  NLOGE("Failed to read device status");
-  return -1;
+  /* The read operation is successful */
+  *status = *(uint32_t *)buf;
+  *ulen = *(uint16_t *)(buf + 4);
+  return 0;
 }
 
 static int clear_status(const struct nos_device *dev, uint8_t app_id)
 {
   uint32_t command = CMD_ID(app_id) | CMD_TRANSPORT;
 
-  if (0 != dev->ops.write(dev->ctx, command, 0, 0)) {
+  if (0 != nos_device_write(dev, command, 0, 0)) {
     NLOGE("Failed to clear device status");
     return -1;
   }
@@ -161,7 +193,7 @@ uint32_t nos_call_application(const struct nos_device *dev,
 
     NLOGV("Write command 0x%08x, bytes 0x%x", command, ulen);
 
-    if (0 != dev->ops.write(dev->ctx, command, buf, ulen)) {
+    if (0 != nos_device_write(dev, command, buf, ulen)) {
       NLOGE("Failed to send datagram to device");
       return APP_ERROR_IO;
     }
@@ -187,7 +219,7 @@ uint32_t nos_call_application(const struct nos_device *dev,
   /* Now tell the app to do whatever */
   command = CMD_ID(app_id) | CMD_PARAM(params);
   NLOGV("Write command 0x%08x", command);
-  if (0 != dev->ops.write(dev->ctx, command, 0, 0)) {
+  if (0 != nos_device_write(dev, command, 0, 0)) {
       NLOGE("Failed to send command datagram to device");
       return APP_ERROR_IO;
   }
@@ -222,7 +254,7 @@ reply:
        */
       gimme = MIN(left, MAX_DEVICE_TRANSFER);
       NLOGV("Read command 0x%08x, bytes 0x%x", command, gimme);
-      if (0 != dev->ops.read(dev->ctx, command, buf, gimme)) {
+      if (0 != nos_device_read(dev, command, buf, gimme)) {
         NLOGE("Failed to receive datagram from device");
         return APP_ERROR_IO;
       }
@@ -238,7 +270,7 @@ reply:
 
   /* Clear the reply manually for the next caller */
   command = CMD_ID(app_id) | CMD_TRANSPORT;
-  if (0 != dev->ops.write(dev->ctx, command, 0, 0)) {
+  if (0 != nos_device_write(dev, command, 0, 0)) {
     NLOGE("Failed to clear the reply");
     return APP_ERROR_IO;
   }
