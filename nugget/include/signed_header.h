@@ -82,6 +82,8 @@ typedef struct SignedHeader {
   }
 
   void print() const {
+    printf("hdr.magic          : %d\n", magic);
+    printf("hdr.image_size     : %08x\n", image_size);
     printf("hdr.keyid          : %08x\n", keyid);
     printf("hdr.tag            : ");
     const uint8_t* p = reinterpret_cast<const uint8_t*>(&tag);
@@ -115,6 +117,10 @@ typedef struct SignedHeader {
       printf("%08X", infomap[i]);
     }
     printf("\n");
+    printf("hdr.ro_base       : %08x\n", ro_base);
+    printf("hdr.ro_max        : %08x\n", ro_max);
+    printf("hdr.rx_base       : %08x\n", rx_base);
+    printf("hdr.rx_max        : %08x\n", rx_max);
   }
 #endif  // __cplusplus
 
