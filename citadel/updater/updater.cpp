@@ -406,9 +406,9 @@ uint32_t do_stats(AppClient &app)
 uint32_t do_reboot(AppClient &app)
 {
   uint32_t retval;
-  std::vector<uint8_t> data = {NUGGET_REBOOT_HARD};
+  std::vector<uint8_t> ignored = {1};           // older images need this
 
-  retval = app.Call(NUGGET_PARAM_REBOOT, data, nullptr);
+  retval = app.Call(NUGGET_PARAM_REBOOT, ignored, nullptr);
 
   if (is_app_success(retval)) {
     printf("Citadel reboot requested\n");

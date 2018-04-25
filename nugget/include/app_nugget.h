@@ -74,17 +74,11 @@ struct nugget_app_flash_block {
 /*
  * Reboot Citadel
  *
- * @param args         uint8_t hard        0 = soft reboot, 1 = hard reboot
- * @param arg_len      sizeof(uint8_t)
+ * @param args         <none>
+ * @param arg_len      0
  * @param reply        <none>
  * @param reply_len    0
  */
-
-enum NUGGET_REBOOT_ARG_TYPE {
-  NUGGET_REBOOT_SOFT = 0,
-  NUGGET_REBOOT_HARD = 1,
-};
-
 
 /*********
  * Firmware updates are written to flash with invalid headers. If an update
