@@ -65,6 +65,7 @@ struct options_s {
   int file_version;
   enum hdr_section file_section;
   int id;
+  int repo_snapshot;
   int stats;
   int ro;
   int rw;
@@ -81,6 +82,7 @@ struct options_s {
 enum no_short_opts_for_these {
   OPT_DEVICE = 1000,
   OPT_ID,
+  OPT_REPO_SNAPSHOT,
   OPT_STATS,
   OPT_RO,
   OPT_RW,
@@ -95,22 +97,23 @@ enum no_short_opts_for_these {
 const char *short_opts = ":hvlV:fF:";
 const struct option long_opts[] = {
   /* name    hasarg *flag val */
-  {"version",      0, NULL, 'v'},
-  {"long_version", 0, NULL, 'l'},
-  {"id",           0, NULL, OPT_ID},
-  {"stats",        0, NULL, OPT_STATS},
-  {"ro",           0, NULL, OPT_RO},
-  {"rw",           0, NULL, OPT_RW},
-  {"reboot",       0, NULL, OPT_REBOOT},
-  {"force_reset",  0, NULL, OPT_FORCE_RESET},
-  {"enable_ro",    0, NULL, OPT_ENABLE_RO},
-  {"enable_rw",    0, NULL, OPT_ENABLE_RW},
-  {"change_pw",    0, NULL, OPT_CHANGE_PW},
-  {"erase",        1, NULL, OPT_ERASE},
+  {"version",       0, NULL, 'v'},
+  {"long_version",  0, NULL, 'l'},
+  {"id",            0, NULL, OPT_ID},
+  {"repo_snapshot", 0, NULL, OPT_REPO_SNAPSHOT},
+  {"stats",         0, NULL, OPT_STATS},
+  {"ro",            0, NULL, OPT_RO},
+  {"rw",            0, NULL, OPT_RW},
+  {"reboot",        0, NULL, OPT_REBOOT},
+  {"force_reset",   0, NULL, OPT_FORCE_RESET},
+  {"enable_ro",     0, NULL, OPT_ENABLE_RO},
+  {"enable_rw",     0, NULL, OPT_ENABLE_RW},
+  {"change_pw",     0, NULL, OPT_CHANGE_PW},
+  {"erase",         1, NULL, OPT_ERASE},
 #ifndef ANDROID
-  {"device",       1, NULL, OPT_DEVICE},
+  {"device",        1, NULL, OPT_DEVICE},
 #endif
-  {"help",         0, NULL, 'h'},
+  {"help",          0, NULL, 'h'},
   {NULL, 0, NULL, 0},
 };
 
@@ -146,6 +149,7 @@ void usage(const char *progname)
     "  -V SECTION           Show Citadel headers for RO_A | RO_B | RW_A | RW_B\n"
     "  -f                   Show image file version info\n"
     "  -F SECTION           Show file headers for RO_A | RO_B | RW_A | RW_B\n"
+    "  --repo_snapshot      Show the repo sha1sums for the running image\n"
     "\n"
     "  --rw                 Update RW firmware from the image file\n"
     "  --ro                 Update RO firmware from the image file\n"
@@ -556,6 +560,21 @@ uint32_t do_file_section(const std::vector<uint8_t> &image)
   return 0;
 }
 
+uint32_t do_repo_snapshot(AppClient &app)
+{
+  uint32_t retval;
+  std::vector<uint8_t> buffer;
+  buffer.reserve(1200);
+
+  retval = app.Call(NUGGET_PARAM_REPO_SNAPSHOT, buffer, &buffer);
+
+  if (is_app_success(retval)) {
+    printf("%.*s\n", (int)buffer.size(), buffer.data());
+  }
+
+  return retval;
+}
+
 uint32_t do_stats(AppClient &app)
 {
   struct nugget_app_low_power_stats stats;
@@ -751,6 +770,10 @@ int execute_commands(const std::vector<uint8_t> &image,
     return 2;
   }
 
+  if (options.repo_snapshot &&
+      do_repo_snapshot(app) != APP_SUCCESS) {
+    return 2;
+  }
   if (options.rw &&
       do_update(app, image,
           CHIP_RW_A_MEM_OFF, CHIP_RW_B_MEM_OFF) != APP_SUCCESS) {
@@ -840,6 +863,10 @@ int main(int argc, char *argv[])
       break;
     case OPT_ID:
       options.id = 1;
+      got_action = 1;
+      break;
+    case OPT_REPO_SNAPSHOT:
+      options.repo_snapshot = 1;
       got_action = 1;
       break;
     case OPT_STATS:

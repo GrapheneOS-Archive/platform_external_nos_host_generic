@@ -221,6 +221,18 @@ struct nugget_app_change_update_password {
  * @errors             APP_ERROR_TOO_MUCH
  */
 
+#define NUGGET_PARAM_REPO_SNAPSHOT 0x000c
+/*
+ * Return the multi-line repo snapshot info for the current image
+ *
+ * @param args         <none>
+ * @param arg_len      0
+ * @param reply        Null-terminated ASCII string
+ * @param reply_len    Max length to return
+ *
+ * @errors             APP_ERROR_TOO_MUCH
+ */
+
 /****************************************************************************/
 /* Test related commands */
 
