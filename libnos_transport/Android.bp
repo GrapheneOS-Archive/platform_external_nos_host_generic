@@ -18,7 +18,6 @@ cc_library {
     name: "libnos_transport",
     srcs: [
         "transport.c",
-        "crc16.c",
     ],
     defaults: ["nos_cc_host_supported_defaults"],
     cflags: [

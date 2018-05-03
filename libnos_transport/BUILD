@@ -2,8 +2,6 @@ cc_library(
     name = "libnos_transport",
     srcs = [
         "transport.c",
-        "crc16.c",
-        "crc16.h",
     ],
     hdrs = [
         "include/nos/transport.h",

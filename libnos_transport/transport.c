@@ -18,15 +18,12 @@
 
 #include <errno.h>
 #include <stdarg.h>
-#include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 
 #include <application.h>
-
-#include "crc16.h"
 
 /* Note: evaluates expressions multiple times */
 #define MIN(a, b) (((a) < (b)) ? (a) : (b))
@@ -63,24 +60,8 @@ extern int usleep (uint32_t usec);
 #define RETRY_COUNT 25
 #define RETRY_WAIT_TIME_US 5000
 
-/* In case of CRC error, try to retransmit */
-#define CRC_RETRY_COUNT 3
-
-struct transport_context {
-  const struct nos_device *dev;
-  uint8_t app_id;
-  uint16_t params;
-  const uint8_t *args;
-  uint32_t arg_len;
-  uint8_t *reply;
-  uint32_t *reply_len;
-};
-
-/*
- * Read a datagram from the device, correctly handling retries.
- */
 static int nos_device_read(const struct nos_device *dev, uint32_t command,
-                           void *buf, uint32_t len) {
+                           uint8_t *buf, uint32_t len) {
   int retries = RETRY_COUNT;
   while (retries--) {
     int err = dev->ops.read(dev->ctx, command, buf, len);
@@ -102,11 +83,8 @@ static int nos_device_read(const struct nos_device *dev, uint32_t command,
   return ETIMEDOUT;
 }
 
-/*
- * Write a datagram to the device, correctly handling retries.
- */
 static int nos_device_write(const struct nos_device *dev, uint32_t command,
-                            const void *buf, uint32_t len) {
+                            uint8_t *buf, uint32_t len) {
   int retries = RETRY_COUNT;
   while (retries--) {
     int err = dev->ops.write(dev->ctx, command, buf, len);
@@ -128,316 +106,174 @@ static int nos_device_write(const struct nos_device *dev, uint32_t command,
   return ETIMEDOUT;
 }
 
-#define GET_STATUS_OK              0
-#define GET_STATUS_ERROR_IO       -1
-#define GET_STATUS_ERROR_PROTOCOL -2
+/* status is non-zero on error */
+static int get_status(const struct nos_device *dev,
+                      uint8_t app_id, uint32_t *status, uint16_t *ulen)
+{
+  uint8_t buf[6];
+  uint32_t command = CMD_ID(app_id) | CMD_IS_READ | CMD_TRANSPORT;
 
-/*
- * Get the status regardless of protocol version. This means some fields might
- * not be set meaningfully so the caller must check the version before accessing
- * them.
- *
- * Returns non-zero on error.
- */
-static int get_status(const struct transport_context *ctx,
-                      struct transport_status *out) {
-  int retries = CRC_RETRY_COUNT;
-  while (retries--) {
-    /* Get the status from the device */
-    union {
-      struct transport_legacy_status legacy;
-      struct transport_status current;
-    } status;
-    const uint32_t command = CMD_ID(ctx->app_id) | CMD_IS_READ | CMD_TRANSPORT;
-    if (0 != nos_device_read(ctx->dev, command, &status, sizeof(status))) {
-      NLOGE("Failed to read device status");
-      return GET_STATUS_ERROR_IO;
-    }
-
-    /*
-     * Identify the legacy protocol. This could have been caused by a bit error
-     * but which would result in the wrong status and reply_len being used. If
-     * it is the legacy protocol, transform it to V1.
-     */
-    const bool is_legacy = (status.current.magic != TRANSPORT_STATUS_MAGIC);
-    /* TODO: deprecate the legacy protocol when it is safe to do so */
-    if (is_legacy) {
-      out->version = TRANSPORT_LEGACY;
-      out->status = status.legacy.status;
-      out->reply_len = status.legacy.reply_len;
-      return GET_STATUS_OK;
-    }
-
-    /* Check the CRC, if it fails we will retry */
-    const uint16_t their_crc = status.current.crc;
-    status.current.crc = 0;
-    const uint16_t our_crc = crc16(&status, sizeof(status));
-    if (their_crc != our_crc) {
-      NLOGE("Status CRC mismatch: theirs=%04x ours=%04x", their_crc, our_crc);
-      continue;
-    }
-
-    /* Check this is a version we recognise */
-    if (status.current.version != TRANSPORT_V1) {
-      NLOGE("Don't recognise transport version: %d", status.current.version);
-      return GET_STATUS_ERROR_PROTOCOL;
-    }
-
-    /* It all looks good */
-    *out = status.current;
-    return GET_STATUS_OK;
-  }
-
-  NLOGE("Unable to get valid checksum on status");
-  return GET_STATUS_ERROR_PROTOCOL;
-}
-
-static int clear_status(const struct transport_context *ctx) {
-  const uint32_t command = CMD_ID(ctx->app_id) | CMD_TRANSPORT;
-  if (nos_device_write(ctx->dev, command, 0, 0) != 0) {
-    NLOGE("Failed to clear device status");
+  if (0 != nos_device_read(dev, command, buf, sizeof(buf))) {
+    NLOGE("Failed to read device status");
     return -1;
   }
+
+  /* The read operation is successful */
+  *status = *(uint32_t *)buf;
+  *ulen = *(uint16_t *)(buf + 4);
   return 0;
 }
 
-/*
- * Ensure that the app is in an idle state ready to handle the transaction.
- */
-static uint32_t make_ready(const struct transport_context *ctx) {
-  struct transport_status status;
-  int ret = get_status(ctx, &status);
+static int clear_status(const struct nos_device *dev, uint8_t app_id)
+{
+  uint32_t command = CMD_ID(app_id) | CMD_TRANSPORT;
 
-  if (ret == GET_STATUS_OK) {
-    NLOGD("Inspection status=0x%08x reply_len=%d protocol=%s",
-          status.status, status.reply_len,
-          status.version == TRANSPORT_LEGACY ? "legacy" : "current");
-    /* If it's already idle then we're ready to proceed */
-    if (status.status == APP_STATUS_IDLE) {
-      return APP_SUCCESS;
-    }
-    /* Continue to try again after clearing state */
-  } else if (ret != GET_STATUS_ERROR_PROTOCOL) {
-    NLOGE("Failed to inspect device");
-    return APP_ERROR_IO;
+  if (0 != nos_device_write(dev, command, 0, 0)) {
+    NLOGE("Failed to clear device status");
+    return -1;
   }
 
-  /* Try clearing the status */
-  NLOGD("Clearing previous status");
-  if (clear_status(ctx) != 0) {
-    NLOGD("Failed to force idle status");
-    return APP_ERROR_IO;
-  }
-
-  /* Check again */
-  if (get_status(ctx, &status) != GET_STATUS_OK) {
-    NLOGE("Failed to get cleared status");
-    return APP_ERROR_IO;
-  }
-  NLOGD("Cleared status=0x%08x reply_len=%d", status.status, status.reply_len);
-
-  /* It's ignoring us and is still not ready, so it's broken */
-  if (status.status != APP_STATUS_IDLE) {
-    NLOGE("Device is not responding");
-    return APP_ERROR_IO;
-  }
-
-  return APP_SUCCESS;
+  return 0;
 }
 
-/*
- * Split request into datagrams and send command to have app process it.
- */
-static uint32_t send_command(const struct transport_context *ctx) {
-  const uint8_t *args = ctx->args;
-  uint16_t arg_len = ctx->arg_len;
-
-  NLOGV("Send command data (%d bytes)", arg_len);
-  uint32_t command = CMD_ID(ctx->app_id) | CMD_IS_DATA | CMD_TRANSPORT;
-  /* TODO: don't need to send empty packet in non-legacy protocol */
-  do {
-    /*
-     * We can't send more per datagram than the device can accept. For Citadel
-     * using the TPM Wait protocol on SPS, this is a constant. For other buses
-     * it may not be, but this is what we support here. Due to peculiarities of
-     * Citadel's SPS hardware, our protocol requires that we specify the length
-     * of what we're about to send in the params field of each Write.
-     */
-    const uint16_t ulen = MIN(arg_len, MAX_DEVICE_TRANSFER);
-    CMD_SET_PARAM(command, ulen);
-
-    NLOGD("Write command 0x%08x, bytes %d", command, ulen);
-    if (nos_device_write(ctx->dev, command, args, ulen) != 0) {
-      NLOGE("Failed to send datagram to device");
-      return APP_ERROR_IO;
-    }
-
-    /* Any further Writes needed to send all the args must set the MORE bit */
-    command |= CMD_MORE_TO_COME;
-    args += ulen;
-    arg_len -= ulen;
-  } while (arg_len);
-
-  /* Finally, send the "go" command */
-  command = CMD_ID(ctx->app_id) | CMD_PARAM(ctx->params);
-
-  /*
-   * The outgoing crc covers:
-   *
-   *   1. the (16-bit) length of args
-   *   2. the args buffer (if any)
-   *   3. the (16-bit) reply_len_hint
-   *   4. the (32-bit) "go" command
-   */
-  struct transport_command_info command_info = {
-    .version = TRANSPORT_V1,
-    .reply_len_hint = *ctx->reply_len,
-  };
-  arg_len = ctx->arg_len;
-  command_info.crc = crc16(&arg_len, sizeof(arg_len));
-  command_info.crc = crc16_update(ctx->args, ctx->arg_len, command_info.crc);
-  command_info.crc = crc16_update(&command_info.reply_len_hint,
-                                  sizeof(command_info.reply_len_hint),
-                                  command_info.crc);
-  command_info.crc = crc16_update(&command, sizeof(command), command_info.crc);
-
-  /* Tell the app to handle the request while also sending the command_info
-   * which will be ignored by the legacy protocol. */
-  NLOGD("Write command 0x%08x, crc %04x...", command, command_info.crc);
-  if (0 != nos_device_write(ctx->dev, command, &command_info, sizeof(command_info))) {
-    NLOGE("Failed to send command datagram to device");
-    return APP_ERROR_IO;
-  }
-
-  return APP_SUCCESS;
-}
-
-/*
- * Keep polling until the app says it is done.
- */
-uint32_t poll_until_done(const struct transport_context *ctx,
-                         struct transport_status *status) {
-  uint32_t poll_count = 0;
-  NLOGV("Poll the app status until it's done");
-  do {
-    if (get_status(ctx, status) != GET_STATUS_OK) {
-      return APP_ERROR_IO;
-    }
-    poll_count++;
-    NLOGD("%d:  poll=%d status=0x%08x reply_len=%d", __LINE__,
-          poll_count, status->status, status->reply_len);
-  } while (!(status->status & APP_STATUS_DONE));
-
-  NLOGV("status=0x%08x reply_len=%d...", status->status, status->reply_len);
-  return APP_STATUS_CODE(status->status);
-}
-
-/*
- * Reconstruct the reply data from datagram stream.
- */
-uint32_t receive_reply(const struct transport_context *ctx,
-                       const struct transport_status *status) {
-  int retries = CRC_RETRY_COUNT;
-  while (retries--) {
-    NLOGV("Read the reply data (%d bytes)", status->reply_len);
-
-    uint32_t command = CMD_ID(ctx->app_id) | CMD_IS_READ | CMD_TRANSPORT | CMD_IS_DATA;
-    uint8_t *reply = ctx->reply;
-    uint16_t left = MIN(*ctx->reply_len, status->reply_len);
-    uint16_t got = 0;
-    uint16_t crc = 0;
-    while (left) {
-      /* We can't read more per datagram than the device can send */
-      const uint16_t gimme = MIN(left, MAX_DEVICE_TRANSFER);
-      NLOGD("Read command=0x%08x, bytes=%d", command, gimme);
-      if (nos_device_read(ctx->dev, command, reply, gimme) != 0) {
-        NLOGE("Failed to receive datagram from device");
-        return APP_ERROR_IO;
-      }
-
-      /* Any further Reads should set the MORE bit. This only works if Nugget
-       * OS sends back CRCs, but that's the only time we'd retry anyway. */
-      command |= CMD_MORE_TO_COME;
-
-      crc = crc16_update(reply, gimme, crc);
-      reply += gimme;
-      left -= gimme;
-      got += gimme;
-    }
-    /* got it all */
-    *ctx->reply_len = got;
-
-    /* Legacy protocol doesn't support CRC so hopefully it's ok */
-    if (status->version == TRANSPORT_LEGACY) return APP_SUCCESS;
-
-    if (crc == status->reply_crc) return APP_SUCCESS;
-    NLOGE("Reply CRC mismatch: theirs=%04x ours=%04x", status->reply_crc, crc);
-  }
-
-  NLOGE("Unable to get valid checksum on reply data");
-  return APP_ERROR_IO;
-}
-
-/*
- * Driver for the master of the transport protocol.
- */
 uint32_t nos_call_application(const struct nos_device *dev,
                               uint8_t app_id, uint16_t params,
                               const uint8_t *args, uint32_t arg_len,
                               uint8_t *reply, uint32_t *reply_len)
 {
-  uint32_t res;
-  const struct transport_context ctx = {
-    .dev = dev,
-    .app_id = app_id,
-    .params = params,
-    .args = args,
-    .arg_len = arg_len,
-    .reply = reply,
-    .reply_len = reply_len,
-  };
+  uint32_t command;
+  uint8_t buf[MAX_DEVICE_TRANSFER];
+  uint32_t status;
+  uint16_t ulen;
+  uint32_t poll_count = 0;
 
-  if ((ctx.arg_len && !ctx.args) ||
-      (!ctx.reply_len) ||
-      (*ctx.reply_len && !ctx.reply)) {
-    NLOGE("Invalid args to %s()", __func__);
+  if (get_status(dev, app_id, &status, &ulen) != 0) {
+    return APP_ERROR_IO;
+  }
+  NLOGV("%d: query status 0x%08x  ulen 0x%04x", __LINE__, status, ulen);
+
+  /* It's not idle, but we're the only ones telling it what to do, so it
+   * should be. */
+  if (status != APP_STATUS_IDLE) {
+
+    /* Try clearing the status */
+    NLOGV("clearing previous status");
+    if (clear_status(dev, app_id) != 0) {
+      return APP_ERROR_IO;
+    }
+
+    /* Check again */
+    if (get_status(dev, app_id, &status, &ulen) != 0) {
+      return APP_ERROR_IO;
+    }
+    NLOGV("%d: query status 0x%08x  ulen 0x%04x",__LINE__, status, ulen);
+
+    /* It's ignoring us and is still not ready, so it's broken */
+    if (status != APP_STATUS_IDLE) {
+      NLOGE("Device is not responding");
+      return APP_ERROR_IO;
+    }
+  }
+
+  /* Send args data */
+  command = CMD_ID(app_id) | CMD_TRANSPORT | CMD_IS_DATA;
+  do {
+    /*
+     * We can't send more than the device can take. For
+     * Citadel using the TPM Wait protocol on SPS, this is
+     * a constant. For other buses, it may not be.
+     *
+     * For each Write, Citadel requires that we send the length of
+     * what we're about to send in the params field.
+     */
+    ulen = MIN(arg_len, MAX_DEVICE_TRANSFER);
+    CMD_SET_PARAM(command, ulen);
+    if (args && ulen)
+      memcpy(buf, args, ulen);
+
+    NLOGV("Write command 0x%08x, bytes 0x%x", command, ulen);
+
+    if (0 != nos_device_write(dev, command, buf, ulen)) {
+      NLOGE("Failed to send datagram to device");
+      return APP_ERROR_IO;
+    }
+
+    /* Additional data needs the additional flag set */
+    command |= CMD_MORE_TO_COME;
+
+    if (args)
+      args += ulen;
+    if (arg_len)
+      arg_len -= ulen;
+  } while (arg_len);
+
+  /* See if we had any errors while sending the args */
+  if (get_status(dev, app_id, &status, &ulen) != 0) {
+    return APP_ERROR_IO;
+  }
+  NLOGV("%d: query status 0x%08x  ulen 0x%04x", __LINE__, status, ulen);
+  if (status & APP_STATUS_DONE)
+    /* Yep, problems. It should still be idle. */
+    goto reply;
+
+  /* Now tell the app to do whatever */
+  command = CMD_ID(app_id) | CMD_PARAM(params);
+  NLOGV("Write command 0x%08x", command);
+  if (0 != nos_device_write(dev, command, 0, 0)) {
+      NLOGE("Failed to send command datagram to device");
+      return APP_ERROR_IO;
+  }
+
+  /* Poll the app status until it's done */
+  do {
+    if (get_status(dev, app_id, &status, &ulen) != 0) {
+      return APP_ERROR_IO;
+    }
+    NLOGD("%d:  poll status 0x%08x  ulen 0x%04x", __LINE__, status, ulen);
+    poll_count++;
+  } while (!(status & APP_STATUS_DONE));
+  NLOGV("polled %d times, status 0x%08x  ulen 0x%04x", poll_count,
+        status, ulen);
+
+reply:
+  /* Read any result only if there's a place with room to put it */
+  if (reply && reply_len && *reply_len) {
+    uint16_t left = MIN(*reply_len, ulen);
+    uint16_t gimme, got;
+
+    command = CMD_ID(app_id) | CMD_IS_READ |
+      CMD_TRANSPORT | CMD_IS_DATA;
+
+    got = 0 ;
+    while (left) {
+
+      /*
+       * We can't read more than the device can send. For
+       * Citadel using the TPM Wait protocol on SPS, this is
+       * a constant. For other buses, it may not be.
+       */
+      gimme = MIN(left, MAX_DEVICE_TRANSFER);
+      NLOGV("Read command 0x%08x, bytes 0x%x", command, gimme);
+      if (0 != nos_device_read(dev, command, buf, gimme)) {
+        NLOGE("Failed to receive datagram from device");
+        return APP_ERROR_IO;
+      }
+
+      memcpy(reply, buf, gimme);
+      reply += gimme;
+      left -= gimme;
+      got += gimme;
+    }
+    /* got it all */
+    *reply_len = got;
+  }
+
+  /* Clear the reply manually for the next caller */
+  command = CMD_ID(app_id) | CMD_TRANSPORT;
+  if (0 != nos_device_write(dev, command, 0, 0)) {
+    NLOGE("Failed to clear the reply");
     return APP_ERROR_IO;
   }
 
-  NLOGV("Calling app %d with params 0x%04x", app_id, params);
-
-  struct transport_status status;
-  int retries = CRC_RETRY_COUNT;
-  do {
-    /* Wake up and wait for Citadel to be ready */
-    res = make_ready(&ctx);
-    if (res) return res;
-
-    /* Tell the app what to do */
-    res = send_command(&ctx);
-    if (res) return res;
-
-    /* Wait until the app has finished */
-    res = poll_until_done(&ctx, &status);
-    if (res == APP_SUCCESS) break;
-    if (res != APP_ERROR_CHECKSUM) return res;
-    NLOGD("Request checksum error: %d", retries);
-  } while (--retries);
-  if (retries == 0) return APP_ERROR_IO;
-
-  /* Get the reply, but only if the app produced data and the caller wants it */
-  if (ctx.reply && ctx.reply_len && *ctx.reply_len && status.reply_len) {
-    res = receive_reply(&ctx, &status);
-    if (res) return res;
-  } else {
-    *reply_len = 0;
-  }
-
-  NLOGV("Clear the reply manually for the next caller");
-  /* This should work, but isn't completely fatal if it doesn't because the
-   * next call will try again. */
-  (void)clear_status(&ctx);
-
-  NLOGV("%s returning 0x%x", __func__, APP_STATUS_CODE(status.status));
-  return APP_STATUS_CODE(status.status);
+  return APP_STATUS_CODE(status);
 }
