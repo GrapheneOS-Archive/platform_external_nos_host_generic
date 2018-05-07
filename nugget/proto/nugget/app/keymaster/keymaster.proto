@@ -198,6 +198,7 @@ message BeginOperationRequest {
   KeyPurpose purpose = 1;
   KeyBlob blob = 2;
   KeyParameters params = 3;
+  HardwareAuthToken auth_token = 4;
 }
 message BeginOperationResponse {
   ErrorCode error_code = 1;
@@ -210,6 +211,8 @@ message UpdateOperationRequest {
   OperationHandle handle = 1;
   KeyParameters params = 2;
   bytes input = 3;
+  HardwareAuthToken auth_token = 4;
+  VerificationToken verification_token = 5;
 }
 message UpdateOperationResponse {
   ErrorCode error_code = 1;
@@ -224,6 +227,8 @@ message FinishOperationRequest {
   KeyParameters params = 2;
   bytes input = 3;
   bytes signature = 4;
+  HardwareAuthToken auth_token = 5;
+  VerificationToken verification_token = 6;
 };
 message FinishOperationResponse {
   ErrorCode error_code = 1;
@@ -256,6 +261,23 @@ message ImportWrappedKeyRequest {
   bytes masking_key = 9;             // Fixed sized array.
 }
 // ImportWrappedKey returns a ImportKeyResponse.
+
+// GetHmacSharingParametersRequest
+message GetHmacSharingParametersRequest {
+}
+message GetHmacSharingParametersResponse {
+  ErrorCode error_code = 1;
+  HmacSharingParameters hmac_sharing_params = 2;
+}
+
+// ComputeSharedHmacRequest
+message ComputeSharedHmacRequest {
+  repeated HmacSharingParameters hmac_sharing_params = 1;
+}
+message ComputeSharedHmacResponse {
+  ErrorCode error_code = 1;
+  bytes sharing_check = 2;
+}
 
 /*
  * Vendor HAL.
@@ -312,22 +334,6 @@ message ReadTeeBatchCertificateResponse {
   RSAKey rsa = 2;   // rsa or ec set based on request algorithm selector.
   ECKey ec = 3;
   bytes batch_cert = 4;
-}
-
-message GetHmacSharingParametersRequest {}
-
-message GetHmacSharingParametersResponse {
-  ErrorCode error_code = 1;
-  HmacSharingParameters hmac_sharing_params = 2;
-}
-
-message ComputeSharedHmacRequest {
-  repeated HmacSharingParameters hmac_sharing_params = 1;
-}
-
-message ComputeSharedHmacResponse {
-  ErrorCode error_code = 1;
-  bytes sharing_check = 2;
 }
 
 message DTupHandshakeRequest {
