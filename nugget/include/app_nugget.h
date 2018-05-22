@@ -39,7 +39,7 @@ enum {
 
 #define NUGGET_PARAM_VERSION 0x0000
 /*
- * Return the current build string
+ * Return the one-line version string of the running image
  *
  * @param args         <none>
  * @param arg_len      0
@@ -74,17 +74,11 @@ struct nugget_app_flash_block {
 /*
  * Reboot Citadel
  *
- * @param args         uint8_t hard        0 = soft reboot, 1 = hard reboot
- * @param arg_len      sizeof(uint8_t)
+ * @param args         <none>
+ * @param arg_len      0
  * @param reply        <none>
  * @param reply_len    0
  */
-
-enum NUGGET_REBOOT_ARG_TYPE {
-  NUGGET_REBOOT_SOFT = 0,
-  NUGGET_REBOOT_HARD = 1,
-};
-
 
 /*********
  * Firmware updates are written to flash with invalid headers. If an update
@@ -166,6 +160,78 @@ struct nugget_app_change_update_password {
  * @param reply_len    Max length to return
  */
 
+
+#define NUGGET_PARAM_LONG_VERSION 0x0007
+/*
+ * Return the multi-line description of all images
+ *
+ * @param args         <none>
+ * @param arg_len      0
+ * @param reply        Null-terminated ASCII string
+ * @param reply_len    Max length to return
+ *
+ * @errors             APP_ERROR_TOO_MUCH
+ */
+
+#define NUGGET_PARAM_HEADER_RO_A 0x0008
+/*
+ * Return the signature header for RO_A
+ *
+ * @param args         <none>
+ * @param arg_len      0
+ * @param reply        struct SignedHeader
+ * @param reply_len    Max length to return
+ *
+ * @errors             APP_ERROR_TOO_MUCH
+ */
+
+#define NUGGET_PARAM_HEADER_RO_B 0x0009
+/*
+ * Return the signature header for RO_B
+ *
+ * @param args         <none>
+ * @param arg_len      0
+ * @param reply        struct SignedHeader
+ * @param reply_len    Max length to return
+ *
+ * @errors             APP_ERROR_TOO_MUCH
+ */
+
+#define NUGGET_PARAM_HEADER_RW_A 0x000a
+/*
+ * Return the signature header for RW_A
+ *
+ * @param args         <none>
+ * @param arg_len      0
+ * @param reply        struct SignedHeader
+ * @param reply_len    Max length to return
+ *
+ * @errors             APP_ERROR_TOO_MUCH
+ */
+
+#define NUGGET_PARAM_HEADER_RW_B 0x000b
+/*
+ * Return the signature header for RW_B
+ *
+ * @param args         <none>
+ * @param arg_len      0
+ * @param reply        struct SignedHeader
+ * @param reply_len    Max length to return
+ *
+ * @errors             APP_ERROR_TOO_MUCH
+ */
+
+#define NUGGET_PARAM_REPO_SNAPSHOT 0x000c
+/*
+ * Return the multi-line repo snapshot info for the current image
+ *
+ * @param args         <none>
+ * @param arg_len      0
+ * @param reply        Null-terminated ASCII string
+ * @param reply_len    Max length to return
+ *
+ * @errors             APP_ERROR_TOO_MUCH
+ */
 
 /****************************************************************************/
 /* Test related commands */
