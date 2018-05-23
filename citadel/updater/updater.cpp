@@ -48,24 +48,11 @@ using nos::NuggetClientInterface;
 using nos::CitadeldProxyClient;
 #endif
 
-enum hdr_section {
-  SEC_BOGUS = 0,
-  SEC_RO_A,
-  SEC_RO_B,
-  SEC_RW_A,
-  SEC_RW_B,
-};
-
 /* Global options */
 struct options_s {
   /* actions to take */
   int version;
-  int long_version;
-  enum hdr_section section;
-  int file_version;
-  enum hdr_section file_section;
   int id;
-  int repo_snapshot;
   int stats;
   int ro;
   int rw;
@@ -82,7 +69,6 @@ struct options_s {
 enum no_short_opts_for_these {
   OPT_DEVICE = 1000,
   OPT_ID,
-  OPT_REPO_SNAPSHOT,
   OPT_STATS,
   OPT_RO,
   OPT_RW,
@@ -94,26 +80,24 @@ enum no_short_opts_for_these {
   OPT_ERASE,
 };
 
-const char *short_opts = ":hvlV:fF:";
+const char *short_opts = ":hv";
 const struct option long_opts[] = {
   /* name    hasarg *flag val */
-  {"version",       0, NULL, 'v'},
-  {"long_version",  0, NULL, 'l'},
-  {"id",            0, NULL, OPT_ID},
-  {"repo_snapshot", 0, NULL, OPT_REPO_SNAPSHOT},
-  {"stats",         0, NULL, OPT_STATS},
-  {"ro",            0, NULL, OPT_RO},
-  {"rw",            0, NULL, OPT_RW},
-  {"reboot",        0, NULL, OPT_REBOOT},
-  {"force_reset",   0, NULL, OPT_FORCE_RESET},
-  {"enable_ro",     0, NULL, OPT_ENABLE_RO},
-  {"enable_rw",     0, NULL, OPT_ENABLE_RW},
-  {"change_pw",     0, NULL, OPT_CHANGE_PW},
-  {"erase",         1, NULL, OPT_ERASE},
+  {"version",     0, NULL, 'v'},
+  {"id",          0, NULL, OPT_ID},
+  {"stats",       0, NULL, OPT_STATS},
+  {"ro",          0, NULL, OPT_RO},
+  {"rw",          0, NULL, OPT_RW},
+  {"reboot",      0, NULL, OPT_REBOOT},
+  {"force_reset", 0, NULL, OPT_FORCE_RESET},
+  {"enable_ro",   0, NULL, OPT_ENABLE_RO},
+  {"enable_rw",   0, NULL, OPT_ENABLE_RW},
+  {"change_pw",   0, NULL, OPT_CHANGE_PW},
+  {"erase",       1, NULL, OPT_ERASE},
 #ifndef ANDROID
-  {"device",        1, NULL, OPT_DEVICE},
+  {"device",      1, NULL, OPT_DEVICE},
 #endif
-  {"help",          0, NULL, 'h'},
+  {"help",        0, NULL, 'h'},
   {NULL, 0, NULL, 0},
 };
 
@@ -142,34 +126,29 @@ void usage(const char *progname)
     "\n"
     "Actions:\n"
     "\n"
-    "  -v, --version        Display the running version\n"
-    "  -l, --long_version   Display the full version info\n"
-    "  --id                 Display the Citadel device ID\n"
-    "  --stats              Display Low Power stats\n"
-    "  -V SECTION           Show Citadel headers for RO_A | RO_B | RW_A | RW_B\n"
-    "  -f                   Show image file version info\n"
-    "  -F SECTION           Show file headers for RO_A | RO_B | RW_A | RW_B\n"
-    "  --repo_snapshot      Show the repo sha1sums for the running image\n"
+    "  -v, --version       Display the Citadel version info\n"
+    "      --id            Display the Citadel device ID\n"
+    "      --stats         Display Low Power stats\n"
+    "      --rw            Update RW firmware from the image file\n"
+    "      --ro            Update RO firmware from the image file\n"
+    "      --reboot        Tell Citadel to reboot\n"
+    "      --force_reset   Pulse Citadel's reset line\n"
     "\n"
-    "  --rw                 Update RW firmware from the image file\n"
-    "  --ro                 Update RO firmware from the image file\n"
-    "  --enable_ro          Mark new RO image as good (requires password)\n"
-    "  --enable_rw          Mark new RW image as good (requires password)\n"
-    "  --reboot             Tell Citadel to reboot\n"
-    "  --force_reset        Pulse Citadel's reset line\n"
+    "      --enable_ro     Mark new RO image as good\n"
+    "      --enable_rw     Mark new RW image as good\n"
     "\n"
-    "  --change_pw          Change the update password\n"
+    "      --change_pw     Change update password\n"
     "\n\n"
-    "  --erase=CODE         Erase all user secrets and reboot.\n"
-    "                       This skips all other actions.\n"
+    "      --erase=CODE    Erase all user secrets and reboot.\n"
+    "                      This skips all other actions.\n"
 #ifndef ANDROID
     "\n"
     "Options:\n"
     "\n"
-    "  --device=SN          Connect to the FDTI device with the given\n"
-    "                       serial number (try \"lsusb -v\"). A default\n"
-    "                       can be specified with the CITADEL_DEVICE\n"
-    "                       environment variable.\n"
+    "      --device=SN     Connect to the FDTI device with the given\n"
+    "                      serial number (try \"lsusb -v\"). A default\n"
+    "                      can be specified with the CITADEL_DEVICE\n"
+    "                      environment variable.\n"
 #endif
     "\n",
     progname);
@@ -389,192 +368,6 @@ uint32_t do_id(AppClient &app)
   return retval;
 }
 
-uint32_t do_long_version(AppClient &app)
-{
-  uint32_t retval;
-  std::vector<uint8_t> buffer;
-  buffer.reserve(1024);
-
-  retval = app.Call(NUGGET_PARAM_LONG_VERSION, buffer, &buffer);
-
-  if (is_app_success(retval)) {
-    printf("%.*s\n", (int)buffer.size(), buffer.data());
-  }
-
-  return retval;
-}
-
-static enum hdr_section parse_section(const char *str)
-{
-  bool is_ro, is_a;
-
-  // matching this:  /r?[ow]_?[ab]/i
-
-  if (tolower(*str) == 'r') {
-    str++;
-  }
-
-  if (tolower(*str) == 'o') {
-    is_ro = true;
-  } else if (tolower(*str) == 'w') {
-    is_ro = false;
-  } else {
-    Error("Invalid section \"%s\"", str);
-    return SEC_BOGUS;
-  }
-  str++;
-
-  if (*str == '_') {
-    str++;
-  }
-
-  if (tolower(*str) == 'a') {
-    is_a = true;
-  } else if (tolower(*str) == 'b') {
-    is_a = false;
-  } else {
-    Error("Invalid section \"%s\"", str);
-    return SEC_BOGUS;
-  }
-
-  if (is_ro) {
-    return is_a ? SEC_RO_A : SEC_RO_B;
-  }
-
-  return is_a ? SEC_RW_A : SEC_RW_B;
-}
-
-static void show_header(const uint8_t *ptr)
-{
-  const struct SignedHeader *hdr;
-
-  hdr = reinterpret_cast<const struct SignedHeader*>(ptr);
-  hdr->print();
-}
-
-#define CROS_EC_VERSION_COOKIE1 0xce112233
-#define CROS_EC_VERSION_COOKIE2 0xce445566
-
-// The start of the RW sections looks like this
-struct compiled_version_struct {
-  // The header comes first
-  const struct SignedHeader hdr;
-  // The the vector table. Citadel has 239 entries
-  uint32_t vectors[239];
-  // A magic number to be sure we're looking at the right thing
-  uint32_t cookie1;
-  // Then the short version string
-  char version[32];
-  // And another magic number
-  uint32_t cookie2;
-};
-
-static void show_ro_string(const char *name, const uint8_t *ptr)
-{
-  const struct SignedHeader *hdr;
-
-  hdr = reinterpret_cast<const struct SignedHeader*>(ptr);
-  printf("%s:    %d.%d.%d/%08x %s\n", name,
-         hdr->epoch_, hdr->major_, hdr->minor_, be32toh(hdr->img_chk_),
-         hdr->magic == MAGIC_VALID ? "ok" : "--");
-}
-
-static void show_rw_string(const char *name, const uint8_t *ptr)
-{
-  const struct compiled_version_struct *v;
-  v = reinterpret_cast<const struct compiled_version_struct*>(ptr);
-
-  if (v->cookie1 == CROS_EC_VERSION_COOKIE1 &&
-      v->cookie2 == CROS_EC_VERSION_COOKIE2 &&
-      (v->hdr.magic == MAGIC_DEFAULT || v->hdr.magic == MAGIC_VALID)) {
-    printf("%s:    %d.%d.%d/%s %s\n", name,
-           v->hdr.epoch_, v->hdr.major_, v->hdr.minor_, v->version,
-           v->hdr.magic == MAGIC_VALID ? "ok" : "--");
-  } else {
-    printf("<invalid>\n");
-  }
-}
-
-uint32_t do_section(AppClient &app __attribute__((unused)))
-{
-  uint16_t param;
-
-  switch (options.section) {
-  case SEC_RO_A:
-    param = NUGGET_PARAM_HEADER_RO_A;
-    break;
-  case SEC_RO_B:
-    param = NUGGET_PARAM_HEADER_RO_B;
-    break;
-  case SEC_RW_A:
-    param = NUGGET_PARAM_HEADER_RW_A;
-    break;
-  case SEC_RW_B:
-    param = NUGGET_PARAM_HEADER_RW_B;
-    break;
-  default:
-    return 1;
-  }
-
-  uint32_t retval;
-  std::vector<uint8_t> buffer;
-  buffer.reserve(sizeof(SignedHeader));
-
-  retval = app.Call(param, buffer, &buffer);
-
-  if (is_app_success(retval)) {
-    show_header(buffer.data());
-  }
-
-  return retval;
-}
-
-uint32_t do_file_version(const std::vector<uint8_t> &image)
-{
-  show_ro_string("RO_A", image.data() + CHIP_RO_A_MEM_OFF);
-  show_ro_string("RO_B", image.data() + CHIP_RO_B_MEM_OFF);
-  show_rw_string("RW_A", image.data() + CHIP_RW_A_MEM_OFF);
-  show_rw_string("RW_B", image.data() + CHIP_RW_B_MEM_OFF);
-  return 0;
-}
-
-uint32_t do_file_section(const std::vector<uint8_t> &image)
-{
-  switch (options.file_section) {
-  case SEC_RO_A:
-    show_header(image.data() + CHIP_RO_A_MEM_OFF);
-    break;
-  case SEC_RO_B:
-    show_header(image.data() + CHIP_RO_B_MEM_OFF);
-    break;
-  case SEC_RW_A:
-    show_header(image.data() + CHIP_RW_A_MEM_OFF);
-    break;
-  case SEC_RW_B:
-    show_header(image.data() + CHIP_RW_B_MEM_OFF);
-    break;
-  default:
-    return 1;
-  }
-
-  return 0;
-}
-
-uint32_t do_repo_snapshot(AppClient &app)
-{
-  uint32_t retval;
-  std::vector<uint8_t> buffer;
-  buffer.reserve(1200);
-
-  retval = app.Call(NUGGET_PARAM_REPO_SNAPSHOT, buffer, &buffer);
-
-  if (is_app_success(retval)) {
-    printf("%.*s\n", (int)buffer.size(), buffer.data());
-  }
-
-  return retval;
-}
-
 uint32_t do_stats(AppClient &app)
 {
   struct nugget_app_low_power_stats stats;
@@ -613,9 +406,9 @@ uint32_t do_stats(AppClient &app)
 uint32_t do_reboot(AppClient &app)
 {
   uint32_t retval;
-  std::vector<uint8_t> ignored = {1};           // older images need this
+  std::vector<uint8_t> data = {NUGGET_REBOOT_HARD};
 
-  retval = app.Call(NUGGET_PARAM_REBOOT, ignored, nullptr);
+  retval = app.Call(NUGGET_PARAM_REBOOT, data, nullptr);
 
   if (is_app_success(retval)) {
     printf("Citadel reboot requested\n");
@@ -740,26 +533,6 @@ int execute_commands(const std::vector<uint8_t> &image,
     return 2;
   }
 
-  if (options.long_version &&
-      do_long_version(app) != APP_SUCCESS) {
-    return 2;
-  }
-
-  if (options.section &&
-      do_section(app) != APP_SUCCESS) {
-    return 2;
-  }
-
-  if (options.file_version &&
-      do_file_version(image) != APP_SUCCESS) {
-    return 2;
-  }
-
-  if (options.file_section &&
-      do_file_section(image) != APP_SUCCESS) {
-    return 2;
-  }
-
   if (options.id &&
       do_id(app) != APP_SUCCESS) {
     return 2;
@@ -770,10 +543,6 @@ int execute_commands(const std::vector<uint8_t> &image,
     return 2;
   }
 
-  if (options.repo_snapshot &&
-      do_repo_snapshot(app) != APP_SUCCESS) {
-    return 2;
-  }
   if (options.rw &&
       do_update(app, image,
           CHIP_RW_A_MEM_OFF, CHIP_RW_B_MEM_OFF) != APP_SUCCESS) {
@@ -819,7 +588,6 @@ int main(int argc, char *argv[])
   std::vector<uint8_t> image;
   int got_action = 0;
   char *e = 0;
-  int need_file = 0;
 
   this_prog= strrchr(argv[0], '/');
   if (this_prog) {
@@ -843,30 +611,8 @@ int main(int argc, char *argv[])
       options.version = 1;
       got_action = 1;
       break;
-    case 'l':
-      options.long_version = 1;
-      got_action = 1;
-      break;
-    case 'V':
-      options.section = parse_section(optarg);
-      got_action = 1;
-      break;
-    case 'f':
-      options.file_version = 1;
-      need_file = 1;
-      got_action = 1;
-      break;
-    case 'F':
-      options.file_section = parse_section(optarg);
-      need_file = 1;
-      got_action = 1;
-      break;
     case OPT_ID:
       options.id = 1;
-      got_action = 1;
-      break;
-    case OPT_REPO_SNAPSHOT:
-      options.repo_snapshot = 1;
       got_action = 1;
       break;
     case OPT_STATS:
@@ -875,12 +621,10 @@ int main(int argc, char *argv[])
       break;
     case OPT_RO:
       options.ro = 1;
-      need_file = 1;
       got_action = 1;
       break;
     case OPT_RW:
       options.rw = 1;
-      need_file = 1;
       got_action = 1;
       break;
     case OPT_REBOOT:
@@ -947,14 +691,14 @@ int main(int argc, char *argv[])
     goto out;
   }
 
-  if (need_file) {
+  if (options.ro || options.rw) {
     if (optind < argc) {
       /* Sets errorcnt on failure */
       image = read_image_from_file(argv[optind++]);
       if (errorcnt)
         goto out;
     } else {
-      Error("Missing required image file");
+      Error("An image file is required with --ro and --rw");
       goto out;
     }
   }
@@ -964,7 +708,8 @@ int main(int argc, char *argv[])
     if (optind < argc) {
       passwd = argv[optind++];
     } else {
-      Error("Need a new password at least. Use '' to clear it.");
+      Error("Need a new password at least."
+            " Use '' to clear it.");
       goto out;
     }
     /* two args provided, use both old & new passwords */
