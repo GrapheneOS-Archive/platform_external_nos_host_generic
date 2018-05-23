@@ -59,15 +59,6 @@ message HmacSharingParameters {
   bytes nonce = 2;
 }
 
-message HardwareAuthToken {
-  uint64 challenge = 1;
-  uint64 user_id = 2;
-  uint64 authenticator_id = 3;
-  HardwareAuthenticatorType authenticator_type = 4;
-  uint64 timestamp = 5;
-  bytes mac = 6;
-}
-
 message VerificationToken {
   uint64 challenge = 1;
   uint64 timestamp = 2;
