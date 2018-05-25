@@ -310,6 +310,7 @@ message SetBootStateRequest {
   uint32 color = 3;
   uint32 system_version = 4;
   uint32 system_security_level = 5;
+  bytes boot_hash = 6;               // This is a SHA256 digest.
 }
 message SetBootStateResponse {
   // Specified in keymaster_defs.proto:ErrorCode
