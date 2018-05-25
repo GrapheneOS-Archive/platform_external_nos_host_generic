@@ -91,6 +91,15 @@ service Keymaster {
    */
   rpc HandshakeDTup (DTupHandshakeRequest) returns (DTupHandshakeResponse);
   rpc FetchDTupInputEvent (DTupFetchInputEventRequest) returns (DTupFetchInputEventResponse);
+
+  /*
+   * More vendor specific methods.
+   */
+  // Only callable once per boot.
+  rpc SetSystemVersionInfo (SetSystemVersionInfoRequest) returns (SetSystemVersionInfoResponse);
+
+  // These are implemented with a enum, so new RPCs must be appended, and
+  // deprecated RPCs need placeholders.
 }
 
 /*
@@ -352,4 +361,15 @@ message DTupFetchInputEventResponse {
   DTupError error_code = 1;
   DTupKeyEvent event = 2;
   bytes signature = 3;
+}
+
+message SetSystemVersionInfoRequest {
+  uint32 system_version = 1;  // getprop "ro.build.version.release"
+  uint32 system_security_level = 2; // getprop "ro.build.version.security_patch"
+  uint32 vendor_security_level = 3; // getprop "ro.vendor.build.security_patch"
+}
+
+message SetSystemVersionInfoResponse {
+  // Specified in keymaster_defs.proto:ErrorCode
+  ErrorCode error_code = 1;
 }
