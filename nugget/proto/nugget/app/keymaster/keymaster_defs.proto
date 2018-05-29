@@ -278,3 +278,10 @@ enum DTupKeyEvent {
     DTUP_VOL_UP = 115;
     DTUP_PWR = 116;
 }
+
+enum BootColor {
+    BOOT_VERIFIED_GREEN = 0;
+    BOOT_SELFSIGNED_YELLOW = 1;
+    BOOT_UNVERIFIED_ORANGE = 2;
+    BOOT_VERIFY_FAILED_RED = 3;
+}
