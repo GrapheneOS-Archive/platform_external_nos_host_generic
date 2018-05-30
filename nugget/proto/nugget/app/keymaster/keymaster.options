@@ -12,3 +12,4 @@ nugget.app.keymaster.DTupHandshakeResponse.signature max_size:32
 nugget.app.keymaster.DTupFetchInputEventResponse.signature max_size:32
 nugget.app.keymaster.GetBootInfoResponse.boot_key max_size:32
 nugget.app.keymaster.GetBootInfoResponse.boot_hash max_size:32
+nugget.app.keymaster.ProvisionPresharedSecretRequest.preshared_secret max_size:32

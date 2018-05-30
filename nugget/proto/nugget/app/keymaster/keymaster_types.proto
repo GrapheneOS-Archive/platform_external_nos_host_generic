@@ -96,3 +96,8 @@ message ECKey {
 message SymmetricKey {
   bytes material = 1;
 }
+
+enum PresharedSecretStatus {
+  NOT_SET = 0;
+  ALREADY_SET = 1;
+}
