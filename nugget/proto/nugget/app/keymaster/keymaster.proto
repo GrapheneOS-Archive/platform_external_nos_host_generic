@@ -97,6 +97,7 @@ service Keymaster {
    */
   // Only callable once per boot.
   rpc SetSystemVersionInfo (SetSystemVersionInfoRequest) returns (SetSystemVersionInfoResponse);
+  rpc GetBootInfo (GetBootInfoRequest) returns (GetBootInfoResponse);
 
   // These are implemented with a enum, so new RPCs must be appended, and
   // deprecated RPCs need placeholders.
@@ -373,4 +374,14 @@ message SetSystemVersionInfoRequest {
 message SetSystemVersionInfoResponse {
   // Specified in keymaster_defs.proto:ErrorCode
   ErrorCode error_code = 1;
+}
+
+message GetBootInfoRequest {}
+
+message GetBootInfoResponse {
+  ErrorCode error_code = 1;
+  bool is_unlocked = 2;
+  BootColor boot_color = 3;
+  bytes boot_key = 4;               // This is a SHA256 digest.
+  bytes boot_hash = 5;              // This is a SHA256 digest.
 }
