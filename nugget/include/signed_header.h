@@ -82,6 +82,7 @@ typedef struct SignedHeader {
   }
 
   void print() const {
+    printf("hdr.magic          : %08x\n", magic);
     printf("hdr.keyid          : %08x\n", keyid);
     printf("hdr.tag            : ");
     const uint8_t* p = reinterpret_cast<const uint8_t*>(&tag);
@@ -92,8 +93,13 @@ typedef struct SignedHeader {
     printf("hdr.epoch          : %08x\n", epoch_);
     printf("hdr.major          : %08x\n", major_);
     printf("hdr.minor          : %08x\n", minor_);
-    printf("hdr.timestamp      : %016" PRIu64 "x, %s", timestamp_,
+    printf("hdr.timestamp      : %016" PRIx64 ", %s", timestamp_,
            asctime(localtime(reinterpret_cast<const time_t*>(&timestamp_))));
+    printf("hdr.image_size     : %08x\n", image_size);
+    printf("hdr.ro_base        : %08x\n", ro_base);
+    printf("hdr.ro_max         : %08x\n", ro_max);
+    printf("hdr.rx_base        : %08x\n", rx_base);
+    printf("hdr.rx_max         : %08x\n", rx_max);
     printf("hdr.img_chk        : %08x\n", be32toh(img_chk_));
     printf("hdr.fuses_chk      : %08x\n", be32toh(fuses_chk_));
     printf("hdr.info_chk       : %08x\n", be32toh(info_chk_));

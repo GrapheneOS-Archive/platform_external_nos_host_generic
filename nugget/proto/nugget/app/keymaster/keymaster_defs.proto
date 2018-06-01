@@ -263,3 +263,16 @@ enum KeyFormat {
   PKCS8 = 1;  /* for asymmetric key pair import */
   RAW = 3;    /* for symmetric key import and export*/
 }
+
+enum DTupError {
+  DTUP_OK = 0;
+  DTUP_NO_EVENT = 1;
+}
+
+/* matches Linux event device codes */
+enum DTupKeyEvent {
+    DTUP_RESERVED = 0;
+    DTUP_VOL_DOWN = 114;
+    DTUP_VOL_UP = 115;
+    DTUP_PWR = 116;
+}
