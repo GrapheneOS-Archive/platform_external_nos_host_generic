@@ -75,6 +75,7 @@ struct options_s {
   int enable_rw;
   int change_pw;
   uint32_t erase_code;
+  int ap_uart;
   /* generic connection options */
   const char *device;
 } options;
@@ -92,6 +93,7 @@ enum no_short_opts_for_these {
   OPT_ENABLE_RW,
   OPT_CHANGE_PW,
   OPT_ERASE,
+  OPT_AP_UART,
 };
 
 const char *short_opts = ":hvlV:fF:";
@@ -99,17 +101,25 @@ const struct option long_opts[] = {
   /* name    hasarg *flag val */
   {"version",       0, NULL, 'v'},
   {"long_version",  0, NULL, 'l'},
+  {"long-version",  0, NULL, 'l'},
   {"id",            0, NULL, OPT_ID},
   {"repo_snapshot", 0, NULL, OPT_REPO_SNAPSHOT},
+  {"repo-snapshot", 0, NULL, OPT_REPO_SNAPSHOT},
   {"stats",         0, NULL, OPT_STATS},
   {"ro",            0, NULL, OPT_RO},
   {"rw",            0, NULL, OPT_RW},
   {"reboot",        0, NULL, OPT_REBOOT},
   {"force_reset",   0, NULL, OPT_FORCE_RESET},
+  {"force-reset",   0, NULL, OPT_FORCE_RESET},
   {"enable_ro",     0, NULL, OPT_ENABLE_RO},
+  {"enable-ro",     0, NULL, OPT_ENABLE_RO},
   {"enable_rw",     0, NULL, OPT_ENABLE_RW},
+  {"enable-rw",     0, NULL, OPT_ENABLE_RW},
   {"change_pw",     0, NULL, OPT_CHANGE_PW},
+  {"change-pw",     0, NULL, OPT_CHANGE_PW},
   {"erase",         1, NULL, OPT_ERASE},
+  {"ap_uart",       0, NULL, OPT_AP_UART},
+  {"ap-uart",       0, NULL, OPT_AP_UART},
 #ifndef ANDROID
   {"device",        1, NULL, OPT_DEVICE},
 #endif
@@ -159,6 +169,9 @@ void usage(const char *progname)
     "  --force_reset        Pulse Citadel's reset line\n"
     "\n"
     "  --change_pw          Change the update password\n"
+    "\n"
+    "  --ap_uart            Query the AP UART passthru setting\n"
+    "                       (It can only be set in the BIOS)\n"
     "\n\n"
     "  --erase=CODE         Erase all user secrets and reboot.\n"
     "                       This skips all other actions.\n"
@@ -682,6 +695,26 @@ static uint32_t do_enable(AppClient &app, const char *pw)
   return rv;
 }
 
+static uint32_t do_ap_uart(AppClient &app)
+{
+  std::vector<uint8_t> buffer;
+  buffer.reserve(1);
+
+  static const char * const cfgstr[] = {
+    "disabled", "USB", "enabled", "SSC", "Citadel",
+  };
+  static_assert(sizeof(cfgstr)/sizeof(cfgstr[0]) == NUGGET_AP_UART_NUM_CFGS,
+                "Bad size of constant array");
+
+  uint32_t rv = app.Call(NUGGET_PARAM_AP_UART_PASSTHRU, buffer, &buffer);
+
+  if (is_app_success(rv))
+    printf("Current AP UART setting is %s\n", cfgstr[buffer[0]]);
+
+  return rv;
+}
+
+
 static uint32_t do_erase(AppClient &app)
 {
   std::vector<uint8_t> data(sizeof(uint32_t));
@@ -729,6 +762,11 @@ int execute_commands(const std::vector<uint8_t> &image,
   AppClient app(client, APP_ID_NUGGET);
 
   /* Try all requested actions in reasonable order, bail out on error */
+
+  if (options.ap_uart &&
+      do_ap_uart(app) != APP_SUCCESS) {
+    return 1;
+  }
 
   if (options.erase_code) {                     /* zero doesn't count */
     /* whether we succeed or not, only do this */
@@ -909,6 +947,10 @@ int main(int argc, char *argv[])
         Error("Invalid argument: \"%s\"\n", optarg);
         errorcnt++;
       }
+      got_action = 1;
+      break;
+    case OPT_AP_UART:
+      options.ap_uart = 1;
       got_action = 1;
       break;
 

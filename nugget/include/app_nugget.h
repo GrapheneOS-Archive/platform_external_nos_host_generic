@@ -233,6 +233,34 @@ struct nugget_app_change_update_password {
  * @errors             APP_ERROR_TOO_MUCH
  */
 
+enum nugget_ap_uart_passthru_cfg {
+  NUGGET_AP_UART_OFF,                   /* off */
+  NUGGET_AP_UART_IS_USB,                /* USB CCD is in use over SBU */
+  NUGGET_AP_UART_ENABLED,               /* AP UART is on SBU lines */
+  NUGGET_AP_UART_SSC_UART,              /* This doesn't actually exist */
+  NUGGET_AP_UART_CITADEL_UART,          /* Citadel UART on SBU lines (ew) */
+
+  NUGGET_AP_UART_NUM_CFGS,
+};
+#define NUGGET_PARAM_AP_UART_PASSTHRU 0x000d
+/*
+ * Enable/Disable the AP UART PASSTHRU function
+ *
+ * This always returns the current state of the AP UART passthru feature. Even
+ * if the AP UART is disabled, a SuzyQable may connected to use the SBU lines.
+ *
+ * The AP can only request that the AP UART passthru feature be enabled
+ * (NUGGET_AP_UART_ENABLED), or disabled (NUGGET_AP_UART_OFF). The other enums
+ * are for internal testing.
+ *
+ * @param args         <none>  OR  enum nugget_ap_uart_passthru_cfg
+ * @param arg_len        0     OR   1 byte
+ * @param reply        enum nugget_param_ap_uart_passthru
+ * @param reply_len    1 byte
+ *
+ * @errors             APP_ERROR_BOGUS_ARGS
+ */
+
 /****************************************************************************/
 /* Test related commands */
 
