@@ -56,8 +56,12 @@ extern int usleep (uint32_t usec);
 
 #endif
 
-/* Citadel might take up to 100ms to wake up */
-#define RETRY_COUNT 25
+/*
+ * If Citadel is rebooting it will take a while to become responsive again. We
+ * expect a reboot to take around 100ms but we'll keep trying for 300ms to leave
+ * plenty of margin.
+ */
+#define RETRY_COUNT 60
 #define RETRY_WAIT_TIME_US 5000
 
 static int nos_device_read(const struct nos_device *dev, uint32_t command,
