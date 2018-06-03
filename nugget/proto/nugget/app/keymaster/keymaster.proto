@@ -79,6 +79,32 @@ service Keymaster {
   rpc ProvisionDeviceIds (ProvisionDeviceIdsRequest) returns (ProvisionDeviceIdsResponse);
   // Only callable at the Device Factory.
   rpc ReadTeeBatchCertificate (ReadTeeBatchCertificateRequest) returns (ReadTeeBatchCertificateResponse);
+
+  /*
+   * More KM4 methods.
+   */
+  rpc GetHmacSharingParameters (GetHmacSharingParametersRequest) returns (GetHmacSharingParametersResponse);
+  rpc ComputeSharedHmac (ComputeSharedHmacRequest) returns (ComputeSharedHmacResponse);
+
+  /*
+   * DTup input session methods.
+   */
+  rpc HandshakeDTup (DTupHandshakeRequest) returns (DTupHandshakeResponse);
+  rpc FetchDTupInputEvent (DTupFetchInputEventRequest) returns (DTupFetchInputEventResponse);
+
+  /*
+   * More vendor specific methods.
+   */
+  // Only callable once per boot.
+  rpc SetSystemVersionInfo (SetSystemVersionInfoRequest) returns (SetSystemVersionInfoResponse);
+  rpc GetBootInfo (GetBootInfoRequest) returns (GetBootInfoResponse);
+
+  /*
+   * Called during provisioning by the CitadelProvision tool.
+   */
+  rpc ProvisionPresharedSecret (ProvisionPresharedSecretRequest) returns (ProvisionPresharedSecretResponse);
+  // These are implemented with a enum, so new RPCs must be appended, and
+  // deprecated RPCs need placeholders.
 }
 
 /*
@@ -186,6 +212,7 @@ message BeginOperationRequest {
   KeyPurpose purpose = 1;
   KeyBlob blob = 2;
   KeyParameters params = 3;
+  HardwareAuthToken auth_token = 4;
 }
 message BeginOperationResponse {
   ErrorCode error_code = 1;
@@ -198,6 +225,8 @@ message UpdateOperationRequest {
   OperationHandle handle = 1;
   KeyParameters params = 2;
   bytes input = 3;
+  HardwareAuthToken auth_token = 4;
+  VerificationToken verification_token = 5;
 }
 message UpdateOperationResponse {
   ErrorCode error_code = 1;
@@ -212,6 +241,8 @@ message FinishOperationRequest {
   KeyParameters params = 2;
   bytes input = 3;
   bytes signature = 4;
+  HardwareAuthToken auth_token = 5;
+  VerificationToken verification_token = 6;
 };
 message FinishOperationResponse {
   ErrorCode error_code = 1;
@@ -245,6 +276,23 @@ message ImportWrappedKeyRequest {
 }
 // ImportWrappedKey returns a ImportKeyResponse.
 
+// GetHmacSharingParametersRequest
+message GetHmacSharingParametersRequest {
+}
+message GetHmacSharingParametersResponse {
+  ErrorCode error_code = 1;
+  HmacSharingParameters hmac_sharing_params = 2;
+}
+
+// ComputeSharedHmacRequest
+message ComputeSharedHmacRequest {
+  repeated HmacSharingParameters hmac_sharing_params = 1;
+}
+message ComputeSharedHmacResponse {
+  ErrorCode error_code = 1;
+  bytes sharing_check = 2;
+}
+
 /*
  * Vendor HAL.
  */
@@ -252,7 +300,7 @@ message ImportWrappedKeyRequest {
 // SetRootOfTrustRequest
 // Only callable by the Bootloader.
 message SetRootOfTrustRequest {
-  bytes digest = 1;
+  bytes digest = 1;                  // This is a SHA256 digest.
 }
 message SetRootOfTrustResponse {
   // Specified in keymaster_defs.proto:ErrorCode
@@ -263,10 +311,11 @@ message SetRootOfTrustResponse {
 // Only callable by the Bootloader.
 message SetBootStateRequest {
   bool is_unlocked = 1;
-  bytes public_key = 2;
-  uint32 color = 3;
+  bytes public_key = 2;              // This is a SHA256 digest.
+  BootColor color = 3;
   uint32 system_version = 4;
   uint32 system_security_level = 5;
+  bytes boot_hash = 6;               // This is a SHA256 digest.
 }
 message SetBootStateResponse {
   // Specified in keymaster_defs.proto:ErrorCode
@@ -300,4 +349,52 @@ message ReadTeeBatchCertificateResponse {
   RSAKey rsa = 2;   // rsa or ec set based on request algorithm selector.
   ECKey ec = 3;
   bytes batch_cert = 4;
+}
+
+message DTupHandshakeRequest {
+  bytes nonce_client = 1;
+}
+
+message DTupHandshakeResponse {
+  DTupError error_code = 1;
+  bytes nonce_citadel = 2;
+  bytes signature = 3;
+}
+
+message DTupFetchInputEventRequest {}
+
+message DTupFetchInputEventResponse {
+  DTupError error_code = 1;
+  DTupKeyEvent event = 2;
+  bytes signature = 3;
+}
+
+message SetSystemVersionInfoRequest {
+  uint32 system_version = 1;  // getprop "ro.build.version.release"
+  uint32 system_security_level = 2; // getprop "ro.build.version.security_patch"
+  uint32 vendor_security_level = 3; // getprop "ro.vendor.build.security_patch"
+}
+
+message SetSystemVersionInfoResponse {
+  // Specified in keymaster_defs.proto:ErrorCode
+  ErrorCode error_code = 1;
+}
+
+message GetBootInfoRequest {}
+
+message GetBootInfoResponse {
+  ErrorCode error_code = 1;
+  bool is_unlocked = 2;
+  BootColor boot_color = 3;
+  bytes boot_key = 4;               // This is a SHA256 digest.
+  bytes boot_hash = 5;              // This is a SHA256 digest.
+}
+
+message ProvisionPresharedSecretRequest {
+  bytes preshared_secret = 1;
+  bool get_status = 2;
+}
+message ProvisionPresharedSecretResponse {
+  ErrorCode error_code = 1;
+  PresharedSecretStatus status = 2;
 }

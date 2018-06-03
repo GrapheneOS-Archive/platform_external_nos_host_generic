@@ -39,7 +39,7 @@ enum {
 
 #define NUGGET_PARAM_VERSION 0x0000
 /*
- * Return the current build string
+ * Return the one-line version string of the running image
  *
  * @param args         <none>
  * @param arg_len      0
@@ -74,17 +74,11 @@ struct nugget_app_flash_block {
 /*
  * Reboot Citadel
  *
- * @param args         uint8_t hard        0 = soft reboot, 1 = hard reboot
- * @param arg_len      sizeof(uint8_t)
+ * @param args         <none>
+ * @param arg_len      0
  * @param reply        <none>
  * @param reply_len    0
  */
-
-enum NUGGET_REBOOT_ARG_TYPE {
-  NUGGET_REBOOT_SOFT = 0,
-  NUGGET_REBOOT_HARD = 1,
-};
-
 
 /*********
  * Firmware updates are written to flash with invalid headers. If an update
@@ -166,6 +160,106 @@ struct nugget_app_change_update_password {
  * @param reply_len    Max length to return
  */
 
+
+#define NUGGET_PARAM_LONG_VERSION 0x0007
+/*
+ * Return the multi-line description of all images
+ *
+ * @param args         <none>
+ * @param arg_len      0
+ * @param reply        Null-terminated ASCII string
+ * @param reply_len    Max length to return
+ *
+ * @errors             APP_ERROR_TOO_MUCH
+ */
+
+#define NUGGET_PARAM_HEADER_RO_A 0x0008
+/*
+ * Return the signature header for RO_A
+ *
+ * @param args         <none>
+ * @param arg_len      0
+ * @param reply        struct SignedHeader
+ * @param reply_len    Max length to return
+ *
+ * @errors             APP_ERROR_TOO_MUCH
+ */
+
+#define NUGGET_PARAM_HEADER_RO_B 0x0009
+/*
+ * Return the signature header for RO_B
+ *
+ * @param args         <none>
+ * @param arg_len      0
+ * @param reply        struct SignedHeader
+ * @param reply_len    Max length to return
+ *
+ * @errors             APP_ERROR_TOO_MUCH
+ */
+
+#define NUGGET_PARAM_HEADER_RW_A 0x000a
+/*
+ * Return the signature header for RW_A
+ *
+ * @param args         <none>
+ * @param arg_len      0
+ * @param reply        struct SignedHeader
+ * @param reply_len    Max length to return
+ *
+ * @errors             APP_ERROR_TOO_MUCH
+ */
+
+#define NUGGET_PARAM_HEADER_RW_B 0x000b
+/*
+ * Return the signature header for RW_B
+ *
+ * @param args         <none>
+ * @param arg_len      0
+ * @param reply        struct SignedHeader
+ * @param reply_len    Max length to return
+ *
+ * @errors             APP_ERROR_TOO_MUCH
+ */
+
+#define NUGGET_PARAM_REPO_SNAPSHOT 0x000c
+/*
+ * Return the multi-line repo snapshot info for the current image
+ *
+ * @param args         <none>
+ * @param arg_len      0
+ * @param reply        Null-terminated ASCII string
+ * @param reply_len    Max length to return
+ *
+ * @errors             APP_ERROR_TOO_MUCH
+ */
+
+enum nugget_ap_uart_passthru_cfg {
+  NUGGET_AP_UART_OFF,                   /* off */
+  NUGGET_AP_UART_IS_USB,                /* USB CCD is in use over SBU */
+  NUGGET_AP_UART_ENABLED,               /* AP UART is on SBU lines */
+  NUGGET_AP_UART_SSC_UART,              /* This doesn't actually exist */
+  NUGGET_AP_UART_CITADEL_UART,          /* Citadel UART on SBU lines (ew) */
+
+  NUGGET_AP_UART_NUM_CFGS,
+};
+#define NUGGET_PARAM_AP_UART_PASSTHRU 0x000d
+/*
+ * Enable/Disable the AP UART PASSTHRU function
+ *
+ * This always returns the current state of the AP UART passthru feature. Even
+ * if the AP UART is disabled, a SuzyQable may connected to use the SBU lines.
+ *
+ * The AP can only request that the AP UART passthru feature be enabled
+ * (NUGGET_AP_UART_ENABLED), or disabled (NUGGET_AP_UART_OFF). The other enums
+ * are for internal testing.
+ *
+ * @param args         <none>  OR  enum nugget_ap_uart_passthru_cfg
+ * @param arg_len        0     OR   1 byte
+ * @param reply        enum nugget_param_ap_uart_passthru
+ * @param reply_len    1 byte
+ *
+ * @errors             APP_ERROR_BOGUS_ARGS
+ */
 
 /****************************************************************************/
 /* Test related commands */

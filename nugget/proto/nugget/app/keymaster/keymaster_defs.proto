@@ -89,6 +89,8 @@ enum Tag {
   ATTESTATION_ID_MEID = 0x902cb; // (TagType:BYTES | 715)
   ATTESTATION_ID_MANUFACTURER = 0x902cc; // (TagType:BYTES | 716)
   ATTESTATION_ID_MODEL = 0x902cd; // (TagType:BYTES | 717)
+  VENDOR_PATCHLEVEL = 0x302ce; // (TagType:UINT | 718)
+  BOOT_PATCHLEVEL = 0x302cf; // (TagType:UINT | 719)
   ASSOCIATED_DATA = 0x903e8; // (TagType:BYTES | 1000)
   NONCE = 0x903e9; // (TagType:BYTES | 1001)
   /* RESERVED: AUTH_TOKEN = 0x903ea; // (TagType:BYTES | 1002) */
@@ -262,4 +264,24 @@ enum KeyFormat {
   X509 = 0;   /* for public key export */
   PKCS8 = 1;  /* for asymmetric key pair import */
   RAW = 3;    /* for symmetric key import and export*/
+}
+
+enum DTupError {
+  DTUP_OK = 0;
+  DTUP_NO_EVENT = 1;
+}
+
+/* matches Linux event device codes */
+enum DTupKeyEvent {
+    DTUP_RESERVED = 0;
+    DTUP_VOL_DOWN = 114;
+    DTUP_VOL_UP = 115;
+    DTUP_PWR = 116;
+}
+
+enum BootColor {
+    BOOT_VERIFIED_GREEN = 0;
+    BOOT_SELFSIGNED_YELLOW = 1;
+    BOOT_UNVERIFIED_ORANGE = 2;
+    BOOT_VERIFY_FAILED_RED = 3;
 }
