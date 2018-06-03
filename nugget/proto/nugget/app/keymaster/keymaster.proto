@@ -218,6 +218,8 @@ message BeginOperationResponse {
   ErrorCode error_code = 1;
   KeyParameters params = 2;
   OperationHandle handle = 3;
+  Algorithm algorithm = 4;
+  uint32 key_bits = 5;
 }
 
 // UpdateOperation
