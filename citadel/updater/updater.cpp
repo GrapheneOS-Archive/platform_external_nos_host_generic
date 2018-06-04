@@ -675,6 +675,7 @@ static uint32_t do_enable(AppClient &app, const char *pw)
   std::vector<uint8_t> data(sizeof(struct nugget_app_enable_update));
   struct nugget_app_enable_update *s =
     (struct nugget_app_enable_update*)data.data();
+  std::vector<uint8_t> reply;
 
   memset(&s->password, 0xff, sizeof(s->password));
   if (pw && *pw) {
@@ -687,10 +688,12 @@ static uint32_t do_enable(AppClient &app, const char *pw)
   s->which_headers = options.enable_ro ? NUGGET_ENABLE_HEADER_RO : 0;
   s->which_headers |= options.enable_rw ? NUGGET_ENABLE_HEADER_RW : 0;
 
-  uint32_t rv = app.Call(NUGGET_PARAM_ENABLE_UPDATE, data, nullptr);
+  reply.reserve(1);
+  uint32_t rv = app.Call(NUGGET_PARAM_ENABLE_UPDATE, data, &reply);
 
   if (is_app_success(rv))
-    printf("Update enabled\n");
+    /* Reply byte is true only if header was CHANGED to valid */
+    printf("Update %s enabled\n", reply[0] ? "changed to" : "is already");
 
   return rv;
 }
