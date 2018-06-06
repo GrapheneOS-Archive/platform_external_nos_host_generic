@@ -61,7 +61,7 @@ enum Tag {
   MIN_SECONDS_BETWEEN_OPS = 0x30193; // (TagType:UINT | 403)
   MAX_USES_PER_BOOT = 0x30194; // (TagType:UINT | 404)
   /* RESERVED: ALL_USERS = 0x701f4; // (TagType:BOOL | 500) */
-  /* RESERVED: USER_ID = 0x301f5; // (TagType:UINT | 501) */
+  USER_ID = 0x301f5; // (TagType:UINT | 501)
   USER_SECURE_ID = 0xa01f6; // (TagType:ULONG_REP | 502)
   NO_AUTH_REQUIRED = 0x701f7; // (TagType:BOOL | 503)
   USER_AUTH_TYPE = 0x101f8; // (TagType:ENUM | 504)
