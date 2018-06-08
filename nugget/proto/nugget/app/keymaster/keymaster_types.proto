@@ -101,3 +101,9 @@ enum PresharedSecretStatus {
   NOT_SET = 0;
   ALREADY_SET = 1;
 }
+
+enum AttestationSelector {
+  ATTEST_TEST = 0;
+  ATTEST_BATCH = 1;
+  ATTEST_INDIVIDUAL = 2;
+}

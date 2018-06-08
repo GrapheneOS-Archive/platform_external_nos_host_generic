@@ -110,12 +110,13 @@ struct nugget_app_enable_update {
 #define NUGGET_PARAM_ENABLE_UPDATE 0x0003
 /*
  * Mark the specified image header(s) as valid, if the provided password
- * matches.
+ * matches. Returns true if either header was CHANGED to valid, which is an
+ * indication that the AP should request a reboot so that it can take effect.
  *
  * @param args         struct nugget_app_enable_update
  * @param arg_len      sizeof(struct nugget_app_enable_update)
- * @param reply        <none>
- * @param reply_len    0
+ * @param reply        0 or 1
+ * @param reply_len    1 byte
  *
  * @errors             APP_ERROR_BOGUS_ARGS
  */
