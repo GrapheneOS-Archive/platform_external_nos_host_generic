@@ -52,7 +52,7 @@ service Keymaster {
   rpc GetKeyCharacteristics (GetKeyCharacteristicsRequest) returns (GetKeyCharacteristicsResponse);
   rpc ImportKey (ImportKeyRequest) returns (ImportKeyResponse);
   rpc ExportKey (ExportKeyRequest) returns (ExportKeyResponse);
-  rpc AttestKey (AttestKeyRequest) returns (AttestKeyResponse);
+  rpc StartAttestKey (StartAttestKeyRequest) returns (StartAttestKeyResponse);
   rpc UpgradeKey (UpgradeKeyRequest) returns (UpgradeKeyResponse);
   rpc DeleteKey (DeleteKeyRequest) returns (DeleteKeyResponse);
   rpc DeleteAllKeys (DeleteAllKeysRequest) returns (DeleteAllKeysResponse);
@@ -103,6 +103,13 @@ service Keymaster {
    * Called during provisioning by the CitadelProvision tool.
    */
   rpc ProvisionPresharedSecret (ProvisionPresharedSecretRequest) returns (ProvisionPresharedSecretResponse);
+
+  /*
+   * Additional attestation methods.
+   */
+  rpc ContinueAttestKey(ContinueAttestKeyRequest) returns (ContinueAttestKeyResponse);
+  rpc FinishAttestKey(FinishAttestKeyRequest) returns (FinishAttestKeyResponse);
+
   // These are implemented with a enum, so new RPCs must be appended, and
   // deprecated RPCs need placeholders.
 }
@@ -167,14 +174,38 @@ message ExportKeyResponse {
   ECKey ec = 4;
 };
 
-// AttestKey
-message AttestKeyRequest {
+// StartAttestKey
+message StartAttestKeyRequest {
   KeyBlob blob = 1;
   KeyParameters params = 2;
+  uint32 attestation_app_id_len = 3;
+  AttestationSelector selector = 4;
+  bytes not_before = 5;      // strftime('%y%m%d%H%M%SZ') [13 octects]
+  bytes not_after = 6;       // strftime('%y%m%d%H%M%SZ') [13 octects]
 }
-message AttestKeyResponse {
+message StartAttestKeyResponse {
   ErrorCode error_code = 1;
-  CertificateChain chain = 2;
+  OperationHandle handle = 2;
+  bytes certificate_prologue = 3;
+}
+
+// ContinueAttestKeyRequest
+message ContinueAttestKeyRequest {
+  OperationHandle handle = 1;
+  bytes attestation_app_id = 2;
+}
+message  ContinueAttestKeyResponse {
+  ErrorCode error_code = 1;
+  bytes certificate_body = 2;
+}
+
+// FinishAttestKeyRequest
+message FinishAttestKeyRequest {
+  OperationHandle handle = 1;
+}
+message  FinishAttestKeyResponse {
+  ErrorCode error_code = 1;
+  bytes certificate_epilogue = 2;
 }
 
 // UpgradeKey
@@ -218,6 +249,8 @@ message BeginOperationResponse {
   ErrorCode error_code = 1;
   KeyParameters params = 2;
   OperationHandle handle = 3;
+  Algorithm algorithm = 4;
+  uint32 key_bits = 5;
 }
 
 // UpdateOperation
