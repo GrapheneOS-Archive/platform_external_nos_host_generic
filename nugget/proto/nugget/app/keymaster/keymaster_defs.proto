@@ -251,14 +251,6 @@ enum ErrorCode {
   KEY_UPGRADE_NOT_REQUIRED = 75;          // Vendor specific.
 };
 
-enum HardwareAuthenticatorType {
-  AUTH_NONE = 0;
-  AUTH_PASSWORD = 1; // (1 << 0)
-  AUTH_FINGERPRINT = 2; // (1 << 1)
-  AUTH_ANY = 3;
-  AUTH_MAX = 4;
-};
-
 enum SecurityLevel {
   SOFTWARE = 0;
   TRUSTED_ENVIRONMENT = 1;
