@@ -247,6 +247,7 @@ enum ErrorCode {
   INVALID_DEVICE_IDS = 72;                // Vendor specific.
   PRODUCTION_MODE_PROVISIONING = 73;      // Vendor specific.
   NO_USER_CONFIRMATION = 74;
+  KEY_UPGRADE_NOT_REQUIRED = 75;          // Vendor specific.
 };
 
 enum HardwareAuthenticatorType {
