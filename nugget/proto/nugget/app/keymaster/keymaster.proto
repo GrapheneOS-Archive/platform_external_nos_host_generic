@@ -430,4 +430,6 @@ message ProvisionPresharedSecretRequest {
 message ProvisionPresharedSecretResponse {
   ErrorCode error_code = 1;
   PresharedSecretStatus status = 2;
+  BootColor color = 3;
+  bytes digest = 4;
 }
