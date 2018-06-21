@@ -346,8 +346,8 @@ message SetBootStateRequest {
   bool is_unlocked = 1;
   bytes public_key = 2;              // This is a SHA256 digest.
   BootColor color = 3;
-  uint32 system_version = 4;
-  uint32 system_security_level = 5;
+  uint32 system_version = 4;         // Deprecated.
+  uint32 system_security_level = 5;  // Patch level of the boot partition.
   bytes boot_hash = 6;               // This is a SHA256 digest.
 }
 message SetBootStateResponse {
@@ -430,4 +430,6 @@ message ProvisionPresharedSecretRequest {
 message ProvisionPresharedSecretResponse {
   ErrorCode error_code = 1;
   PresharedSecretStatus status = 2;
+  BootColor color = 3;
+  bytes digest = 4;
 }

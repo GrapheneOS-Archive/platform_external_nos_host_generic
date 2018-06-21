@@ -69,6 +69,7 @@ enum Tag {
   ALLOW_WHILE_ON_BODY = 0x701fa; // (TagType:BOOL | 506)
   TRUSTED_USER_PRESENCE_REQUIRED = 0x701fb; // (TagType:BOOL | 507)
   TRUSTED_CONFIRMATION_REQUIRED = 0x701fc;  // (TagType:BOOL | 508)
+  UNLOCKED_DEVICE_REQUIRED = 0x701fd;  //  (TagType:BOOL | 509)
   /* RESERVED: ALL_APPLICATIONS = 0x70258; // (TagType:BOOL | 600) */
   APPLICATION_ID = 0x90259; // (TagType:BYTES | 601)
   /* RESERVED: EXPORTABLE = 0x7025a; // (TagType:BOOL | 602) */
@@ -247,14 +248,7 @@ enum ErrorCode {
   INVALID_DEVICE_IDS = 72;                // Vendor specific.
   PRODUCTION_MODE_PROVISIONING = 73;      // Vendor specific.
   NO_USER_CONFIRMATION = 74;
-};
-
-enum HardwareAuthenticatorType {
-  AUTH_NONE = 0;
-  AUTH_PASSWORD = 1; // (1 << 0)
-  AUTH_FINGERPRINT = 2; // (1 << 1)
-  AUTH_ANY = 3;
-  AUTH_MAX = 4;
+  KEY_UPGRADE_NOT_REQUIRED = 75;          // Vendor specific.
 };
 
 enum SecurityLevel {
