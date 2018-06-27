@@ -192,7 +192,8 @@ message StartAttestKeyResponse {
 // ContinueAttestKeyRequest
 message ContinueAttestKeyRequest {
   OperationHandle handle = 1;
-  bytes attestation_app_id = 2;
+  //  bytes attestation_app_id = 2;    // Unused, contained within params
+  KeyParameters params = 3;
 }
 message  ContinueAttestKeyResponse {
   ErrorCode error_code = 1;
