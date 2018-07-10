@@ -427,6 +427,8 @@ TEST_F(TransportTest, RequestCrcError) {
   EXPECT_SEND_DATA(app_id, args, args_len);
   EXPECT_GO_COMMAND(app_id, param, args, args_len, 0);
   EXPECT_GET_STATUS_BAD_CRC(app_id);
+  // Clean up
+  EXPECT_CLEAR_STATUS(app_id);
 
   uint32_t res = nos_call_application(dev(), app_id, param, args, args_len, nullptr, nullptr);
   EXPECT_THAT(res, Eq(APP_ERROR_IO));
@@ -489,6 +491,8 @@ TEST_F(TransportTest, DetectAppAbort) {
   EXPECT_GET_STATUS_WORKING(app_id);
   // It just stopped working
   EXPECT_GET_STATUS_IDLE(app_id);
+  // It's probably already clear but just making sure
+  EXPECT_CLEAR_STATUS(app_id);
 
   uint32_t res = nos_call_application(dev(), app_id, param, args, args_len, nullptr, nullptr);
   EXPECT_THAT(res, Eq(APP_ERROR_INTERNAL));

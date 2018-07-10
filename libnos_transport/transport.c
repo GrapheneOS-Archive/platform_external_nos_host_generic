@@ -32,8 +32,8 @@
 /* Note: evaluates expressions multiple times */
 #define MIN(a, b) (((a) < (b)) ? (a) : (b))
 
-#define VERBOSE_LOG 0
 #define DEBUG_LOG 0
+#define VERBOSE_LOG 0
 
 #ifdef ANDROID
 /* Logging for Android */
@@ -44,8 +44,8 @@
 
 #define NLOGE(...) ALOGE(__VA_ARGS__)
 #define NLOGW(...) ALOGW(__VA_ARGS__)
-#define NLOGV(...) ALOGV(__VA_ARGS__)
 #define NLOGD(...) ALOGD(__VA_ARGS__)
+#define NLOGV(...) ALOGV(__VA_ARGS__)
 
 extern int usleep (uint32_t usec);
 
@@ -57,9 +57,9 @@ extern int usleep (uint32_t usec);
   fprintf(stderr, "\n"); } while (0)
 #define NLOGW(...) do { printf(__VA_ARGS__); \
   printf("\n"); } while (0)
-#define NLOGV(...) do { if (VERBOSE_LOG) { \
-  printf(__VA_ARGS__); printf("\n"); } } while (0)
 #define NLOGD(...) do { if (DEBUG_LOG) { \
+  printf(__VA_ARGS__); printf("\n"); } } while (0)
+#define NLOGV(...) do { if (VERBOSE_LOG) { \
   printf(__VA_ARGS__); printf("\n"); } } while (0)
 
 #endif
@@ -159,7 +159,7 @@ static int get_status(const struct transport_context *ctx,
     /* Get the status from the device */
     const uint32_t command = CMD_ID(ctx->app_id) | CMD_IS_READ | CMD_TRANSPORT;
     if (nos_device_read(ctx->dev, command, &st, STATUS_MAX_LENGTH) != 0) {
-      NLOGE("Failed to read device status");
+      NLOGE("Failed to read app %d status", ctx->app_id);
       return -1;
     }
 
@@ -190,8 +190,8 @@ static int get_status(const struct transport_context *ctx,
 
     /* Check the CRC, if it fails we will retry */
     if (out->crc != our_crc) {
-      NLOGW("Status CRC mismatch: theirs=%04x ours=%04x",
-            out->crc, our_crc);
+      NLOGW("App %d status CRC mismatch: theirs=%04x ours=%04x",
+            ctx->app_id, out->crc, our_crc);
       continue;
     }
 
@@ -200,7 +200,7 @@ static int get_status(const struct transport_context *ctx,
     return 0;
   }
 
-  NLOGE("Unable to get valid checksum on status");
+  NLOGE("Unable to get valid checksum on app %d status", ctx->app_id);
   return -1;
 }
 
@@ -210,7 +210,7 @@ static int get_status(const struct transport_context *ctx,
 static int clear_status(const struct transport_context *ctx) {
   const uint32_t command = CMD_ID(ctx->app_id) | CMD_TRANSPORT;
   if (nos_device_write(ctx->dev, command, NULL, 0) != 0) {
-    NLOGE("Failed to clear device status");
+    NLOGE("Failed to clear app %d status", ctx->app_id);
     return -1;
   }
   return 0;
@@ -223,11 +223,11 @@ static uint32_t make_ready(const struct transport_context *ctx) {
   struct transport_status status;
 
   if (get_status(ctx, &status) != 0) {
-    NLOGE("Failed to inspect device");
+    NLOGE("Failed to inspect app %d", ctx->app_id);
     return APP_ERROR_IO;
   }
-  NLOGD("Inspection status=0x%08x reply_len=%d protocol=%d flags=0x%04x",
-        status.status, status.reply_len, status.version, status.flags);
+  NLOGD("App %d inspection status=0x%08x reply_len=%d protocol=%d flags=0x%04x",
+        ctx->app_id, status.status, status.reply_len, status.version, status.flags);
 
   /* If it's already idle then we're ready to proceed */
   if (status.status == APP_STATUS_IDLE) {
@@ -235,30 +235,30 @@ static uint32_t make_ready(const struct transport_context *ctx) {
         && (status.flags & STATUS_FLAG_WORKING)) {
       /* The app is still working when we don't expect it to be. We won't be
        * able to clear the state so might need to force a reset to recover. */
-      NLOGE("app is still working");
+      NLOGE("App %d is still working", ctx->app_id);
       return APP_ERROR_BUSY;
     }
     return APP_SUCCESS;
   }
 
   /* Try clearing the status */
-  NLOGD("Clearing previous status");
+  NLOGD("Clearing previous app %d status", ctx->app_id);
   if (clear_status(ctx) != 0) {
-    NLOGD("Failed to force idle status");
+    NLOGE("Failed to force app %d to idle status", ctx->app_id);
     return APP_ERROR_IO;
   }
 
   /* Check again */
   if (get_status(ctx, &status) != 0) {
-    NLOGE("Failed to get cleared status");
+    NLOGE("Failed to get app %d's cleared status", ctx->app_id);
     return APP_ERROR_IO;
   }
-  NLOGD("Cleared status=0x%08x reply_len=%d flags=0x%04x",
-        status.status, status.reply_len, status.flags);
+  NLOGD("Cleared app %d status=0x%08x reply_len=%d flags=0x%04x",
+        ctx->app_id, status.status, status.reply_len, status.flags);
 
   /* It's ignoring us and is still not ready, so it's broken */
   if (status.status != APP_STATUS_IDLE) {
-    NLOGE("Device is not responding");
+    NLOGE("App %d is not responding", ctx->app_id);
     return APP_ERROR_IO;
   }
 
@@ -273,7 +273,7 @@ static uint32_t send_command(const struct transport_context *ctx) {
   uint16_t arg_len = ctx->arg_len;
   uint16_t crc;
 
-  NLOGV("Send command data (%d bytes)", arg_len);
+  NLOGD("Send app %d command data (%d bytes)", ctx->app_id, arg_len);
   uint32_t command = CMD_ID(ctx->app_id) | CMD_IS_DATA | CMD_TRANSPORT;
   /* This always sends at least 1 packet to support the v0 protocol */
   do {
@@ -287,9 +287,9 @@ static uint32_t send_command(const struct transport_context *ctx) {
     const uint16_t ulen = MIN(arg_len, MAX_DEVICE_TRANSFER);
     CMD_SET_PARAM(command, ulen);
 
-    NLOGD("Write command 0x%08x, bytes %d", command, ulen);
+    NLOGV("Write app %d command 0x%08x, bytes %d", ctx->app_id, command, ulen);
     if (nos_device_write(ctx->dev, command, args, ulen) != 0) {
-      NLOGE("Failed to send datagram to device");
+      NLOGE("Failed to send datagram to app %d", ctx->app_id);
       return APP_ERROR_IO;
     }
 
@@ -325,9 +325,9 @@ static uint32_t send_command(const struct transport_context *ctx) {
 
   /* Tell the app to handle the request while also sending the command_info
    * which will be ignored by the v0 protocol. */
-  NLOGD("Write command 0x%08x, crc %04x...", command, command_info.crc);
+  NLOGD("Write app %d command 0x%08x, crc %04x...", ctx->app_id, command, command_info.crc);
   if (0 != nos_device_write(ctx->dev, command, &command_info, sizeof(command_info))) {
-    NLOGE("Failed to send command datagram to device");
+    NLOGE("Failed to send command datagram to app %d", ctx->app_id);
     return APP_ERROR_IO;
   }
 
@@ -340,20 +340,26 @@ static uint32_t send_command(const struct transport_context *ctx) {
 uint32_t poll_until_done(const struct transport_context *ctx,
                          struct transport_status *status) {
   uint32_t poll_count = 0;
-  NLOGV("Poll the app status until it's done");
+  NLOGD("Polling app %d", ctx->app_id);
   do {
     /* Poll the status */
     if (get_status(ctx, status) != 0) {
       return APP_ERROR_IO;
     }
     poll_count++;
-    NLOGD("poll=%d status=0x%08x reply_len=%d flags=0x%04x",
-          poll_count, status->status, status->reply_len, status->flags);
+    /* Log at higher priority every 16 polls */
+    if ((poll_count & (16 - 1)) == 0) {
+      NLOGD("App %d poll=%d status=0x%08x reply_len=%d flags=0x%04x",
+            ctx->app_id, poll_count, status->status, status->reply_len, status->flags);
+    } else {
+      NLOGV("App %d poll=%d status=0x%08x reply_len=%d flags=0x%04x",
+            ctx->app_id, poll_count, status->status, status->reply_len, status->flags);
+    }
 
     /* Check whether the app is done */
     if (status->status & APP_STATUS_DONE) {
-      NLOGV("status=0x%08x reply_len=%d flags=%d",
-            status->status, status->reply_len, status->flags);
+      NLOGD("App %d polled=%d status=0x%08x reply_len=%d flags=0x%04x",
+            ctx->app_id, poll_count, status->status, status->reply_len, status->flags);
       return APP_STATUS_CODE(status->status);
     }
 
@@ -361,12 +367,12 @@ uint32_t poll_until_done(const struct transport_context *ctx,
     if (status->version != TRANSPORT_V0
         && !(status->flags & STATUS_FLAG_WORKING)) {
       /* The slave has stopped working without being done so it's misbehaving */
-      NLOGE("app just stopped working");
+      NLOGE("App %d just stopped working", ctx->app_id);
       return APP_ERROR_INTERNAL;
     }
   } while (poll_count != POLL_LIMIT);
 
-  NLOGE("app not done after polling %d times", poll_count);
+  NLOGE("App %d not done after polling %d times", ctx->app_id, poll_count);
   return APP_ERROR_INTERNAL;
 }
 
@@ -377,7 +383,7 @@ uint32_t receive_reply(const struct transport_context *ctx,
                        const struct transport_status *status) {
   int retries = CRC_RETRY_COUNT;
   while (retries--) {
-    NLOGV("Read the reply data (%d bytes)", status->reply_len);
+    NLOGD("Read app %d reply data (%d bytes)", ctx->app_id, status->reply_len);
 
     uint32_t command = CMD_ID(ctx->app_id) | CMD_IS_READ | CMD_TRANSPORT | CMD_IS_DATA;
     uint8_t *reply = ctx->reply;
@@ -387,9 +393,9 @@ uint32_t receive_reply(const struct transport_context *ctx,
     while (left) {
       /* We can't read more per datagram than the device can send */
       const uint16_t gimme = MIN(left, MAX_DEVICE_TRANSFER);
-      NLOGD("Read command=0x%08x, bytes=%d", command, gimme);
+      NLOGV("Read app %d command=0x%08x, bytes=%d", ctx->app_id, command, gimme);
       if (nos_device_read(ctx->dev, command, reply, gimme) != 0) {
-        NLOGE("Failed to receive datagram from device");
+        NLOGE("Failed to receive datagram from app %d", ctx->app_id);
         return APP_ERROR_IO;
       }
 
@@ -409,10 +415,10 @@ uint32_t receive_reply(const struct transport_context *ctx,
     if (status->version == TRANSPORT_V0) return APP_SUCCESS;
 
     if (crc == status->reply_crc) return APP_SUCCESS;
-    NLOGW("Reply CRC mismatch: theirs=%04x ours=%04x", status->reply_crc, crc);
+    NLOGW("App %d reply CRC mismatch: theirs=%04x ours=%04x", ctx->app_id, status->reply_crc, crc);
   }
 
-  NLOGE("Unable to get valid checksum on reply data");
+  NLOGE("Unable to get valid checksum on app %d reply data", ctx->app_id);
   return APP_ERROR_IO;
 }
 
@@ -441,9 +447,10 @@ uint32_t nos_call_application(const struct nos_device *dev,
     return APP_ERROR_IO;
   }
 
-  NLOGV("Calling app %d with params 0x%04x", app_id, params);
+  NLOGD("Calling app %d with params 0x%04x", app_id, params);
 
   struct transport_status status;
+  uint32_t status_code;
   int retries = CRC_RETRY_COUNT;
   while (retries--) {
     /* Wake up and wait for Citadel to be ready */
@@ -455,14 +462,13 @@ uint32_t nos_call_application(const struct nos_device *dev,
     if (res) return res;
 
     /* Wait until the app has finished */
-    res = poll_until_done(&ctx, &status);
-    if (res == APP_SUCCESS) break;
-    if (res != APP_ERROR_CHECKSUM) return res;
-    NLOGW("Request checksum error");
+    status_code = poll_until_done(&ctx, &status);
+    if (status_code != APP_ERROR_CHECKSUM) break;
+    NLOGW("App %d request checksum error", app_id);
   }
-  if (res == APP_ERROR_CHECKSUM) {
-    NLOGE("Request checksum failed too many times");
-    return APP_ERROR_IO;
+  if (status_code == APP_ERROR_CHECKSUM) {
+    NLOGE("App %d equest checksum failed too many times", app_id);
+    status_code = APP_ERROR_IO;
   }
 
   /* Get the reply, but only if the app produced data and the caller wants it */
@@ -473,11 +479,11 @@ uint32_t nos_call_application(const struct nos_device *dev,
     *reply_len = 0;
   }
 
-  NLOGV("Clear the reply manually for the next caller");
+  NLOGV("Clear app %d reply for the next caller", app_id);
   /* This should work, but isn't completely fatal if it doesn't because the
    * next call will try again. */
   (void)clear_status(&ctx);
 
-  NLOGV("%s returning 0x%x", __func__, APP_STATUS_CODE(status.status));
-  return APP_STATUS_CODE(status.status);
+  NLOGD("App %d returning 0x%x", app_id, status_code);
+  return status_code;
 }
