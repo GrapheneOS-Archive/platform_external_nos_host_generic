@@ -207,6 +207,8 @@ message FinishAttestKeyRequest {
 message  FinishAttestKeyResponse {
   ErrorCode error_code = 1;
   bytes certificate_epilogue = 2;
+  ChipFusing chip_fusing = 3;
+  bool nodelocked_ro = 4;
 }
 
 // UpgradeKey
