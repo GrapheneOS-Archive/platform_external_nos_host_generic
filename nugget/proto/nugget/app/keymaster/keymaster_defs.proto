@@ -282,3 +282,9 @@ enum BootColor {
     BOOT_UNVERIFIED_ORANGE = 2;
     BOOT_VERIFY_FAILED_RED = 3;
 }
+
+enum ChipFusing {
+    FUSING_PROTO = 0;
+    FUSING_DVT = 1;
+    FUSING_PVT = 2;
+}
