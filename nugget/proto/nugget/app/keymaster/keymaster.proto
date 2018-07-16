@@ -373,6 +373,8 @@ message ProvisionDeviceIdsRequest {
 message ProvisionDeviceIdsResponse {
   // Specified in keymaster_defs.proto:ErrorCode
   ErrorCode error_code = 1;
+  ChipFusing chip_fusing = 2;
+  bool nodelocked_ro = 3;
 }
 
 // ReadTeeBatchCertificate
