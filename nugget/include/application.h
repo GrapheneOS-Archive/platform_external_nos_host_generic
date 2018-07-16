@@ -308,6 +308,7 @@ enum app_status {
   APP_ERROR_IO,              /* problem sending or receiving data */
   APP_ERROR_RPC,             /* problem during RPC communication */
   APP_ERROR_CHECKSUM,        /* checksum failed, only used within protocol */
+  APP_ERROR_BUSY,            /* the app is already working on a commnad */
   /* more? */
 
   APP_SPECIFIC_ERROR = 0x20, /* "should be enough for anybody" */
