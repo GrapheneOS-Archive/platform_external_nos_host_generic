@@ -23,6 +23,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 #include <unistd.h>
 
 #include <application.h>
@@ -75,9 +76,8 @@ extern int usleep (uint32_t usec);
 /* In case of CRC error, try to retransmit */
 #define CRC_RETRY_COUNT 3
 
-/* The number of times to poll before giving up */
-/* TODO: review this limit, maybe replace with a timeout */
-#define POLL_LIMIT 1000000
+/* How long to poll before giving up */
+#define POLL_LIMIT_SECONDS 60
 
 struct transport_context {
   const struct nos_device *dev;
@@ -334,12 +334,31 @@ static uint32_t send_command(const struct transport_context *ctx) {
   return APP_SUCCESS;
 }
 
+static bool timespec_before(const struct timespec *lhs, const struct timespec *rhs) {
+  if (lhs->tv_sec == rhs->tv_sec) {
+    return lhs->tv_nsec < rhs->tv_nsec;
+  } else {
+    return lhs->tv_sec < rhs->tv_sec;
+  }
+}
+
 /*
  * Keep polling until the app says it is done.
  */
-uint32_t poll_until_done(const struct transport_context *ctx,
-                         struct transport_status *status) {
+static uint32_t poll_until_done(const struct transport_context *ctx,
+                                struct transport_status *status) {
   uint32_t poll_count = 0;
+
+  /* Start the timer */
+  struct timespec now;
+  struct timespec abort_at;
+  if (clock_gettime(CLOCK_MONOTONIC, &now) != 0) {
+    NLOGE("clock_gettime() failing: %s", strerror(errno));
+    return APP_ERROR_IO;
+  }
+  abort_at.tv_sec = now.tv_sec + POLL_LIMIT_SECONDS;
+  abort_at.tv_nsec = now.tv_nsec;
+
   NLOGD("Polling app %d", ctx->app_id);
   do {
     /* Poll the status */
@@ -370,17 +389,22 @@ uint32_t poll_until_done(const struct transport_context *ctx,
       NLOGE("App %d just stopped working", ctx->app_id);
       return APP_ERROR_INTERNAL;
     }
-  } while (poll_count != POLL_LIMIT);
+    if (clock_gettime(CLOCK_MONOTONIC, &now) != 0) {
+      NLOGE("clock_gettime() failing: %s", strerror(errno));
+      return APP_ERROR_IO;
+    }
+  } while (timespec_before(&now, &abort_at));
 
-  NLOGE("App %d not done after polling %d times", ctx->app_id, poll_count);
-  return APP_ERROR_INTERNAL;
+  NLOGE("App %d not done after polling %d times in %d seconds",
+        ctx->app_id, poll_count, POLL_LIMIT_SECONDS);
+  return APP_ERROR_TIMEOUT;
 }
 
 /*
  * Reconstruct the reply data from datagram stream.
  */
-uint32_t receive_reply(const struct transport_context *ctx,
-                       const struct transport_status *status) {
+static uint32_t receive_reply(const struct transport_context *ctx,
+                              const struct transport_status *status) {
   int retries = CRC_RETRY_COUNT;
   while (retries--) {
     NLOGD("Read app %d reply data (%d bytes)", ctx->app_id, status->reply_len);

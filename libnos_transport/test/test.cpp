@@ -635,3 +635,26 @@ int main(int argc, char** argv) {
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
 }
+
+#ifdef TEST_TIMEOUT
+TEST_F(TransportTest, Timeout) {
+  const uint8_t app_id = 49;
+  const uint16_t param = 64;
+
+  InSequence please;
+  EXPECT_GET_STATUS_IDLE(app_id);
+  EXPECT_SEND_DATA(app_id, nullptr, 0);
+  EXPECT_GO_COMMAND(app_id, param, nullptr, 0, 0);
+
+  // Keep saying we're working on it
+  const uint32_t command = CMD_ID((app_id)) | CMD_IS_READ | CMD_TRANSPORT;
+  EXPECT_CALL(mock_dev(), Read(command, _, STATUS_MAX_LENGTH))
+      .WillRepeatedly(DoAll(ReadStatusV1_Working(), Return(0)));
+
+  // We'll still try and clean up
+  EXPECT_CLEAR_STATUS(app_id);
+
+  uint32_t res = nos_call_application(dev(), app_id, param, nullptr, 0, nullptr, nullptr);
+  EXPECT_THAT(res, Eq(APP_ERROR_TIMEOUT));
+}
+#endif
