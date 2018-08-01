@@ -77,6 +77,12 @@
 #define RO_CERTS_B_OFF                     (CHIP_RO_B_MEM_OFF + 0x2800)
 #define RO_CERTS_A_SIZE                     0x01000
 #define RO_CERTS_B_SIZE                     0x00c00
+/*
+ * Flash erases must be multiples of CHIP_FLASH_ERASE_SIZE, so in
+ * order to rewrite CERTS_B, we need wipe RO_CERTS_ERASE_SIZE rather
+ * than CERTS_B_SIZE.
+ */
+#define RO_CERTS_ERASE_SIZE                 0x01000
 /* We have an unused 3-kB region in the B bank, for future proofing. */
 #define RO_CERTS_PAD_B_SIZE                 0x00c00
 /* Factory provision data is written as a 2-kB block to the A bank. */
