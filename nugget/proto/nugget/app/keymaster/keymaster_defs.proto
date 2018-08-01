@@ -288,3 +288,11 @@ enum ChipFusing {
     FUSING_DVT = 1;
     FUSING_PVT = 2;
 }
+
+enum CertificateStatus {
+  CERT_PREVIOUSLY_PROVISIONED = 0;
+  CERT_MISSING = 1;
+  CERT_CHECKSUM = 2;
+  CERT_UNKNOWN_ERROR = 3;
+  CERT_WRONG_PACKET = 4;
+}
