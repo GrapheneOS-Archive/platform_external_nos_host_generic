@@ -228,6 +228,21 @@ int is_app_success(uint32_t retval)
   case APP_ERROR_TOO_MUCH:
     fprintf(stderr, "caller sent too much data");
     break;
+  case APP_ERROR_IO:
+    fprintf(stderr, "problem sending or receiving data");
+    break;
+  case APP_ERROR_RPC:
+    fprintf(stderr, "problem during RPC communication");
+    break;
+  case APP_ERROR_CHECKSUM:
+    fprintf(stderr, "checksum failed");
+    break;
+  case APP_ERROR_BUSY:
+    fprintf(stderr, "the app is already working on a commnad");
+    break;
+  case APP_ERROR_TIMEOUT:
+    fprintf(stderr, "the app took too long to respond");
+    break;
   default:
     if (retval >= APP_SPECIFIC_ERROR &&
        retval < APP_LINE_NUMBER_BASE) {
@@ -237,7 +252,7 @@ int is_app_success(uint32_t retval)
       fprintf(stderr, "error at line %d",
         retval - APP_LINE_NUMBER_BASE);
     } else {
-      fprintf(stderr, "unknown)");
+      fprintf(stderr, "unknown");
     }
   }
   fprintf(stderr, "\n");
