@@ -275,6 +275,26 @@ enum nugget_ap_uart_passthru_cfg {
  * @param reply_len    sizeof(uint32_t)
  */
 
+enum nugget_selftest_commands {
+  SELFTEST_TRNGSTATS,
+};
+
+#define NUGGET_PARAM_SELFTEST 0x0101
+/*
+ * Run an intentionally vaguely specified internal test
+ *
+ * This accepts zero or more uint32_t values, and returns a null-terminated
+ * string. With zero input args, the string describes the available tests.
+ *
+ * To actually run a test, the caller sends a uint32_t command, along with zero
+ * or more additional test-specific input parameters (typically also uint32_t).
+ *
+ * @param args         zero or more uint32_t values
+ * @param arg_len      arg count * sizeof(uint32_t)
+ * @param reply        null-terminated string
+ * @param reply_len    number of returned chars including '\0' at end
+ */
+
 /****************************************************************************/
 /* Support for Power 1.1 HAL */
 
