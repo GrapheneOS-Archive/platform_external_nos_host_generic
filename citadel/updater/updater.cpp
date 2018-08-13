@@ -176,13 +176,13 @@ void usage(const char *progname)
     "\n"
     "  --ap_uart            Query the AP UART passthru setting\n"
     "                       (It can only be set in the BIOS)\n"
-    "\n\n"
+    "\n"
     "  --erase=CODE         Erase all user secrets and reboot.\n"
     "                       This skips all other actions.\n"
-    "\n\n"
-    "  --selftest [ARGS]    Run one or more selftests. With no ARGS, it asks\n"
-    "                       Citdel for the available tests. This should be\n"
-    "                       run by itself for best results.\n"
+    "\n"
+    "  --selftest [ARGS]    Run one or more selftests. With no ARGS, it runs\n"
+    "                       a default suite. This command will consume all\n"
+    "                       following args, so run it alone for best results.\n"
 #ifndef ANDROID
     "\n"
     "Options:\n"
@@ -756,66 +756,29 @@ static uint32_t do_erase(AppClient &app)
 #define MAX_SELFTEST_REPLY_LEN 4096
 static uint32_t do_selftest(AppClient &app, int argc, char *argv[])
 {
-  int i = options.selftest;
-  char *e = 0;
-  uint32_t rv = APP_ERROR_BOGUS_ARGS;;
+  int i, j;
+  uint32_t rv;
+  std::vector<uint8_t> data;
 
-  /* No args at all should just request the selftest version */
-  if (i >= argc) {
-    std::vector<uint8_t> data;
-    data.reserve(MAX_SELFTEST_REPLY_LEN);
-
-    rv = app.Call(NUGGET_PARAM_SELFTEST, data, &data);
-
-    if (is_app_success(rv)) {
-      /* Make SURE it's null-terminated */
-      size_t len = data.size();
-      if (len) {
-        data[len - 1] = '\0';
-        printf("%s\n", data.data());
-      }
+  /* Copy all the args to send, including their terminating '\0' */
+  for (i = options.selftest; i < argc; i++) {
+    for (j = 0; argv[i][j]; j++) {
+      data.push_back(argv[i][j]);
     }
-
-    return rv;
+    data.push_back('\0');
   }
 
-  /* The only test right now is the trng test */
-  if (*argv[i] == 't' || *argv[i] == 'T') {
-    i++;
-
-    /* It takes uint32_t args */
-    std::vector<uint32_t> args;
-    args.push_back(SELFTEST_TRNGSTATS); /* First arg is command */
-
-    for (; i < argc; i++) {
-      uint32_t tmp = (uint32_t)strtoul(argv[i], &e, 0);
-      if (e && *e) {
-        Error("Invalid arg: \"%s\"\n", argv[i]);
-        return -1;
-      }
-      args.push_back(tmp);
+  /* Send args, get reply */
+  data.reserve(MAX_SELFTEST_REPLY_LEN);
+  rv = app.Call(NUGGET_PARAM_SELFTEST, data, &data);
+  if (is_app_success(rv)) {
+    /* Make SURE it's null-terminated */
+    size_t len = data.size();
+    if (len) {
+      data[len - 1] = '\0';
+      printf("%s\n", data.data());
     }
-
-    size_t arg_bytes = args.size() * sizeof(uint32_t);
-    std::vector<uint8_t> data(arg_bytes); // sending this much
-    memcpy(data.data(), args.data(), arg_bytes);
-    data.reserve(MAX_SELFTEST_REPLY_LEN);
-
-    rv = app.Call(NUGGET_PARAM_SELFTEST, data, &data);
-
-    if (is_app_success(rv)) {
-      /* Make SURE it's null-terminated */
-      size_t len = data.size();
-      if (len) {
-        data[len - 1] = '\0';
-        printf("%s\n", data.data());
-      }
-    }
-
-  } else {
-    Error("Unrecognized test name");
   }
-
   return rv;
 }
 
