@@ -275,6 +275,21 @@ enum nugget_ap_uart_passthru_cfg {
  * @param reply_len    sizeof(uint32_t)
  */
 
+#define NUGGET_PARAM_SELFTEST 0x0101
+/*
+ * Run an intentionally vaguely specified internal test.
+ *
+ * This accepts arbitrary args and returns arbitrary results, as defined by the
+ * Citadel firmware. To allow changes to Nugget OS without requiring
+ * simultaneous changes to the AP, calling this with no args will run a default
+ * set of tests and return a null-terminated string with the result.
+ *
+ * @param args         zero or more null-terminated strings, concatenated
+ * @param arg_len      number of bytes in args
+ * @param reply        null-terminated string (usually)
+ * @param reply_len    number of bytes in reply (including trailing '\0')
+ */
+
 /****************************************************************************/
 /* Support for Power 1.1 HAL */
 
