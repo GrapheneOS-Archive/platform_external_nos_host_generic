@@ -269,11 +269,11 @@ struct app_transport {
 };
 
 /*
- * TODO(b/66104849): Note that request and response buffers are transferred as
- * byte streams. However, if they will eventually represent structs, the usual
- * ABI alignment requirements will be required. Until we've declared all
- * applications structs in a union, we will need to align the buffers manually.
- * Use this to declare the uint8_t buffers until then:
+ * Note that request and response buffers are transferred as byte streams.
+ * However, if they will eventually represent structs, the usual ABI alignment
+ * requirements will be required. Until we've declared all applications structs
+ * in a union, we will need to align the buffers manually. Use this to declare
+ * the uint8_t buffers until then:
  */
 #define __TRANSPORT_ALIGNED__ __attribute__((aligned(8)))
 

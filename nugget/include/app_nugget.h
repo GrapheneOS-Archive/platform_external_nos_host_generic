@@ -327,10 +327,7 @@ struct nugget_app_low_power_stats {
 /* UNIMPLEMENTED */
 
 /****************************************************************************/
-/* These are bringup / debug functions only.
- *
- * TODO(b/65067435): Remove all of these.
- */
+/* These are bringup / debug functions only. */
 
 #define NUGGET_PARAM_READ32 0xF000
 /*
