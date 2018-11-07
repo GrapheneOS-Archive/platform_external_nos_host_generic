@@ -76,6 +76,7 @@ typedef const void * const __private;
 /* Fake apps used only for testing */
 #define APP_ID_AVB_TEST          0x11
 #define APP_ID_TRANSPORT_TEST    0x12
+#define APP_ID_FACEAUTH_TEST     0x13
 
 /* This app ID should only be used by tests. */
 #define APP_ID_TEST              0xff
