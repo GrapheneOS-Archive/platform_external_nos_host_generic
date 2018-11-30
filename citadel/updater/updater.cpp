@@ -80,6 +80,7 @@ struct options_s {
   char **selftest_args;
   /* generic connection options */
   const char *device;
+  int suzyq;
 } options;
 
 enum no_short_opts_for_these {
@@ -97,6 +98,7 @@ enum no_short_opts_for_these {
   OPT_ERASE,
   OPT_AP_UART,
   OPT_SELFTEST,
+  OPT_SUZYQ,
 };
 
 const char *short_opts = ":hvlV:fF:";
@@ -124,6 +126,7 @@ const struct option long_opts[] = {
   {"ap_uart",       0, NULL, OPT_AP_UART},
   {"ap-uart",       0, NULL, OPT_AP_UART},
   {"selftest",      0, NULL, OPT_SELFTEST},
+  {"suzyq",         0, NULL, OPT_SUZYQ},
 #ifndef ANDROID
   {"device",        1, NULL, OPT_DEVICE},
 #endif
@@ -183,6 +186,9 @@ void usage(const char *progname)
     "  --selftest [ARGS]    Run one or more selftests. With no ARGS, it runs\n"
     "                       a default suite. This command will consume all\n"
     "                       following args, so run it alone for best results.\n"
+    "\n"
+    "  --suzyq [0|1]        Set the SuzyQable detection setting\n"
+    "\n"
 #ifndef ANDROID
     "\n"
     "Options:\n"
@@ -740,6 +746,26 @@ static uint32_t do_ap_uart(AppClient &app)
   return rv;
 }
 
+static uint32_t do_suzyq(AppClient &app, int argc, char *argv[])
+{
+  int i, j;
+  std::vector<uint8_t> buffer;
+
+  for (i = options.suzyq; i < argc; i++) {
+    for (j = 0; argv[i][j]; j++) {
+      buffer.push_back(strtol(argv[i], NULL, 10));
+    }
+  }
+
+  buffer.reserve(1);
+  uint32_t rv = app.Call(NUGGET_PARAM_RDD_CFG, buffer, &buffer);
+
+  if (is_app_success(rv))
+    printf("Current SuzyQable detection setting is %d\n", buffer[0]);
+
+  return rv;
+}
+
 static uint32_t do_erase(AppClient &app)
 {
   std::vector<uint8_t> data(sizeof(uint32_t));
@@ -902,6 +928,11 @@ int execute_commands(const std::vector<uint8_t> &image,
     return 1;
   }
 
+  if (options.suzyq &&
+      do_suzyq(app, argc, argv) != APP_SUCCESS) {
+    return 1;
+  }
+
   return 0;
 }
 
@@ -1010,6 +1041,10 @@ int main(int argc, char *argv[])
       break;
     case OPT_AP_UART:
       options.ap_uart = 1;
+      got_action = 1;
+      break;
+    case OPT_SUZYQ:
+      options.suzyq = optind;
       got_action = 1;
       break;
     case OPT_SELFTEST:

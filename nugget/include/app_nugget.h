@@ -262,6 +262,24 @@ enum nugget_ap_uart_passthru_cfg {
  * @errors             APP_ERROR_BOGUS_ARGS
  */
 
+#define NUGGET_PARAM_RDD_CFG 0x000e
+/*
+ * Enable/Disable the RDD SuzyQable Deteaction
+ *
+ * This always returns the current state of the RDD SuezyQable detection
+ * feature.
+ *
+ * The AP can request that the RDD SuezyQable detection to be disabled (0) or
+ * enabled (1).
+ *
+ * @param args         0     OR   1
+ * @param arg_len      0     OR   1 byte
+ * @param reply        0     OR   1 current state
+ * @param reply_len    1 byte
+ *
+ * @errors             APP_ERROR_BOGUS_ARGS
+ */
+
 /****************************************************************************/
 /* Test related commands */
 
@@ -327,10 +345,7 @@ struct nugget_app_low_power_stats {
 /* UNIMPLEMENTED */
 
 /****************************************************************************/
-/* These are bringup / debug functions only.
- *
- * TODO(b/65067435): Remove all of these.
- */
+/* These are bringup / debug functions only. */
 
 #define NUGGET_PARAM_READ32 0xF000
 /*
