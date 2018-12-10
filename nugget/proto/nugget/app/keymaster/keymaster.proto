@@ -110,6 +110,11 @@ service Keymaster {
   rpc ContinueAttestKey(ContinueAttestKeyRequest) returns (ContinueAttestKeyResponse);
   rpc FinishAttestKey(FinishAttestKeyRequest) returns (FinishAttestKeyResponse);
 
+  /*
+   * More vendor specific methods.
+   */
+  rpc ProvisionCertificates(ProvisionCertificatesRequest) returns (ProvisionCertificatesResponse);
+
   // These are implemented with a enum, so new RPCs must be appended, and
   // deprecated RPCs need placeholders.
 }
@@ -437,4 +442,14 @@ message ProvisionPresharedSecretResponse {
   PresharedSecretStatus status = 2;
   BootColor color = 3;
   bytes digest = 4;
+}
+
+message ProvisionCertificatesRequest {
+  uint32 block_number = 1;
+  bytes cert_block = 2;
+  bytes digest = 3;
+}
+message ProvisionCertificatesResponse {
+  ErrorCode error_code = 1;
+  CertificateStatus cert_status = 2;
 }
