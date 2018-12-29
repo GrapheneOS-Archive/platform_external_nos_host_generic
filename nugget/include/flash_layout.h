@@ -18,8 +18,13 @@
  */
 
 /* Flash is directly addressable */
+#if defined(CHIP_H1D1)
+#define CHIP_FLASH_BASE              0x80000
+#define CHIP_FLASH_SIZE              (1024 * 1024)
+#else
 #define CHIP_FLASH_BASE              0x40000
 #define CHIP_FLASH_SIZE              (512 * 1024)
+#endif
 #define CHIP_FLASH_HALF              (CHIP_FLASH_SIZE >> 1)
 
 /* Each half has to leave room for the image's signed header */
