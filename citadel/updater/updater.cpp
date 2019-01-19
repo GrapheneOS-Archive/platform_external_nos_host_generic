@@ -785,19 +785,34 @@ static void parse_hex_value(uint32_t *val, const char *str)
 
 static void show_board_id(const struct nugget_app_board_id *id)
 {
-  printf("board type = 0x%08x\n", id->type);
+  uint8_t feature;
 
-  if (id->type ^ ~id->inv)
-    printf("  type_inv = 0x%08x  BAD\n", id->inv);
+  printf("0x%08x 0x%08x 0x%08x # ", id->type, id->flag, id->inv);
 
-  printf("board flag = 0x%08x", id->flag);
-
-  if (id->flag == 0xffffffff) {
-    printf("\n");
+  if (id->type == 0xffffffff && id->flag == 0xffffffff &&
+      id->inv == 0xffffffff) {
+    printf("unset\n");
     return;
   }
 
-  printf(" = %s ", id->flag & 0x80 ? "MP" : "Pre-MP");
+  if (id->type ^ ~id->inv) {
+    printf("corrupted\n");
+    return;
+  }
+
+  feature = (id->type & 0xff000000) >> 24;
+  switch (feature) {
+    case 0x00:
+      printf("Pixel 3, ");
+      break;
+    case 0x01:
+      printf("Pixel 4, ");
+      break;
+    default:
+      printf("feature 0x%2x, ", feature);
+  }
+
+  printf("%s, ", id->flag & 0x80 ? "MP" : "Pre-MP");
   switch (id->flag & 0x7f) {
   case 0x7f:
     printf("DEVBOARD\n");
@@ -824,7 +839,7 @@ static void show_board_id(const struct nugget_app_board_id *id)
     printf("PVT/MP\n");
     break;
   default:
-    printf("(uncertain)\n");
+    printf("(unknown)\n");
     break;
   }
 }
@@ -834,51 +849,56 @@ static uint32_t do_board_id(AppClient &app, int argc, char *argv[])
   uint32_t rv;
   std::vector<uint8_t> request;
   std::vector<uint8_t> response(sizeof(struct nugget_app_board_id));
-  struct nugget_app_board_id *board_id;;
+  struct nugget_app_board_id board_id;
   char answer = 0;
 
   // User must input both board_type and board_flag to make a set request
   if (argc - options.board_id >= 2) {
-    request.resize(sizeof(struct nugget_app_board_id));
-    board_id = (struct nugget_app_board_id *)request.data();
+    uint32_t tmp = 0;
 
-    parse_hex_value(&board_id->type, argv[options.board_id]);
-    parse_hex_value(&board_id->flag, argv[options.board_id + 1]);
+    parse_hex_value(&tmp, argv[options.board_id]);
+    board_id.type = tmp;
+
+    parse_hex_value(&tmp, argv[options.board_id + 1]);
+    board_id.flag = tmp;
 
     // optional third arg must equal ~type to avoid confirmation
     if (argc - options.board_id > 2) {
-      parse_hex_value(&board_id->inv, argv[options.board_id + 2]);
+      parse_hex_value(&tmp, argv[options.board_id + 2]);
+      board_id.inv = tmp;
     } else {
-      board_id->inv = ~board_id->type;
+      board_id.inv = ~board_id.type;
     }
 
+    // Any problems parsing args?
     if (errorcnt)
       return errorcnt;
 
-    printf("WARNING: Setting board-id is irreversible!\n");
-    printf("Writing Board ID:\n");
-    show_board_id(board_id);
-
-    if (argc - options.board_id == 2 ||
-        board_id->type ^ ~board_id->inv) {
+    // Confirm unless correct type_inv arg is given
+    if (argc - options.board_id == 2 || board_id.type ^ ~board_id.inv) {
+      printf("\nWriting Board ID:  ");
+      show_board_id(&board_id);
+      printf("\nWARNING: Setting board-id is irreversible!\n");
       printf("Are you sure? (y/n) ");
       fflush(stdout);
       scanf(" %c", &answer);
       if (answer != 'y'){
         Error("Operation cancelled");
         return errorcnt;
-        board_id->inv = ~board_id->type;
       }
+      board_id.inv = ~board_id.type;
       printf("\n");
     }
+
+    request.resize(sizeof(board_id));
+    memcpy(request.data(), &board_id, sizeof(board_id));
   }
 
   rv = app.Call(NUGGET_PARAM_BOARD_ID, request, &response);
 
   if (is_app_success(rv)) {
-    board_id = (struct nugget_app_board_id *)response.data();
-    printf("Read back Board ID:\n");
-    show_board_id(board_id);
+    memcpy(&board_id, response.data(), sizeof(board_id));
+    show_board_id(&board_id);
   }
 
   return rv;
