@@ -81,6 +81,8 @@ struct options_s {
   /* generic connection options */
   const char *device;
   int suzyq;
+  int board_id;
+  char **board_id_args;
 } options;
 
 enum no_short_opts_for_these {
@@ -99,6 +101,7 @@ enum no_short_opts_for_these {
   OPT_AP_UART,
   OPT_SELFTEST,
   OPT_SUZYQ,
+  OPT_BOARD_ID,
 };
 
 const char *short_opts = ":hvlV:fF:";
@@ -127,6 +130,7 @@ const struct option long_opts[] = {
   {"ap-uart",       0, NULL, OPT_AP_UART},
   {"selftest",      0, NULL, OPT_SELFTEST},
   {"suzyq",         0, NULL, OPT_SUZYQ},
+  {"board_id",      0, NULL, OPT_BOARD_ID},
 #ifndef ANDROID
   {"device",        1, NULL, OPT_DEVICE},
 #endif
@@ -188,6 +192,8 @@ void usage(const char *progname)
     "                       following args, so run it alone for best results.\n"
     "\n"
     "  --suzyq [0|1]        Set the SuzyQable detection setting\n"
+    "\n"
+    "  --board_id [TYPE FLAG]   Get/Set board ID values\n"
     "\n"
 #ifndef ANDROID
     "\n"
@@ -766,6 +772,138 @@ static uint32_t do_suzyq(AppClient &app, int argc, char *argv[])
   return rv;
 }
 
+static void parse_hex_value(uint32_t *val, const char *str)
+{
+  char *e = 0;
+  uint32_t tmp = strtoul(str, &e, 16);
+
+  if (e && *e)
+    Error("Invalid arg: \"%s\"", str);
+  else
+    *val = tmp;
+}
+
+static void show_board_id(const struct nugget_app_board_id *id)
+{
+  uint8_t feature;
+
+  printf("0x%08x 0x%08x 0x%08x # ", id->type, id->flag, id->inv);
+
+  if (id->type == 0xffffffff && id->flag == 0xffffffff &&
+      id->inv == 0xffffffff) {
+    printf("unset\n");
+    return;
+  }
+
+  if (id->type ^ ~id->inv) {
+    printf("corrupted\n");
+    return;
+  }
+
+  feature = (id->type & 0xff000000) >> 24;
+  switch (feature) {
+    case 0x00:
+      printf("Pixel 3, ");
+      break;
+    case 0x01:
+      printf("Pixel 4, ");
+      break;
+    default:
+      printf("feature 0x%2x, ", feature);
+  }
+
+  printf("%s, ", id->flag & 0x80 ? "MP" : "Pre-MP");
+  switch (id->flag & 0x7f) {
+  case 0x7f:
+    printf("DEVBOARD\n");
+    break;
+  case 0x7e:
+    printf("Proto1\n");
+    break;
+  case 0x7c:
+    printf("Proto2+\n");
+    break;
+  case 0x78:
+    printf("EVT1\n");
+    break;
+  case 0x70:
+    printf("EVT2+\n");
+    break;
+  case 0x60:
+    printf("DVT1\n");
+    break;
+  case 0x40:
+    printf("DVT2+\n");
+    break;
+  case 0x00:
+    printf("PVT/MP\n");
+    break;
+  default:
+    printf("(unknown)\n");
+    break;
+  }
+}
+
+static uint32_t do_board_id(AppClient &app, int argc, char *argv[])
+{
+  uint32_t rv;
+  std::vector<uint8_t> request;
+  std::vector<uint8_t> response(sizeof(struct nugget_app_board_id));
+  struct nugget_app_board_id board_id;
+  char answer = 0;
+
+  // User must input both board_type and board_flag to make a set request
+  if (argc - options.board_id >= 2) {
+    uint32_t tmp = 0;
+
+    parse_hex_value(&tmp, argv[options.board_id]);
+    board_id.type = tmp;
+
+    parse_hex_value(&tmp, argv[options.board_id + 1]);
+    board_id.flag = tmp;
+
+    // optional third arg must equal ~type to avoid confirmation
+    if (argc - options.board_id > 2) {
+      parse_hex_value(&tmp, argv[options.board_id + 2]);
+      board_id.inv = tmp;
+    } else {
+      board_id.inv = ~board_id.type;
+    }
+
+    // Any problems parsing args?
+    if (errorcnt)
+      return errorcnt;
+
+    // Confirm unless correct type_inv arg is given
+    if (argc - options.board_id == 2 || board_id.type ^ ~board_id.inv) {
+      printf("\nWriting Board ID:  ");
+      show_board_id(&board_id);
+      printf("\nWARNING: Setting board-id is irreversible!\n");
+      printf("Are you sure? (y/n) ");
+      fflush(stdout);
+      scanf(" %c", &answer);
+      if (answer != 'y'){
+        Error("Operation cancelled");
+        return errorcnt;
+      }
+      board_id.inv = ~board_id.type;
+      printf("\n");
+    }
+
+    request.resize(sizeof(board_id));
+    memcpy(request.data(), &board_id, sizeof(board_id));
+  }
+
+  rv = app.Call(NUGGET_PARAM_BOARD_ID, request, &response);
+
+  if (is_app_success(rv)) {
+    memcpy(&board_id, response.data(), sizeof(board_id));
+    show_board_id(&board_id);
+  }
+
+  return rv;
+}
+
 static uint32_t do_erase(AppClient &app)
 {
   std::vector<uint8_t> data(sizeof(uint32_t));
@@ -933,6 +1071,11 @@ int execute_commands(const std::vector<uint8_t> &image,
     return 1;
   }
 
+  if (options.board_id &&
+      do_board_id(app, argc, argv) != APP_SUCCESS) {
+    return 1;
+  }
+
   return 0;
 }
 
@@ -1045,6 +1188,11 @@ int main(int argc, char *argv[])
       break;
     case OPT_SUZYQ:
       options.suzyq = optind;
+      got_action = 1;
+      break;
+    case OPT_BOARD_ID:
+      options.board_id = optind;
+      options.board_id_args = argv;
       got_action = 1;
       break;
     case OPT_SELFTEST:

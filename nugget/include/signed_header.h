@@ -41,6 +41,9 @@
 #define INFO_IGNORE INFO_IGNORE_B
 #endif
 
+/* Default value for _pad[] words */
+#define SIGNED_HEADER_PADDING 0x33333333
+
 typedef struct SignedHeader {
 #ifdef __cplusplus
   SignedHeader()
@@ -61,6 +64,7 @@ typedef struct SignedHeader {
     memset(fusemap, 0, sizeof(fusemap));
     memset(infomap, 0, sizeof(infomap));
     memset(&_pad, '3', sizeof(_pad));
+    memset(&board_id_, SIGNED_HEADER_PADDING, sizeof(board_id_));
   }
 
   void markFuse(uint32_t n) {
@@ -121,6 +125,14 @@ typedef struct SignedHeader {
       printf("%08X", infomap[i]);
     }
     printf("\n");
+    printf("hdr.dev_id0        : %08x\n", dev_id0_);
+    printf("hdr.dev_id1        : %08x\n", dev_id1_);
+    printf("hdr.brd.type       : %08x\n",
+           SIGNED_HEADER_PADDING ^ board_id_.type);
+    printf("hdr.brd.type_mask  : %08x\n",
+           SIGNED_HEADER_PADDING ^ board_id_.type_mask);
+    printf("hdr.brd.flags      : %08x\n",
+           SIGNED_HEADER_PADDING ^ board_id_.flags);
   }
 #endif  // __cplusplus
 
@@ -149,7 +161,7 @@ typedef struct SignedHeader {
   uint32_t expect_response_;  // action to take when expectation is violated
   union {
     uint32_t
-        _pad[256 - 1 - 96 - 1 - 7 - 1 - 96 - 5 * 1 - 4 - 4 - 9 * 1 - 2 - 1 - 2];
+        _pad[256 - 1 - 96 - 1 - 7 - 1 - 96 - 5 * 1 - 4 - 4 - 9 * 1 - 2 - 1 - 2 - 3];
     struct {
       // 2nd FIPS signature (gnubby RW)
       uint32_t keyid;
@@ -157,6 +169,14 @@ typedef struct SignedHeader {
       uint32_t s[8];
     } ext_sig;
   } _pad;
+
+  struct {
+    // CR50 board class locking
+    uint32_t type;       // Board type
+    uint32_t type_mask;  // Mask of board type bits to use.
+    uint32_t flags;      // Flags
+  } board_id_;
+
   uint32_t dev_id0_;  // node id, if locked
   uint32_t dev_id1_;
   uint32_t fuses_chk_;  // top 32 bit of expected fuses hash

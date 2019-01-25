@@ -264,6 +264,25 @@ enum nugget_ap_uart_passthru_cfg {
 
 #define NUGGET_PARAM_RDD_CFG 0x000e
 /*
+ * Set / Get Board ID
+ *
+ * This sets or gets the Board ID of the device.
+ *
+ * @param args         <none>  OR   nugget_app_board_id
+ * @param arg_len      0       OR   sizeof nugget_app_board_id
+ * @param reply        struct nugget_app_board_id
+ * @param reply_len    sizeof struct nugget_app_board_id
+ *
+ * @errors             APP_ERROR_BOGUS_ARGS
+ */
+struct nugget_app_board_id {
+  uint32_t type;
+  uint32_t flag;
+  uint32_t inv;                         /* must equal ~type when setting */
+} __packed;
+#define NUGGET_PARAM_BOARD_ID 0x000f
+
+/*
  * Enable/Disable the RDD SuzyQable Deteaction
  *
  * This always returns the current state of the RDD SuezyQable detection
