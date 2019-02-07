@@ -67,6 +67,7 @@ struct options_s {
   int id;
   int repo_snapshot;
   int stats;
+  int statsd;
   int ro;
   int rw;
   int reboot;
@@ -90,6 +91,7 @@ enum no_short_opts_for_these {
   OPT_ID,
   OPT_REPO_SNAPSHOT,
   OPT_STATS,
+  OPT_STATSD,
   OPT_RO,
   OPT_RW,
   OPT_REBOOT,
@@ -114,6 +116,7 @@ const struct option long_opts[] = {
   {"repo_snapshot", 0, NULL, OPT_REPO_SNAPSHOT},
   {"repo-snapshot", 0, NULL, OPT_REPO_SNAPSHOT},
   {"stats",         0, NULL, OPT_STATS},
+  {"statsd",        0, NULL, OPT_STATSD},
   {"ro",            0, NULL, OPT_RO},
   {"rw",            0, NULL, OPT_RW},
   {"reboot",        0, NULL, OPT_REBOOT},
@@ -167,6 +170,8 @@ void usage(const char *progname)
     "  -l, --long_version   Display the full version info\n"
     "  --id                 Display the Citadel device ID\n"
     "  --stats              Display Low Power stats\n"
+    "  --statsd             Display Low Power stats cached by citadeld\n"
+    "\n"
     "  -V SECTION           Show Citadel headers for RO_A | RO_B | RW_A | RW_B\n"
     "  -f                   Show image file version info\n"
     "  -F SECTION           Show file headers for RO_A | RO_B | RW_A | RW_B\n"
@@ -623,6 +628,21 @@ uint32_t do_repo_snapshot(AppClient &app)
   return retval;
 }
 
+static void print_stats(const struct nugget_app_low_power_stats *s)
+{
+    printf("hard_reset_count         %" PRIu64 "\n", s->hard_reset_count);
+    printf("time_since_hard_reset    %" PRIu64 "\n",
+           s->time_since_hard_reset);
+    printf("wake_count               %" PRIu64 "\n", s->wake_count);
+    printf("time_at_last_wake        %" PRIu64 "\n", s->time_at_last_wake);
+    printf("time_spent_awake         %" PRIu64 "\n", s->time_spent_awake);
+    printf("deep_sleep_count         %" PRIu64 "\n", s->deep_sleep_count);
+    printf("time_at_last_deep_sleep  %" PRIu64 "\n",
+           s->time_at_last_deep_sleep);
+    printf("time_spent_in_deep_sleep %" PRIu64 "\n",
+           s->time_spent_in_deep_sleep);
+}
+
 uint32_t do_stats(AppClient &app)
 {
   struct nugget_app_low_power_stats stats;
@@ -630,7 +650,6 @@ uint32_t do_stats(AppClient &app)
   uint32_t retval;
 
   buffer.reserve(sizeof(stats));
-
   retval = app.Call(NUGGET_PARAM_GET_LOW_POWER_STATS, buffer, &buffer);
 
   if (is_app_success(retval)) {
@@ -641,22 +660,38 @@ uint32_t do_stats(AppClient &app)
     }
 
     memcpy(&stats, buffer.data(), sizeof(stats));
-
-    printf("hard_reset_count         %" PRIu64 "\n", stats.hard_reset_count);
-    printf("time_since_hard_reset    %" PRIu64 "\n",
-           stats.time_since_hard_reset);
-    printf("wake_count               %" PRIu64 "\n", stats.wake_count);
-    printf("time_at_last_wake        %" PRIu64 "\n", stats.time_at_last_wake);
-    printf("time_spent_awake         %" PRIu64 "\n", stats.time_spent_awake);
-    printf("deep_sleep_count         %" PRIu64 "\n", stats.deep_sleep_count);
-    printf("time_at_last_deep_sleep  %" PRIu64 "\n",
-           stats.time_at_last_deep_sleep);
-    printf("time_spent_in_deep_sleep %" PRIu64 "\n",
-           stats.time_spent_in_deep_sleep);
+    print_stats(&stats);
   }
 
   return retval;
 }
+
+#ifdef ANDROID
+uint32_t do_statsd(CitadeldProxyClient &client)
+{
+    struct nugget_app_low_power_stats stats;
+    std::vector<uint8_t> buffer;
+
+    buffer.reserve(sizeof(stats));
+    ::android::binder::Status s = client.Citadeld().getCachedStats(&buffer);
+
+    if (s.isOk()) {
+        memcpy(&stats, buffer.data(), sizeof(stats));
+        print_stats(&stats);
+    } else {
+        printf("ERROR: binder exception %d\n", s.exceptionCode());
+        return APP_ERROR_IO;
+    }
+
+    return 0;
+}
+#else
+uint32_t do_statsd(NuggetClient &client)
+{
+    Error("citadeld isn't attached to this interface");
+    return APP_ERROR_BOGUS_ARGS;
+}
+#endif
 
 uint32_t do_reboot(AppClient &app)
 {
@@ -1027,6 +1062,11 @@ int execute_commands(const std::vector<uint8_t> &image,
     return 2;
   }
 
+  if (options.statsd &&
+      do_statsd(client) != APP_SUCCESS) {
+    return 2;
+  }
+
   if (options.repo_snapshot &&
       do_repo_snapshot(app) != APP_SUCCESS) {
     return 2;
@@ -1143,6 +1183,10 @@ int main(int argc, char *argv[])
       break;
     case OPT_STATS:
       options.stats = 1;
+      got_action = 1;
+      break;
+    case OPT_STATSD:
+      options.statsd = 1;
       got_action = 1;
       break;
     case OPT_RO:
