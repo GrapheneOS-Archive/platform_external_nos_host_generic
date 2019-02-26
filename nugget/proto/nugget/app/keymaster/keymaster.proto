@@ -134,6 +134,7 @@ message AddRngEntropyResponse {
 // GenerateKey
 message GenerateKeyRequest {
   KeyParameters params = 1;
+  uint64 creation_time_ms = 2;  // Rough current time (ms since epoch).
 }
 message GenerateKeyResponse {
   ErrorCode error_code = 1;
@@ -158,6 +159,7 @@ message ImportKeyRequest {
   RSAKey rsa = 2;
   ECKey ec = 3;
   SymmetricKey symmetric_key = 4;
+  uint64 creation_time_ms = 5;     // Rough current time (ms since epoch).
 };
 message ImportKeyResponse {
   ErrorCode error_code = 1;
@@ -314,6 +316,7 @@ message ImportWrappedKeyRequest {
   bytes gcm_tag = 7;                 // Fixed sized array.
   KeyBlob wrapping_key_blob = 8;
   bytes masking_key = 9;             // Fixed sized array.
+  uint64 creation_time_ms = 10;      // Rough current time (ms since epoch).
 }
 // ImportWrappedKey returns a ImportKeyResponse.
 
