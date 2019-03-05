@@ -631,17 +631,27 @@ uint32_t do_repo_snapshot(AppClient &app)
 
 static void print_stats(const struct nugget_app_low_power_stats *s)
 {
-    printf("hard_reset_count         %" PRIu64 "\n", s->hard_reset_count);
-    printf("time_since_hard_reset    %" PRIu64 "\n",
-           s->time_since_hard_reset);
-    printf("wake_count               %" PRIu64 "\n", s->wake_count);
-    printf("time_at_last_wake        %" PRIu64 "\n", s->time_at_last_wake);
-    printf("time_spent_awake         %" PRIu64 "\n", s->time_spent_awake);
-    printf("deep_sleep_count         %" PRIu64 "\n", s->deep_sleep_count);
-    printf("time_at_last_deep_sleep  %" PRIu64 "\n",
-           s->time_at_last_deep_sleep);
-    printf("time_spent_in_deep_sleep %" PRIu64 "\n",
-           s->time_spent_in_deep_sleep);
+  printf("hard_reset_count            %" PRIu64 "\n", s->hard_reset_count);
+  printf("time_since_hard_reset       %" PRIu64 "\n",
+         s->time_since_hard_reset);
+  printf("wake_count                  %" PRIu64 "\n", s->wake_count);
+  printf("time_at_last_wake           %" PRIu64 "\n", s->time_at_last_wake);
+  printf("time_spent_awake            %" PRIu64 "\n", s->time_spent_awake);
+  printf("deep_sleep_count            %" PRIu64 "\n", s->deep_sleep_count);
+  printf("time_at_last_deep_sleep     %" PRIu64 "\n",
+         s->time_at_last_deep_sleep);
+  printf("time_spent_in_deep_sleep    %" PRIu64 "\n",
+         s->time_spent_in_deep_sleep);
+  if (s->time_at_ap_reset == UINT64_MAX)
+    printf("time_at_ap_reset            0x%" PRIx64 "\n", s->time_at_ap_reset);
+  else
+    printf("time_at_ap_reset            %" PRIu64 "\n", s->time_at_ap_reset);
+  if (s->time_at_ap_bootloader_done == UINT64_MAX)
+    printf("time_at_ap_bootloader_done  0x%" PRIx64 "\n",
+           s->time_at_ap_bootloader_done);
+  else
+    printf("time_at_ap_bootloader_done  %" PRIu64 "\n",
+           s->time_at_ap_bootloader_done);
 }
 
 uint32_t do_stats(AppClient &app)
@@ -654,13 +664,12 @@ uint32_t do_stats(AppClient &app)
   retval = app.Call(NUGGET_PARAM_GET_LOW_POWER_STATS, buffer, &buffer);
 
   if (is_app_success(retval)) {
-    if (buffer.size() < sizeof(stats)) {
-      fprintf(stderr, "Only got %zd / %zd bytes back",
+    if (buffer.size() < sizeof(stats)) { // old firmware?
+      fprintf(stderr, "# only got %zd / %zd bytes back\n",
               buffer.size(), sizeof(stats));
-      return -1;
+      memset(&stats, 0, sizeof(stats));
     }
-
-    memcpy(&stats, buffer.data(), sizeof(stats));
+    memcpy(&stats, buffer.data(), std::min(sizeof(stats), buffer.size()));
     print_stats(&stats);
   }
 
@@ -670,27 +679,32 @@ uint32_t do_stats(AppClient &app)
 #ifdef ANDROID
 uint32_t do_statsd(CitadeldProxyClient &client)
 {
-    struct nugget_app_low_power_stats stats;
-    std::vector<uint8_t> buffer;
+  struct nugget_app_low_power_stats stats;
+  std::vector<uint8_t> buffer;
 
-    buffer.reserve(sizeof(stats));
-    ::android::binder::Status s = client.Citadeld().getCachedStats(&buffer);
+  buffer.reserve(sizeof(stats));
+  ::android::binder::Status s = client.Citadeld().getCachedStats(&buffer);
 
-    if (s.isOk()) {
-        memcpy(&stats, buffer.data(), sizeof(stats));
-        print_stats(&stats);
-    } else {
-        printf("ERROR: binder exception %d\n", s.exceptionCode());
-        return APP_ERROR_IO;
+  if (s.isOk()) {
+    if (buffer.size() < sizeof(stats)) { // old citadeld?
+      fprintf(stderr, "# only got %zd / %zd bytes back\n",
+              buffer.size(), sizeof(stats));
+      memset(&stats, 0, sizeof(stats));
     }
+    memcpy(&stats, buffer.data(), std::min(sizeof(stats), buffer.size()));
+    print_stats(&stats);
+  } else {
+    printf("ERROR: binder exception %d\n", s.exceptionCode());
+    return APP_ERROR_IO;
+  }
 
-    return 0;
+  return 0;
 }
 #else
 uint32_t do_statsd(NuggetClient &client)
 {
-    Error("citadeld isn't attached to this interface");
-    return APP_ERROR_BOGUS_ARGS;
+  Error("citadeld isn't attached to this interface");
+  return APP_ERROR_BOGUS_ARGS;
 }
 #endif
 

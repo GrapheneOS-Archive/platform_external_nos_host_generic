@@ -346,6 +346,8 @@ struct nugget_app_low_power_stats {
   uint64_t deep_sleep_count;
   uint64_t time_at_last_deep_sleep;
   uint64_t time_spent_in_deep_sleep;
+  uint64_t time_at_ap_reset;
+  uint64_t time_at_ap_bootloader_done;
 } __packed;
 
 #define NUGGET_PARAM_GET_LOW_POWER_STATS 0x200
