@@ -18,6 +18,7 @@
 #include <vector>
 
 #include <getopt.h>
+#include <inttypes.h>
 #include <openssl/sha.h>
 #include <stdarg.h>
 #include <stddef.h>
@@ -30,6 +31,7 @@
 /* From Nugget OS */
 #include <application.h>
 #include <app_nugget.h>
+#include <citadel_events.h>
 #include <flash_layout.h>
 #include <signed_header.h>
 
@@ -83,6 +85,7 @@ struct options_s {
   const char *device;
   int suzyq;
   int board_id;
+  int event;
   char **board_id_args;
   int console;
 } options;
@@ -105,6 +108,7 @@ enum no_short_opts_for_these {
   OPT_SELFTEST,
   OPT_SUZYQ,
   OPT_BOARD_ID,
+  OPT_EVENT,
 };
 
 const char *short_opts = ":hvlV:fF:c";
@@ -135,6 +139,7 @@ const struct option long_opts[] = {
   {"selftest",      0, NULL, OPT_SELFTEST},
   {"suzyq",         0, NULL, OPT_SUZYQ},
   {"board_id",      0, NULL, OPT_BOARD_ID},
+  {"event",         0, NULL, OPT_EVENT},
 #ifndef ANDROID
   {"device",        1, NULL, OPT_DEVICE},
 #endif
@@ -200,6 +205,8 @@ void usage(const char *progname)
     "  --suzyq [0|1]        Set the SuzyQable detection setting\n"
     "\n"
     "  --board_id [TYPE FLAG]   Get/Set board ID values\n"
+    "\n"
+    "  --event [NUM]        Get NUM pending event records (default 1)\n"
     "\n"
 #ifndef ANDROID
     "\n"
@@ -972,6 +979,52 @@ static uint32_t do_board_id(AppClient &app, int argc, char *argv[])
   return rv;
 }
 
+static uint32_t do_event(AppClient &app, int argc, char *argv[])
+{
+  uint32_t rv;
+  int i, num = 1;
+
+  if (options.event < argc) {
+    num = atoi(argv[options.event]);
+  }
+
+  for (i = 0; i < num; i++) {
+    struct event_record evt;
+    std::vector<uint8_t> buffer;
+    buffer.reserve(sizeof(evt));
+
+    rv = app.Call(NUGGET_PARAM_GET_EVENT_RECORD, buffer, &buffer);
+
+    if (!is_app_success(rv)) {
+      // That check also displays any errors
+      break;
+    }
+
+    if (buffer.size() == 0) {
+      printf("-- no event_records --\n");
+      continue;
+    }
+
+    if (buffer.size() != sizeof(evt)) {
+      fprintf(stderr, "Error: expected %zd bytes, got %zd instead\n",
+             sizeof(evt), buffer.size());
+      rv = 1;
+      break;
+    }
+
+    /* We got an event, let's show it */
+    memcpy(&evt, buffer.data(), sizeof(evt));
+    uint64_t secs = evt.uptime_usecs / 1000000UL;
+    uint64_t usecs = evt.uptime_usecs - (secs * 1000000UL);
+    printf("event record %" PRIu64 "/%" PRIu64 ".%06" PRIu64 ": ",
+           evt.reset_count, secs, usecs);
+    printf("%d  0x%08x 0x%08x 0x%08x\n", evt.id,
+           evt.u.raw.w[0], evt.u.raw.w[1], evt.u.raw.w[2]);
+  }
+
+  return rv;
+}
+
 static uint32_t do_erase(AppClient &app)
 {
   std::vector<uint8_t> data(sizeof(uint32_t));
@@ -1154,6 +1207,11 @@ int execute_commands(const std::vector<uint8_t> &image,
     return 1;
   }
 
+  if (options.event &&
+      do_event(app, argc, argv) != APP_SUCCESS) {
+    return 1;
+  }
+
   return 0;
 }
 
@@ -1279,6 +1337,10 @@ int main(int argc, char *argv[])
     case OPT_BOARD_ID:
       options.board_id = optind;
       options.board_id_args = argv;
+      got_action = 1;
+      break;
+    case OPT_EVENT:
+      options.event = optind;
       got_action = 1;
       break;
     case OPT_SELFTEST:

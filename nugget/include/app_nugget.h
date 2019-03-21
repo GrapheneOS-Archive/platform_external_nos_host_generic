@@ -299,6 +299,17 @@ struct nugget_app_board_id {
  * @errors             APP_ERROR_BOGUS_ARGS
  */
 
+#define NUGGET_PARAM_GET_EVENT_RECORD 0x0010
+/*
+ * This retrieves one pending event_record (defined in citadel_events.h).
+ * If none are pending, it returns nothing.
+ *
+ * @param args         <none>
+ * @param arg_len      0
+ * @param reply        struct event_record
+ * @param reply_len    sizeof struct event_record  OR  0
+ */
+
 /****************************************************************************/
 /* Test related commands */
 
