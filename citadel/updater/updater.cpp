@@ -529,7 +529,7 @@ static void show_ro_string(const char *name, const uint8_t *ptr)
   hdr = reinterpret_cast<const struct SignedHeader*>(ptr);
   printf("%s:    %d.%d.%d/%08x %s\n", name,
          hdr->epoch_, hdr->major_, hdr->minor_, be32toh(hdr->img_chk_),
-         hdr->magic == MAGIC_VALID ? "ok" : "--");
+         hdr->magic == SIGNED_HEADER_MAGIC_CITADEL ? "ok" : "--");
 }
 
 static void show_rw_string(const char *name, const uint8_t *ptr)
@@ -539,10 +539,11 @@ static void show_rw_string(const char *name, const uint8_t *ptr)
 
   if (v->cookie1 == CROS_EC_VERSION_COOKIE1 &&
       v->cookie2 == CROS_EC_VERSION_COOKIE2 &&
-      (v->hdr.magic == MAGIC_DEFAULT || v->hdr.magic == MAGIC_VALID)) {
+      (v->hdr.magic == SIGNED_HEADER_MAGIC_HAVEN ||
+       v->hdr.magic == SIGNED_HEADER_MAGIC_CITADEL)) {
     printf("%s:    %d.%d.%d/%s %s\n", name,
            v->hdr.epoch_, v->hdr.major_, v->hdr.minor_, v->version,
-           v->hdr.magic == MAGIC_VALID ? "ok" : "--");
+           v->hdr.magic == SIGNED_HEADER_MAGIC_CITADEL ? "ok" : "--");
   } else {
     printf("<invalid>\n");
   }
