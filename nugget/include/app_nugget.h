@@ -399,6 +399,16 @@ struct nugget_app_write32 {
  * @param reply_len    0
  */
 
+#define NUGGET_PARAM_CONSOLE 0xF002
+/*
+ * Send optional command, return recent console output
+ *
+ * @param args         command, if any
+ * @param arg_len      sizeof(command)
+ * @param reply        recent console output
+ * @param reply_len    len(recent console output)
+ */
+
 #ifdef __cplusplus
 }
 #endif

@@ -84,6 +84,7 @@ struct options_s {
   int suzyq;
   int board_id;
   char **board_id_args;
+  int console;
 } options;
 
 enum no_short_opts_for_these {
@@ -106,7 +107,7 @@ enum no_short_opts_for_these {
   OPT_BOARD_ID,
 };
 
-const char *short_opts = ":hvlV:fF:";
+const char *short_opts = ":hvlV:fF:c";
 const struct option long_opts[] = {
   /* name    hasarg *flag val */
   {"version",       0, NULL, 'v'},
@@ -629,6 +630,37 @@ uint32_t do_repo_snapshot(AppClient &app)
   return retval;
 }
 
+uint32_t do_console(AppClient &app, int argc, char *argv[])
+{
+  std::vector<uint8_t> buffer;
+  uint32_t rv;
+  size_t got;
+
+  if (options.console < argc) {
+    char *s = argv[options.console];
+    char c;
+    do {
+      c = *s++;
+      buffer.push_back(c);
+    } while (c);
+  }
+
+  do {
+    buffer.reserve(4096);
+    rv = app.Call(NUGGET_PARAM_CONSOLE, buffer, &buffer);
+    got = buffer.size();
+
+    if (is_app_success(rv)){
+      buffer.push_back('\0');
+      printf("%s", buffer.data());
+    }
+
+    buffer.resize(0);
+  } while (rv == APP_SUCCESS && got > 0);
+
+  return rv;
+}
+
 static void print_stats(const struct nugget_app_low_power_stats *s)
 {
   printf("hard_reset_count            %" PRIu64 "\n", s->hard_reset_count);
@@ -1131,6 +1163,11 @@ int execute_commands(const std::vector<uint8_t> &image,
     return 1;
   }
 
+  if (options.console &&
+      do_console(app, argc, argv) != APP_SUCCESS) {
+    return 1;
+  }
+
   return 0;
 }
 
@@ -1176,6 +1213,10 @@ int main(int argc, char *argv[])
       break;
     case 'V':
       options.section = parse_section(optarg);
+      got_action = 1;
+      break;
+    case 'c':
+      options.console = optind;
       got_action = 1;
       break;
     case 'f':
