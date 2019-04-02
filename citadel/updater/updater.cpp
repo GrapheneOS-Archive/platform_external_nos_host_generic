@@ -842,7 +842,7 @@ static void show_board_id(const struct nugget_app_board_id *id)
       printf("Pixel 3, ");
       break;
     case 0x01:
-      printf("Pixel 4, ");
+      printf("Floral , ");
       break;
     default:
       printf("feature 0x%2x, ", feature);
