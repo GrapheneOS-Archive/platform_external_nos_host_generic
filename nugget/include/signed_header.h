@@ -27,7 +27,7 @@
 #define FUSE_IGNORE_C 0x3aabadac  // baked in rom!
 #define INFO_IGNORE_C 0xa5c35a3c  // baked in rom!
 
-// Dauntless chips
+// D2 chips
 #define FUSE_IGNORE_D 0xdaa3baca  // baked in rom!
 #define INFO_IGNORE_D 0x5a3ca5c3  // baked in rom!
 
@@ -44,7 +44,7 @@
 
 #define SIGNED_HEADER_MAGIC_HAVEN (-1u)
 #define SIGNED_HEADER_MAGIC_CITADEL (-2u)
-#define SIGNED_HEADER_MAGIC_DAUNTLESS (-3u)
+#define SIGNED_HEADER_MAGIC_D2 (-3u)
 
 /* Default value for _pad[] words */
 #define SIGNED_HEADER_PADDING 0x33333333
@@ -100,7 +100,7 @@ typedef struct SignedHeader {
     switch (magic) {
       case SIGNED_HEADER_MAGIC_HAVEN:
       case SIGNED_HEADER_MAGIC_CITADEL:
-      case SIGNED_HEADER_MAGIC_DAUNTLESS:
+      case SIGNED_HEADER_MAGIC_D2:
         break;
       default:
         return false;
@@ -121,8 +121,8 @@ typedef struct SignedHeader {
       case SIGNED_HEADER_MAGIC_CITADEL:
         printf("Citadel");
         break;
-      case SIGNED_HEADER_MAGIC_DAUNTLESS:
-        printf("Dauntless");
+      case SIGNED_HEADER_MAGIC_D2:
+        printf("D2");
         break;
       default:
         printf("?");
@@ -198,7 +198,7 @@ typedef struct SignedHeader {
       uint32_t s[8];
     } ext_sig;
 
-    // FLASH trim override (Dauntless RO)
+    // FLASH trim override (D2 RO)
     // iff config1_ & 65536
     struct {
       uint32_t FSH_SMW_SETTING_OPTION3;
