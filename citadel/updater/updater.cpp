@@ -867,8 +867,6 @@ static void parse_hex_value(uint32_t *val, const char *str)
 
 static void show_board_id(const struct nugget_app_board_id *id)
 {
-  uint8_t feature;
-
   printf("0x%08x 0x%08x 0x%08x # ", id->type, id->flag, id->inv);
 
   if (id->type == 0xffffffff && id->flag == 0xffffffff &&
@@ -880,18 +878,6 @@ static void show_board_id(const struct nugget_app_board_id *id)
   if (id->type ^ ~id->inv) {
     printf("corrupted\n");
     return;
-  }
-
-  feature = (id->type & 0xff000000) >> 24;
-  switch (feature) {
-    case 0x00:
-      printf("Pixel 3, ");
-      break;
-    case 0x01:
-      printf("Floral , ");
-      break;
-    default:
-      printf("feature 0x%2x, ", feature);
   }
 
   printf("%s, ", id->flag & 0x80 ? "MP" : "Pre-MP");
