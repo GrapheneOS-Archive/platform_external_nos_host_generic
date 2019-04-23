@@ -299,6 +299,17 @@ struct nugget_app_board_id {
  * @errors             APP_ERROR_BOGUS_ARGS
  */
 
+#define NUGGET_PARAM_GET_EVENT_RECORD 0x0010
+/*
+ * This retrieves one pending event_record (defined in citadel_events.h).
+ * If none are pending, it returns nothing.
+ *
+ * @param args         <none>
+ * @param arg_len      0
+ * @param reply        struct event_record
+ * @param reply_len    sizeof struct event_record  OR  0
+ */
+
 /****************************************************************************/
 /* Test related commands */
 
@@ -346,6 +357,8 @@ struct nugget_app_low_power_stats {
   uint64_t deep_sleep_count;
   uint64_t time_at_last_deep_sleep;
   uint64_t time_spent_in_deep_sleep;
+  uint64_t time_at_ap_reset;
+  uint64_t time_at_ap_bootloader_done;
 } __packed;
 
 #define NUGGET_PARAM_GET_LOW_POWER_STATS 0x200
@@ -395,6 +408,16 @@ struct nugget_app_write32 {
  * @param arg_len      sizeof(struct nugget_app_write32)
  * @param reply        <none>
  * @param reply_len    0
+ */
+
+#define NUGGET_PARAM_CONSOLE 0xF002
+/*
+ * Send optional command, return recent console output
+ *
+ * @param args         command, if any
+ * @param arg_len      sizeof(command)
+ * @param reply        recent console output
+ * @param reply_len    len(recent console output)
  */
 
 #ifdef __cplusplus
