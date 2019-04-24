@@ -257,6 +257,15 @@ enum SecurityLevel {
   STRONGBOX = 2;
 };
 
+// NOTE: these enum values must be kept in sync with the HAL,
+// as they are used in an HMAC calculation.
+enum HardwareAuthenticatorType {
+  HW_AUTH_NONE = 0;
+  HW_AUTH_PASSWORD = 1;
+  HW_AUTH_FINGERPRINT = 2;
+  // Additional entries must be powers of 2.
+};
+
 enum KeyFormat {
   X509 = 0;   /* for public key export */
   PKCS8 = 1;  /* for asymmetric key pair import */

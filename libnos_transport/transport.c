@@ -325,7 +325,7 @@ static uint32_t send_command(const struct transport_context *ctx) {
 
   /* Tell the app to handle the request while also sending the command_info
    * which will be ignored by the v0 protocol. */
-  NLOGD("Write app %d command 0x%08x, crc %04x...", ctx->app_id, command, command_info.crc);
+  NLOGD("Send app %d go command 0x%08x", ctx->app_id, command);
   if (0 != nos_device_write(ctx->dev, command, &command_info, sizeof(command_info))) {
     NLOGE("Failed to send command datagram to app %d", ctx->app_id);
     return APP_ERROR_IO;
