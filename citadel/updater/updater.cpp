@@ -626,7 +626,7 @@ uint32_t do_repo_snapshot(AppClient &app)
 {
   uint32_t retval;
   std::vector<uint8_t> buffer;
-  buffer.reserve(1200);
+  buffer.reserve(2048);
 
   retval = app.Call(NUGGET_PARAM_REPO_SNAPSHOT, buffer, &buffer);
 
