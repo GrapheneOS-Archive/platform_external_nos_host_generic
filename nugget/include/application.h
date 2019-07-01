@@ -76,6 +76,7 @@ typedef const void * const __private;
 /* Fake apps used only for testing */
 #define APP_ID_AVB_TEST          0x11
 #define APP_ID_TRANSPORT_TEST    0x12
+#define APP_ID_FACEAUTH_TEST     0x13
 
 /* This app ID should only be used by tests. */
 #define APP_ID_TEST              0xff
@@ -269,11 +270,11 @@ struct app_transport {
 };
 
 /*
- * TODO(b/66104849): Note that request and response buffers are transferred as
- * byte streams. However, if they will eventually represent structs, the usual
- * ABI alignment requirements will be required. Until we've declared all
- * applications structs in a union, we will need to align the buffers manually.
- * Use this to declare the uint8_t buffers until then:
+ * Note that request and response buffers are transferred as byte streams.
+ * However, if they will eventually represent structs, the usual ABI alignment
+ * requirements will be required. Until we've declared all applications structs
+ * in a union, we will need to align the buffers manually. Use this to declare
+ * the uint8_t buffers until then:
  */
 #define __TRANSPORT_ALIGNED__ __attribute__((aligned(8)))
 
