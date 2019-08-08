@@ -62,6 +62,7 @@ enum event_id {
   EVENT_NONE = 0,      // Unused ID, used as empty marker.
   EVENT_ALERT = 1,     // Globalsec alert fired.
   EVENT_REBOOTED = 2,  // Device rebooted.
+  EVENT_UPGRADED = 3,  // Device has upgraded.
 };
 
 /* Please do not change the size of this struct */
