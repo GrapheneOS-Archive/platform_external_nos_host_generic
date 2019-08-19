@@ -1228,6 +1228,7 @@ int main(int argc, char *argv[])
   int got_action = 0;
   char *e = 0;
   int need_file = 0;
+  int status = 0;
 
   this_prog= strrchr(argv[0], '/');
   if (this_prog) {
@@ -1421,7 +1422,10 @@ int main(int argc, char *argv[])
   }
 
   /* Okay, let's do it! */
-  (void) execute_commands(image, old_passwd, passwd, argc, argv);
+  status = execute_commands(image, old_passwd, passwd, argc, argv);
+  if (status != 0) {
+    Error("execute_command failed(%d)!", status);
+  }
   /* This is the last action, so fall through either way */
 
 out:
