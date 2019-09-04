@@ -1018,8 +1018,8 @@ static uint32_t do_event(AppClient &app, int argc, char *argv[])
     uint64_t usecs = evt.uptime_usecs - (secs * 1000000UL);
     printf("event record %" PRIu64 "/%" PRIu64 ".%06" PRIu64 ": ",
            evt.reset_count, secs, usecs);
-    printf("%d  %d  0x%08x 0x%08x 0x%08x\n", evt.id, evt.priority,
-           evt.event.raw.w[0], evt.event.raw.w[1], evt.event.raw.w[2]);
+    printf("%d  0x%08x 0x%08x 0x%08x\n", evt.id,
+           evt.u.raw.w[0], evt.u.raw.w[1], evt.u.raw.w[2]);
   }
 
   return rv;
