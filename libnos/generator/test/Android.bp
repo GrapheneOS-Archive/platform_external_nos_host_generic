@@ -19,7 +19,7 @@ genrule {
     out: ["Hello.client.cpp"],
     srcs: ["nos/generator/test/test.proto"],
     tools: ["aprotoc", "protoc-gen-nos-client-cpp"],
-    cmd: GEN_SERVICE_SOURCE + "-Ivendor/google/nos/host/generic/libnos/generator/test",
+    cmd: GEN_SERVICE_SOURCE + "-Iexternal/nos/host/generic/libnos/generator/test",
 }
 
 genrule {
@@ -27,7 +27,7 @@ genrule {
     out: ["Hello.client.h"],
     srcs: ["nos/generator/test/test.proto"],
     tools: ["aprotoc", "protoc-gen-nos-client-cpp"],
-    cmd: GEN_SERVICE_HEADER + "-Ivendor/google/nos/host/generic/libnos/generator/test",
+    cmd: GEN_SERVICE_HEADER + "-Iexternal/nos/host/generic/libnos/generator/test",
 }
 
 genrule {
@@ -35,7 +35,7 @@ genrule {
     out: ["MockHello.client.h"],
     srcs: ["nos/generator/test/test.proto"],
     tools: ["aprotoc", "protoc-gen-nos-client-cpp"],
-    cmd: GEN_SERVICE_MOCK + "-Ivendor/google/nos/host/generic/libnos/generator/test",
+    cmd: GEN_SERVICE_MOCK + "-Iexternal/nos/host/generic/libnos/generator/test",
 }
 
 cc_test_host {
@@ -55,7 +55,7 @@ cc_test_host {
         canonical_path_from_root: false,
         include_dirs: [
             "external/protobuf/src",
-            "vendor/google/nos/host/generic/nugget/proto",
+            "external/nos/host/generic/nugget/proto",
         ],
     },
     header_libs: ["nos_headers"],

@@ -27,7 +27,7 @@ cc_library {
         canonical_path_from_root: false,
         export_proto_headers: true,
         include_dirs: [
-            "vendor/google/nos/host/generic/nugget/proto",
+            "external/nos/host/generic/nugget/proto",
             "external/protobuf/src",
         ],
     },
