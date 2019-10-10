@@ -69,6 +69,16 @@ struct nos_device_ops {
    * The device must not be used after closing.
    */
   void (*close)(void *ctx);
+
+  /**
+   * Get or Set a configuration value. These are opaque, implementation-specific
+   * values useful only for bringup and development. The defaults should be
+   * optimal for production use.
+   *
+   * Return 0 on success and a negative value on failure.
+   */
+  int (*get_config)(void *ctx, uint32_t config_id, void *value);
+  int (*set_config)(void *ctx, uint32_t config_id, void *value);
 };
 
 struct nos_device {
