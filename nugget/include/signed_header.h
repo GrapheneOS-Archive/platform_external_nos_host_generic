@@ -166,6 +166,11 @@ typedef struct SignedHeader {
       printf("%08X", infomap[i]);
     }
     printf("\n");
+
+    printf("hdr.board_id       : %08x %08x %08x\n",
+           SIGNED_HEADER_PADDING ^ board_id_.type,
+           SIGNED_HEADER_PADDING ^ board_id_.type_mask,
+           SIGNED_HEADER_PADDING ^ board_id_.flags);
   }
 #endif  // __cplusplus
 
