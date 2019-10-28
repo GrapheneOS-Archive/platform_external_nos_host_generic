@@ -93,6 +93,7 @@ enum Tag {
   ATTESTATION_ID_MODEL = 0x902cd; // (TagType:BYTES | 717)
   VENDOR_PATCHLEVEL = 0x302ce; // (TagType:UINT | 718)
   BOOT_PATCHLEVEL = 0x302cf; // (TagType:UINT | 719)
+  DEVICE_UNIQUE_ATTESTATION = 0x702d0;  // (TagType:BOOL | 720)
   ASSOCIATED_DATA = 0x903e8; // (TagType:BYTES | 1000)
   NONCE = 0x903e9; // (TagType:BYTES | 1001)
   /* RESERVED: AUTH_TOKEN = 0x903ea; // (TagType:BYTES | 1002) */
