@@ -323,6 +323,16 @@ struct nugget_app_board_id {
  * @param reply_len    sizeof(uint32_t)
  */
 
+enum nugget_app_selftest_cmd {
+	/* Generic */
+	NUGGET_APP_SELFTEST_CMD_DEFAULT = 0,
+	NUGGET_APP_SELFTEST_CMD_HELP,
+
+	/* Application SelfTests */
+	NUGGET_APP_SELFTEST_CMD_TRNG = 0x10,
+	NUGGET_APP_SELFTEST_CMD_COUNT
+};
+
 #define NUGGET_PARAM_SELFTEST 0x0101
 /*
  * Run an intentionally vaguely specified internal test.
