@@ -330,7 +330,6 @@ enum nugget_app_selftest_cmd {
 
 	/* Application SelfTests */
 	NUGGET_APP_SELFTEST_CMD_TRNG = 0x10,
-	NUGGET_APP_SELFTEST_CMD_COUNT
 };
 
 #define NUGGET_PARAM_SELFTEST 0x0101
@@ -428,6 +427,34 @@ struct nugget_app_write32 {
  * @param arg_len      sizeof(command)
  * @param reply        recent console output
  * @param reply_len    len(recent console output)
+ */
+
+#define NUGGET_PARAM_MODULE_TEST 0xF003
+/**
+ * Run a module test based on a provided command.
+ *
+ * A default command is afforded (0x00), which runs each module test that is
+ * currently enabled. Specific tests can be specified, but are not enumerated
+ * here.
+ *
+ * The return code of the command (enum app_status) encodes the success state of
+ * the tests. A result of `APP_SUCCESS` is, unsurprisingly, a success for all
+ * specified tests. A failure of a given test is encoded using the
+ * `APP_SPECIFIC_ERROR` values. This allows a given test to not only report that
+ * an error has occured, but also to report which test threw the error, and in
+ * what point of the test the error was thrown.
+ * The encoding is as follows:
+ * `rv = (APP_SPECIFIC_ERROR + command + test_step)`
+ * where `command` is the 4-byte test value (in steps of 0x10), and where the
+ * test_step is a subdivision of the test, valued from 0-15.
+ *
+ * The return string will describe each test that passes, and each test that
+ * fails, and how it failed. Tests should abort after the first failure.
+ *
+ * @param args         uint32_t command
+ * @param arg_len      sizeof(uint32_t)
+ * @param reply        null-terminated string (usually)
+ * @param reply_len    number of bytes in reply (including trailing '\0')
  */
 
 #ifdef __cplusplus
