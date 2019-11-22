@@ -16,7 +16,6 @@
 #ifndef __CROS_EC_INCLUDE_APP_NUGGET_H
 #define __CROS_EC_INCLUDE_APP_NUGGET_H
 #include "application.h"
-#include "flash_layout.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -52,10 +51,11 @@ enum {
 /****************************************************************************/
 /* Firmware upgrade stuff */
 
+#define NP_FLASH_BLOCK_SIZE 2048
 struct nugget_app_flash_block {
   uint32_t block_digest;                 /* first 4 bytes of sha1 of the rest */
   uint32_t offset;                       /* from start of flash */
-  uint8_t payload[CHIP_FLASH_BANK_SIZE]; /* data to write */
+  uint8_t payload[NP_FLASH_BLOCK_SIZE];  /* data to write */
 } __packed;
 
 #define NUGGET_PARAM_FLASH_BLOCK 0x0001
