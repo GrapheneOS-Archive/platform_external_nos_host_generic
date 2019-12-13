@@ -296,7 +296,8 @@ enum BootColor {
 enum ChipFusing {
     FUSING_PROTO = 0;
     FUSING_DVT = 1;
-    FUSING_PVT = 2;
+    FUSING_PVT = 2;     // Strongbox gen v0 certs.
+    FUSING_PVT_1 = 3;   // Strongbox gen v1 certs.
 }
 
 enum CertificateStatus {
