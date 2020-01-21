@@ -83,6 +83,11 @@ struct event_record {
       uint32_t which0;
       uint32_t which1;
     } rebooted;
+    struct {
+      uint32_t int_grp_bf;
+      uint32_t int_cause_bf;
+      uint32_t dlyctr_bf;
+    } d_globalsec;
 
     /* uninterpreted */
     union {
