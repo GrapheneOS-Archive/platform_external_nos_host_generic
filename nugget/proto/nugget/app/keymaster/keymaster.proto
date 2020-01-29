@@ -121,6 +121,11 @@ service Keymaster {
   rpc DeviceLocked(DeviceLockedRequest) returns (DeviceLockedResponse);
   rpc EarlyBootEnded(EarlyBootEndedRequest) returns (EarlyBootEndedResponse);
 
+  /*
+   * More vendor specific methods.
+   */
+  rpc ReadCertificate(ReadCertificateRequest) returns (ReadCertificateResponse);
+
   // These are implemented with a enum, so new RPCs must be appended, and
   // deprecated RPCs need placeholders.
 }
@@ -476,4 +481,13 @@ message ProvisionCertificatesRequest {
 message ProvisionCertificatesResponse {
   ErrorCode error_code = 1;
   CertificateStatus cert_status = 2;
+}
+
+message ReadCertificateRequest {
+  AttestationSelector selector = 1;
+  Algorithm algorithm = 2;
+}
+message ReadCertificateResponse {
+  ErrorCode error_code = 1;
+  Certificate cert = 2;
 }
