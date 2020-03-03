@@ -110,6 +110,7 @@ cc_defaults {
         "-Wall",
         "-Wextra",
         "-Werror",
+        "-Wno-gnu-zero-variadic-macro-arguments",
         "-Wno-zero-length-array",
     ],
     conlyflags: [
