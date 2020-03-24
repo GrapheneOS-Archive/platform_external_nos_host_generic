@@ -168,15 +168,17 @@ typedef void (write_to_app_fn_t)(uint32_t command,
  * @param  Id        The Application ID, defined above
  * @param  Name      A human-readable string identifying the application
  * @param  Version   An app-specific uint32_t number, for compability purposes
- * @param  From_fn   A pointer to the app's read_from_app_fnt_t handler
+ * @param  From_fn   A pointer to the app's read_from_app_fn_t handler
  * @param  To_fn     A pointer to the app's write_to_app_fn_t handler
+ * @param  Data      App's private data
  */
-#define DECLARE_APPLICATION_DATAGRAM(Id, Name, Version, From_fn, To_fn) \
-    const struct app_info __keep CONCAT2(app_, Id)                      \
-      __attribute__((section(".rodata.app_info")))                      \
-      = { .api = { .id = Id,                                            \
-             .from_fn = From_fn, .to_fn = To_fn},                       \
-          .version = Version, .name = Name }
+#define DECLARE_APPLICATION_DATAGRAM(Id, Name, Version, From_fn, To_fn, Data) \
+  const struct app_info __keep CONCAT2(app_, Id)                        \
+    __attribute__((section(".rodata.app_info")))                        \
+    = { .api = { .id = Id,                                              \
+                 .from_fn = From_fn, .to_fn = To_fn,                    \
+                 .data = Data},                                         \
+        .version = Version, .name = Name }
 
 /****************************************************************************/
 /* Transport API */
