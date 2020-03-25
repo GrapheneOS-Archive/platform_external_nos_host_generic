@@ -70,6 +70,7 @@ struct nos_device_ops {
    */
   void (*close)(void *ctx);
 
+#ifndef ANDROID
   /**
    * Get or Set a configuration value. These are opaque, implementation-specific
    * values useful only for bringup and development. The defaults should be
@@ -79,6 +80,7 @@ struct nos_device_ops {
    */
   int (*get_config)(void *ctx, uint32_t config_id, void *value);
   int (*set_config)(void *ctx, uint32_t config_id, void *value);
+#endif
 };
 
 struct nos_device {
