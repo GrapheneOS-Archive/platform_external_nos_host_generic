@@ -457,6 +457,25 @@ struct nugget_app_write32 {
  * @param reply_len    number of bytes in reply (including trailing '\0')
  */
 
+enum nugget_app_sleep_mode {
+	NUGGET_APP_SLEEP_MODE_DEFAULT,
+	NUGGET_APP_SLEEP_MODE_WFI,
+	NUGGET_APP_SLEEP_MODE_SLEEP
+};
+#define NUGGET_PARAM_SET_SLEEP_MODE 0xF004
+/**
+ * Set the Sleep mode of the GSC.
+ *
+ * In certain tests, we expect the GSC to be in either WFI mode, or in deep
+ * sleep mode. The sleep state should be provided by the host to the GSC, to
+ * ensure that the test is performed in the correct circumstances.
+ *
+ * @param args         enum nugget_app_sleep_mode selection
+ * @param arg_len      4
+ * @param reply        <none>
+ * @param reply_len    0
+ */
+
 #ifdef __cplusplus
 }
 #endif

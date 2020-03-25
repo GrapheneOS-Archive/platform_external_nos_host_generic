@@ -115,6 +115,12 @@ service Keymaster {
    */
   rpc ProvisionCertificates(ProvisionCertificatesRequest) returns (ProvisionCertificatesResponse);
 
+  /*
+   * KM4.1 methods.
+   */
+  rpc DeviceLocked(DeviceLockedRequest) returns (DeviceLockedResponse);
+  rpc EarlyBootEnded(EarlyBootEndedRequest) returns (EarlyBootEndedResponse);
+
   // These are implemented with a enum, so new RPCs must be appended, and
   // deprecated RPCs need placeholders.
 }
@@ -335,6 +341,21 @@ message ComputeSharedHmacRequest {
 message ComputeSharedHmacResponse {
   ErrorCode error_code = 1;
   bytes sharing_check = 2;
+}
+
+// DeviceLockedRequest
+message DeviceLockedRequest {
+  bool password_only = 1;
+  VerificationToken verification_token = 2;
+}
+message DeviceLockedResponse {
+  ErrorCode error_code = 1;
+}
+
+// DeviceLockedRequest
+message EarlyBootEndedRequest {}
+message EarlyBootEndedResponse {
+  ErrorCode error_code = 1;
 }
 
 /*
