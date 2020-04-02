@@ -305,14 +305,14 @@ void app_reply(struct app_transport *st, uint32_t status, uint16_t reply_len);
 enum app_status {
   /* A few values are common to all applications */
   APP_SUCCESS = 0,
-  APP_ERROR_BOGUS_ARGS,      /* caller being stupid */
-  APP_ERROR_INTERNAL,        /* application being stupid */
-  APP_ERROR_TOO_MUCH,        /* caller sent too much data */
-  APP_ERROR_IO,              /* problem sending or receiving data */
-  APP_ERROR_RPC,             /* problem during RPC communication */
-  APP_ERROR_CHECKSUM,        /* checksum failed, only used within protocol */
-  APP_ERROR_BUSY,            /* the app is already working on a commnad */
-  APP_ERROR_TIMEOUT,         /* the app took too long to respond */
+  APP_ERROR_BOGUS_ARGS, /* caller being stupid */
+  APP_ERROR_INTERNAL,   /* application being stupid */
+  APP_ERROR_TOO_MUCH,   /* caller sent too much data */
+  APP_ERROR_IO,         /* problem sending or receiving data */
+  APP_ERROR_RPC,        /* problem during RPC communication */
+  APP_ERROR_CHECKSUM,   /* checksum failed, only used within protocol */
+  APP_ERROR_BUSY,       /* the app is already working on a commnad */
+  APP_ERROR_TIMEOUT,    /* the app took too long to respond */
   /* more? */
 
   APP_SPECIFIC_ERROR = 0x20, /* "should be enough for anybody" */
