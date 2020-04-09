@@ -242,7 +242,7 @@ struct transport_status {
 /* Flags used in the status message */
 #define STATUS_FLAG_WORKING 0x0001 /* added in v1 */
 
-/* Pre-calculated CRCs for different status responses set by in the interrupt
+/* Pre-calculated CRCs for different status responses set in the interrupt
  * context where the CRC would otherwise not be calculated. */
 #define STATUS_CRC_FOR_IDLE              0x54c1
 #define STATUS_CRC_FOR_WORKING           0x2101
