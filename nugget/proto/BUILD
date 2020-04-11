@@ -77,7 +77,7 @@ cc_library(
     deps = [
         "nugget_app_keymaster_keymaster_cc_proto",
         "nugget_protobuf_options_cc_proto",
-        "@nugget_host_generic_libnos//:libnos",
+        "@nugget_host_generic//libnos",
     ],
 )
 
@@ -96,7 +96,7 @@ cc_library(
     deps = [
         "nugget_app_weaver_weaver_cc_proto",
         "nugget_protobuf_options_cc_proto",
-        "@nugget_host_generic_libnos//:libnos",
+        "@nugget_host_generic//libnos",
     ],
 )
 
@@ -115,7 +115,7 @@ cc_library(
     deps = [
         "nugget_app_avb_avb_cc_proto",
         "nugget_protobuf_options_cc_proto",
-        "@nugget_host_generic_libnos//:libnos",
+        "@nugget_host_generic//libnos",
     ],
 )
 
@@ -123,7 +123,7 @@ cc_library(
 # rpc proto genrules.
 ################################################################################
 
-GEN_SERVICE = "$(location @com_google_protobuf//:protoc) --plugin=protoc-gen-nos-client-cpp=$(location @nugget_host_generic_libnos_generator//:protoc_gen_nos_client_cpp)"
+GEN_SERVICE = "$(location @com_google_protobuf//:protoc) --plugin=protoc-gen-nos-client-cpp=$(location @nugget_host_generic//libnos/generator:protoc_gen_nos_client_cpp)"
 
 PROTO_ROOT = "$$(dirname $$(dirname $$(dirname $(location nugget/protobuf/options.proto))))"
 
@@ -142,7 +142,7 @@ genrule(
           "$(location nugget/app/avb/avb.proto)",
     tools = [
         "@com_google_protobuf//:protoc",
-        "@nugget_host_generic_libnos_generator//:protoc_gen_nos_client_cpp",
+        "@nugget_host_generic//libnos/generator:protoc_gen_nos_client_cpp",
     ],
 )
 
@@ -161,7 +161,7 @@ genrule(
           "$(location nugget/app/avb/avb.proto)",
     tools = [
         "@com_google_protobuf//:protoc",
-        "@nugget_host_generic_libnos_generator//:protoc_gen_nos_client_cpp",
+        "@nugget_host_generic//libnos/generator:protoc_gen_nos_client_cpp",
     ],
 )
 
@@ -180,7 +180,7 @@ genrule(
           "$(location nugget/app/weaver/weaver.proto)",
     tools = [
         "@com_google_protobuf//:protoc",
-        "@nugget_host_generic_libnos_generator//:protoc_gen_nos_client_cpp",
+        "@nugget_host_generic//libnos/generator:protoc_gen_nos_client_cpp",
     ],
 )
 
@@ -199,7 +199,7 @@ genrule(
           "$(location nugget/app/weaver/weaver.proto)",
     tools = [
         "@com_google_protobuf//:protoc",
-        "@nugget_host_generic_libnos_generator//:protoc_gen_nos_client_cpp",
+        "@nugget_host_generic//libnos/generator:protoc_gen_nos_client_cpp",
     ],
 )
 
@@ -220,7 +220,7 @@ genrule(
           "$(location nugget/app/keymaster/keymaster.proto)",
     tools = [
         "@com_google_protobuf//:protoc",
-        "@nugget_host_generic_libnos_generator//:protoc_gen_nos_client_cpp",
+        "@nugget_host_generic//libnos/generator:protoc_gen_nos_client_cpp",
     ],
 )
 
@@ -241,7 +241,7 @@ genrule(
           "$(location nugget/app/keymaster/keymaster.proto)",
     tools = [
         "@com_google_protobuf//:protoc",
-        "@nugget_host_generic_libnos_generator//:protoc_gen_nos_client_cpp",
+        "@nugget_host_generic//libnos/generator:protoc_gen_nos_client_cpp",
     ],
 )
 
@@ -249,11 +249,14 @@ genrule(
 # proto libraries
 ################################################################################
 
+PROTO_SOURCE_ROOT = "/nugget/proto"
+
 proto_library(
     name = "google_protobuf_descriptor_proto",
     srcs = [
         "google/protobuf/descriptor.proto",
     ],
+    strip_import_prefix = PROTO_SOURCE_ROOT,
 )
 
 proto_library(
@@ -261,6 +264,7 @@ proto_library(
     srcs = [
         "nugget/app/avb/avb.proto",
     ],
+    strip_import_prefix = PROTO_SOURCE_ROOT,
     deps = [
         "nugget_protobuf_options_proto",
     ],
@@ -273,6 +277,7 @@ proto_library(
         "nugget/app/keymaster/keymaster_defs.proto",
         "nugget/app/keymaster/keymaster_types.proto",
     ],
+    strip_import_prefix = PROTO_SOURCE_ROOT,
     deps = [
         "nugget_protobuf_options_proto",
     ],
@@ -283,6 +288,7 @@ proto_library(
     srcs = [
         "nugget/app/protoapi/control.proto",
     ],
+    strip_import_prefix = PROTO_SOURCE_ROOT,
     deps = [
         "nugget_app_protoapi_header_proto",
     ],
@@ -293,6 +299,7 @@ proto_library(
     srcs = [
         "nugget/app/protoapi/diagnostics_api.proto",
     ],
+    strip_import_prefix = PROTO_SOURCE_ROOT,
     deps = [
         "nugget_app_protoapi_header_proto",
     ],
@@ -303,6 +310,7 @@ proto_library(
     srcs = [
         "nugget/app/protoapi/gchips_types.proto",
     ],
+    strip_import_prefix = PROTO_SOURCE_ROOT,
 )
 
 proto_library(
@@ -310,6 +318,7 @@ proto_library(
     srcs = [
         "nugget/app/protoapi/header.proto",
     ],
+    strip_import_prefix = PROTO_SOURCE_ROOT,
 )
 
 proto_library(
@@ -317,6 +326,7 @@ proto_library(
     srcs = [
         "nugget/app/protoapi/testing_api.proto",
     ],
+    strip_import_prefix = PROTO_SOURCE_ROOT,
     deps = [
         "nugget_app_protoapi_header_proto",
     ],
@@ -327,6 +337,7 @@ proto_library(
     srcs = [
         "nugget/app/weaver/weaver.proto",
     ],
+    strip_import_prefix = PROTO_SOURCE_ROOT,
     deps = [
         "nugget_protobuf_options_proto",
     ],
@@ -337,6 +348,7 @@ proto_library(
     srcs = [
         "nugget/protobuf/options.proto",
     ],
+    strip_import_prefix = PROTO_SOURCE_ROOT,
     deps = [
         "@com_google_protobuf//:descriptor_proto",
     ],
