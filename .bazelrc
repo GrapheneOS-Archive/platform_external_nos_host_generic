@@ -1,0 +1,2 @@
+# TODO(b/135549199): Remove this file when the problem is fixed
+build --incompatible_disable_deprecated_attr_params=false
