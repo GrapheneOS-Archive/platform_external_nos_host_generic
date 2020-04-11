@@ -386,6 +386,19 @@ struct nugget_app_low_power_stats {
 /* UNIMPLEMENTED */
 
 /****************************************************************************/
+/* Commands for code coverage and quality assurance */
+
+#define NUGGET_GET_COVERAGE_COUNTERS 0x0300
+/**
+ * Returns the counters back to the master
+ *
+ * @param args         module counter
+ * @param arg_len      1
+ * @param reply        buffer containing coverage data in utf-8 format
+ * @param reply_len    depends on the counters in the file
+ */
+
+/****************************************************************************/
 /* These are bringup / debug functions only. */
 
 #define NUGGET_PARAM_READ32 0xF000
