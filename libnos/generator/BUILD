@@ -9,6 +9,6 @@ cc_binary(
     visibility = ["//visibility:public"],
     deps = [
         "@com_google_protobuf//:protoc_lib",
-        "@nugget_host_generic_nugget_proto//:nugget_protobuf_options_cc_proto",
+        "@nugget_host_generic//nugget/proto:nugget_protobuf_options_cc_proto",
     ],
 )
