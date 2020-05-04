@@ -15,6 +15,7 @@ enum DcryptError {
   INVALID_PLAINTEXT = 2;
   MISSING_PARAMETER = 3;
   KEYSIZE_MISMATCH = 4;
+  INVALID_TEST = 5;
 }
 
 // TODO remove this when oneof support is added to nanopb
@@ -25,6 +26,12 @@ enum OneofTestParametersCase {
   kAesGcmEncryptTest = 3;
   kAesCmacTest = 4;
   kFullStressTest = 5;
+  kAesCavpCbcTest = 6;
+  kAesCavpEcbTest = 7;
+  kAesCavpCtrTest = 8;
+  kAesCavpMctCbcTest = 9;
+  kAesCavpMctEcbTest = 10;
+  kAesCavpMctCtrTest = 11;
 }
 
 // TODO remove this when oneof support is added to nanopb
@@ -35,6 +42,7 @@ enum OneofTestResultsCase {
   kAesGcmEncryptTestResult = 3;
   kAesCmacTestResult = 4;
   kFullStressResult = 5;
+  kAesCavpTestResult = 6;
 }
 
 message AesCbcEncryptTest {
@@ -66,6 +74,25 @@ message AesGcmEncryptTestResult {
   DcryptError result_code = 1;
   bytes cipher_text = 2;
   bytes tag = 3;
+}
+
+enum CavpEncryptMode {
+  ENCRYPT = 0;
+  DECRYPT = 1;
+}
+
+message AesCavpTest {
+  uint32 count = 1;
+  uint32 key_size = 3;
+  CavpEncryptMode encrypt_mode = 4;
+  bytes key = 5;
+  bytes iv = 6;
+  bytes text = 7;
+}
+
+message AesCavpTestResult {
+  DcryptError result_code = 1;
+  bytes text = 2;
 }
 
 message TrngTest {
