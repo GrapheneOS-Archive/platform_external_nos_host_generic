@@ -27,7 +27,7 @@ extern "C" {
  */
 /****************************************************************************/
 
-/* App-specific errors */
+/* App-specific errors (across all commands) */
 enum {
   NUGGET_ERROR_LOCKED = APP_SPECIFIC_ERROR,
   NUGGET_ERROR_RETRY,
@@ -397,6 +397,17 @@ struct nugget_app_low_power_stats {
  * @param reply        buffer containing coverage data in utf-8 format
  * @param reply_len    depends on the counters in the file
  */
+
+/*
+ * Error returned if coverage data didn't fit in the buffer.
+ *
+ * TODO: Should really have a second arg which is an offset in the coverage
+ * data.  That way we could call repeatedly to return data too big to return in
+ * a single command.
+ */
+enum {
+  NUGGET_ERROR_COVERAGE_OVERFLOW = APP_SPECIFIC_ERROR + 0x300,
+};
 
 /****************************************************************************/
 /* These are bringup / debug functions only. */

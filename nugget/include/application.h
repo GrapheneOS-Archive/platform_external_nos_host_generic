@@ -315,8 +315,19 @@ enum app_status {
   APP_ERROR_TIMEOUT,    /* the app took too long to respond */
   /* more? */
 
+  /*
+   * Applications can define their own app-specific error codes.  For example,
+   * app_foobar.h can do:
+   *
+   *	#define APP_ERROR_FOOBAR_BAZ (APP_SPECIFIC_ERROR + 0)
+   *
+   * Do not use (APP_SPECIFIC_ERROR + N) directly in your code, because the
+   * error definition, firmware which generates it, and host code which
+   * interprets it are all in different repos.  You'll never be able to keep
+   * the constants straight without using a #define or enum in your app's
+   * header file that everyone can share.
+   */
   APP_SPECIFIC_ERROR = 0x20, /* "should be enough for anybody" */
-  /* App-specific error codes can use APP_SPECIFIC_ERROR+0, +1, +2, ... */
 
   /* For debugging, returning a line number might be helpful */
   APP_LINE_NUMBER_BASE = 0x70000000,
