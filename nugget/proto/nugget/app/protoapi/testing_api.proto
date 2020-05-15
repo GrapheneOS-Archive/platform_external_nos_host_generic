@@ -33,6 +33,7 @@ enum OneofTestParametersCase {
   kAesCavpMctEcbTest = 10;
   kAesCavpMctCtrTest = 11;
   kCavpAesGcmTest = 12;
+  kCavpHmacTest = 13;
 }
 
 // TODO remove this when oneof support is added to nanopb
@@ -45,6 +46,7 @@ enum OneofTestResultsCase {
   kFullStressResult = 5;
   kAesCavpTestResult = 6;
   kCavpAesGcmTestResult = 7;
+  kCavpHmacTestResult = 8;
 }
 
 message AesCbcEncryptTest {
@@ -113,6 +115,25 @@ message CavpAesGcmTestResult {
   DcryptError result_code = 1;
   bytes text = 2;
   bytes tag = 3;
+}
+
+enum CavpShaAlgorithm {
+  INVALID = 0;
+  SHA1 = 1;
+  SHA256 = 2;
+}
+
+message CavpHmacTest {
+  uint32 key_len = 1;
+  uint32 text_len = 2;
+  CavpShaAlgorithm algo = 3;
+  bytes key = 4;
+  bytes msg = 5;
+}
+
+message CavpHmacTestResult {
+  DcryptError result_code = 1;
+  bytes mac = 2;
 }
 
 message TrngTest {
