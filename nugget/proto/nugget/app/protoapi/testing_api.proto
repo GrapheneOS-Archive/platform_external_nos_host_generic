@@ -35,6 +35,7 @@ enum OneofTestParametersCase {
   kCavpAesGcmTest = 12;
   kCavpHmacTest = 13;
   kCavpShaMsgTest = 14;
+  kCavpShaMctTest = 15;
 }
 
 // TODO remove this when oneof support is added to nanopb
@@ -143,6 +144,11 @@ message CavpShaMsgTest {
   uint32 total_len = 2;
   uint32 offset = 3;
   bytes msg = 4;
+}
+
+message CavpShaMctTest {
+  CavpShaAlgorithm algo = 1;
+  bytes seed = 2;
 }
 
 message CavpShaTestResult {
