@@ -126,6 +126,16 @@ service Keymaster {
    */
   rpc ReadCertificate(ReadCertificateRequest) returns (ReadCertificateResponse);
 
+  /*
+   * Resume-on-Reboot implementation.
+   */
+  rpc VigoReadVS(VigoReadVSRequest) returns (VigoReadVSResponse);
+  rpc VigoStartChannel(VigoStartChannelRequest)
+      returns (VigoStartChannelResponse);
+  rpc VigoStoreSecret(VigoStoreSecretRequest) returns (VigoStoreSecretResponse);
+  rpc VigoReleaseSecret(VigoReleaseSecretRequest)
+      returns (VigoReleaseSecretResponse);
+
   // These are implemented with a enum, so new RPCs must be appended, and
   // deprecated RPCs need placeholders.
 }
@@ -490,4 +500,32 @@ message ReadCertificateRequest {
 message ReadCertificateResponse {
   ErrorCode error_code = 1;
   Certificate cert = 2;
+}
+
+message VigoReadVSRequest {}
+message VigoReadVSResponse {
+  ErrorCode error_code = 1;
+  VigoKey vs_key = 2;
+}
+message VigoStartChannelRequest {
+  VigoKey client_key = 1;
+}
+message VigoStartChannelResponse {
+  ErrorCode error_code = 1;
+  VigoKey server_key = 2;
+  VigoSignature channel_signature = 3;
+}
+message VigoStoreSecretRequest {
+  VigoKey rs_key = 1;
+  VigoSecret secret_encrypted = 2;
+}
+message VigoStoreSecretResponse {
+  ErrorCode error_code = 1;
+}
+message VigoReleaseSecretRequest {
+  VigoSignature rs_signature = 1;
+}
+message VigoReleaseSecretResponse {
+  ErrorCode error_code = 1;
+  VigoSecret secret_encrypted = 2;
 }
