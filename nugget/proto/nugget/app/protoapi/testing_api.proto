@@ -16,6 +16,7 @@ enum DcryptError {
   MISSING_PARAMETER = 3;
   KEYSIZE_MISMATCH = 4;
   INVALID_TEST = 5;
+  KEYGEN_ERROR = 6;
 }
 
 // TODO remove this when oneof support is added to nanopb
@@ -36,6 +37,9 @@ enum OneofTestParametersCase {
   kCavpHmacTest = 13;
   kCavpShaMsgTest = 14;
   kCavpShaMctTest = 15;
+  kCavpRsaKeyGenTest = 16;
+  kCavpRsaSigGenTest = 17;
+  kCavpRsaSigVerTest = 18;
 }
 
 // TODO remove this when oneof support is added to nanopb
@@ -50,6 +54,9 @@ enum OneofTestResultsCase {
   kCavpAesGcmTestResult = 7;
   kCavpHmacTestResult = 8;
   kCavpShaTestResult = 9;
+  kCavpRsaKeyGenTestResult = 10;
+  kCavpRsaSigGenTestResult = 11;
+  kCavpRsaSigVerTestResult = 12;
 }
 
 message AesCbcEncryptTest {
@@ -154,6 +161,71 @@ message CavpShaMctTest {
 message CavpShaTestResult {
   DcryptError result_code = 1;
   bytes md = 2;
+}
+
+enum CavpRsaMRTable {
+  C_2 = 0;
+  C_3 = 1;
+}
+
+enum CavpRsaPaddingType {
+  INVALID_PADDING = 0;
+  PKCS1 = 1;
+  PSS = 2;
+  OAEP = 3;
+}
+
+message CavpRsaKeyGenTest {
+  uint32 count = 1;
+  uint32 mod = 2;
+  CavpRsaMRTable table = 3;
+}
+
+message CavpRsaSigGenTest {
+  bool gen_n = 1;
+  CavpShaAlgorithm sha_alg = 2;
+  CavpRsaPaddingType padding = 3;
+  bytes msg = 4;
+}
+
+message CavpRsaSigVerTest {
+  uint32 mod = 1;
+  CavpShaAlgorithm sha_alg = 2;
+  CavpRsaPaddingType padding = 3;
+  uint32 e = 4;
+  bytes n = 5;
+  bytes msg = 6;
+  bytes sig = 7;
+}
+
+enum CavpRsaSigVerResult {
+  Pass = 0;
+  Fail_MessageChanged = 1;
+  Fail_General = 2;
+  Fail_SigChanged = 3;
+  Fail_EMHashMovedLeft = 4;
+  Fail_EMModPayload = 5;
+}
+
+message CavpRsaSigVerTestResult {
+  DcryptError result_code = 1;
+  CavpRsaSigVerResult verif_result = 2;
+}
+
+message CavpRsaSigGenTestResult {
+  DcryptError result_code = 1;
+  uint32 e = 2;
+  bytes n = 3;
+  bytes sig = 4;
+}
+
+message CavpRsaKeyGenTestResult {
+  DcryptError result_code = 1;
+  uint32 e = 2;
+  bytes p = 3;
+  bytes q = 4;
+  bytes n = 5;
+  bytes d = 6;
 }
 
 message TrngTest {
