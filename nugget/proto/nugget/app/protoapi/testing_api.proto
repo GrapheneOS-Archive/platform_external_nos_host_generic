@@ -40,6 +40,7 @@ enum OneofTestParametersCase {
   kCavpRsaKeyGenTest = 16;
   kCavpRsaSigGenTest = 17;
   kCavpRsaSigVerTest = 18;
+  kCavpDrbgTest = 19;
 }
 
 // TODO remove this when oneof support is added to nanopb
@@ -57,6 +58,7 @@ enum OneofTestResultsCase {
   kCavpRsaKeyGenTestResult = 10;
   kCavpRsaSigGenTestResult = 11;
   kCavpRsaSigVerTestResult = 12;
+  kCavpDrbgTestResult = 13;
 }
 
 message AesCbcEncryptTest {
@@ -226,6 +228,23 @@ message CavpRsaKeyGenTestResult {
   bytes q = 4;
   bytes n = 5;
   bytes d = 6;
+}
+
+message CavpDrbgTest {
+  bool prediction_resistance = 2;
+  uint32 ret_len = 3;
+  bytes entropy_init = 4;
+  bytes nonce = 5;
+  bytes perso_str = 6;
+  bytes add_input_1 = 7;
+  bytes add_input_2 = 8;
+  bytes entropy_pr_1 = 10;
+  bytes entropy_pr_2 = 11;
+}
+
+message CavpDrbgTestResult {
+  DcryptError result_code = 1;
+  bytes bits = 2;
 }
 
 message TrngTest {
