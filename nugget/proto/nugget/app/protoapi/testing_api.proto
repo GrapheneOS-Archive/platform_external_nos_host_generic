@@ -42,6 +42,10 @@ enum OneofTestParametersCase {
   kCavpRsaSigVerTest = 18;
   kCavpDrbgTest = 19;
   kCavpCkdfTest = 20;
+  kCavpEcdsaKeyPairTest = 21;
+  kCavpEcdsaPkvTest = 22;
+  kCavpEcdsaSigGenTest = 23;
+  kCavpEcdsaSigVerTest = 24;
 }
 
 // TODO remove this when oneof support is added to nanopb
@@ -61,6 +65,10 @@ enum OneofTestResultsCase {
   kCavpRsaSigVerTestResult = 12;
   kCavpDrbgTestResult = 13;
   kCavpCkdfTestResult = 14;
+  kCavpEcdsaKeyPairTestResult = 15;
+  kCavpEcdsaPkvTestResult = 16;
+  kCavpEcdsaSigGenTestResult = 17;
+  kCavpEcdsaSigVerTestResult = 18;
 }
 
 message AesCbcEncryptTest {
@@ -258,6 +266,57 @@ message CavpCkdfTestResult {
   DcryptError result_code = 1;
   bytes key = 2;
   bytes fixed_input_data = 3;
+}
+
+enum CavpEcdsaKeyGenTable {
+  B_4_1 = 0;
+  B_4_2 = 1;
+}
+
+message CavpEcdsaKeyPairTest {
+  CavpEcdsaKeyGenTable table = 1;
+}
+
+message CavpEcdsaKeyPairTestResult {
+  DcryptError result_code = 1;
+  bytes d = 2;
+  bytes qx = 3;
+  bytes qy = 4;
+}
+
+message CavpEcdsaPkvTest {
+  bytes qx = 1;
+  bytes qy = 2;
+}
+
+message CavpEcdsaPkvTestResult {
+  DcryptError result_code = 1;
+  bool result = 2;
+}
+
+message CavpEcdsaSigGenTest {
+  bytes msg = 1;
+}
+
+message CavpEcdsaSigGenTestResult {
+  DcryptError result_code = 1;
+  bytes qx = 2;
+  bytes qy = 3;
+  bytes r = 4;
+  bytes sig = 5;
+}
+
+message CavpEcdsaSigVerTest {
+  bytes msg = 1;
+  bytes qx = 2;
+  bytes qy = 3;
+  bytes r = 4;
+  bytes sig = 5;
+}
+
+message CavpEcdsaSigVerTestResult {
+  DcryptError result_code = 1;
+  bool result = 2;
 }
 
 message TrngTest {
