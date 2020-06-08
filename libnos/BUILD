@@ -15,8 +15,8 @@ cc_library(
     ],
     visibility = ["//visibility:public"],
     deps = [
-        "//:nos_headers",
-        "//libnos_datagram",
-        "//libnos_transport",
+        "//host/generic:nos_headers",
+        "//host/generic/libnos_datagram",
+        "//host/generic/libnos_transport",
     ],
 )
