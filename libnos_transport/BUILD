@@ -13,8 +13,8 @@ cc_library(
     ],
     visibility = ["//visibility:public"],
     deps = [
-        "//:nos_headers",
-        "//libnos_datagram",
+        "//host/generic:nos_headers",
+        "//host/generic/libnos_datagram",
     ],
 )
 
@@ -25,12 +25,12 @@ cc_test(
     ],
     copts = [
         "-fsanitize=address",
-        "-Ilibnos_transport",
+        "-Ihost/generic/libnos_transport",
     ],
     linkopts = ["-fsanitize=address"],
     deps = [
         ":libnos_transport",
-        "//:nos_headers",
+        "//host/generic:nos_headers",
         "@gtest",
     ],
 )
