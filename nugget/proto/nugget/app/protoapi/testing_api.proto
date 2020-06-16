@@ -46,6 +46,7 @@ enum OneofTestParametersCase {
   kCavpEcdsaPkvTest = 22;
   kCavpEcdsaSigGenTest = 23;
   kCavpEcdsaSigVerTest = 24;
+  kCavpCmacGenTest = 25;
 }
 
 // TODO remove this when oneof support is added to nanopb
@@ -69,6 +70,7 @@ enum OneofTestResultsCase {
   kCavpEcdsaPkvTestResult = 16;
   kCavpEcdsaSigGenTestResult = 17;
   kCavpEcdsaSigVerTestResult = 18;
+  kCavpCmacGenTestResult = 19;
 }
 
 message AesCbcEncryptTest {
@@ -137,6 +139,7 @@ message CavpAesGcmTestResult {
   DcryptError result_code = 1;
   bytes text = 2;
   bytes tag = 3;
+  uint32 success = 4;
 }
 
 enum CavpShaAlgorithm {
