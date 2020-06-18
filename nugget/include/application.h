@@ -72,6 +72,7 @@ typedef const void * const __private;
 #define APP_ID_KEYMASTER         0x02
 #define APP_ID_WEAVER            0x03
 #define APP_ID_PROTOBUF          0x04
+#define APP_ID_IDENTITY          0x05
 
 /* Fake apps used only for testing */
 #define APP_ID_AVB_TEST          0x11
