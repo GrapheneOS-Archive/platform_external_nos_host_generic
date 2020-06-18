@@ -43,6 +43,14 @@ cc_proto_library(
 )
 
 cc_proto_library(
+    name = "nugget_app_identity_identity_cc_proto",
+    visibility = ["//visibility:public"],
+    deps = [
+        "nugget_app_identity_identity_proto",
+    ],
+)
+
+cc_proto_library(
     name = "nugget_app_avb_avb_cc_proto",
     visibility = ["//visibility:public"],
     deps = [
@@ -95,6 +103,25 @@ cc_library(
     visibility = ["//visibility:public"],
     deps = [
         "nugget_app_weaver_weaver_cc_proto",
+        "nugget_protobuf_options_cc_proto",
+        "//host/generic/libnos",
+    ],
+)
+
+cc_library(
+    name = "identity_client_proto",
+    srcs = [
+        "nugget/app/identity/Identity.client.cpp",
+    ],
+    hdrs = [
+        "nugget/app/identity/Identity.client.h",
+    ],
+    includes = [
+        "./nugget/app/identity/",
+    ],
+    visibility = ["//visibility:public"],
+    deps = [
+        "nugget_app_identity_identity_cc_proto",
         "nugget_protobuf_options_cc_proto",
         "//host/generic/libnos",
     ],
@@ -200,6 +227,48 @@ genrule(
     tools = [
         "//host/generic/libnos/generator:protoc_gen_nos_client_cpp",
         "@com_google_protobuf//:protoc",
+    ],
+)
+
+genrule(
+    name = "identity_proto_client_cc_genrule",
+    srcs = [
+        "nugget/app/identity/identity.proto",
+        "nugget/app/identity/identity_defs.proto",
+        "nugget/app/identity/identity_types.proto",
+        "nugget/protobuf/options.proto",
+        "google/protobuf/descriptor.proto",
+    ],
+    outs = [
+        "nugget/app/identity/Identity.client.cpp",
+    ],
+    cmd = GEN_SERVICE + " --proto_path=" + PROTO_ROOT +
+          " --nos-client-cpp_out=source:$$(dirname $(location nugget/app/identity/Identity.client.cpp)) " +
+          "$(location nugget/app/identity/identity.proto)",
+    tools = [
+        "@com_google_protobuf//:protoc",
+        "//host/generic/libnos/generator:protoc_gen_nos_client_cpp",
+    ],
+)
+
+genrule(
+    name = "identity_proto_client_h_genrule",
+    srcs = [
+        "nugget/app/identity/identity.proto",
+        "nugget/app/identity/identity_defs.proto",
+        "nugget/app/identity/identity_types.proto",
+        "nugget/protobuf/options.proto",
+        "google/protobuf/descriptor.proto",
+    ],
+    outs = [
+        "nugget/app/identity/Identity.client.h",
+    ],
+    cmd = GEN_SERVICE + " --proto_path=" + PROTO_ROOT +
+          " --nos-client-cpp_out=header:$$(dirname $(location nugget/app/identity/Identity.client.h)) " +
+          "$(location nugget/app/identity/identity.proto)",
+    tools = [
+        "@com_google_protobuf//:protoc",
+        "//host/generic/libnos/generator:protoc_gen_nos_client_cpp",
     ],
 )
 
@@ -336,6 +405,19 @@ proto_library(
     name = "nugget_app_weaver_weaver_proto",
     srcs = [
         "nugget/app/weaver/weaver.proto",
+    ],
+    strip_import_prefix = PROTO_SOURCE_ROOT,
+    deps = [
+        "nugget_protobuf_options_proto",
+    ],
+)
+
+proto_library(
+    name = "nugget_app_identity_identity_proto",
+    srcs = [
+        "nugget/app/identity/identity.proto",
+        "nugget/app/identity/identity_defs.proto",
+        "nugget/app/identity/identity_types.proto",
     ],
     strip_import_prefix = PROTO_SOURCE_ROOT,
     deps = [

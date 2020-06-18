@@ -125,6 +125,8 @@ service Keymaster {
    * More vendor specific methods.
    */
   rpc ReadCertificate(ReadCertificateRequest) returns (ReadCertificateResponse);
+  rpc IdentityStartAttestKey (IdentityStartAttestKeyRequest) returns (IdentityStartAttestKeyResponse);
+  rpc IdentityFinishAttestKey (IdentityFinishAttestKeyRequest) returns (IdentityFinishAttestKeyResponse);
 
   /*
    * Resume-on-Reboot implementation.
@@ -528,4 +530,32 @@ message VigoReleaseSecretRequest {
 message VigoReleaseSecretResponse {
   ErrorCode error_code = 1;
   VigoSecret secret_encrypted = 2;
+}
+
+// IdentityStartAttestKey
+message IdentityStartAttestKeyRequest {
+  bytes pubkey = 1;
+  KeyParameters params = 2;
+  uint32 attestation_app_id_len = 3;
+  AttestationSelector selector = 4;
+  bytes not_before = 5;      // strftime('%y%m%d%H%M%SZ') [13 octects]
+  bytes not_after = 6;       // strftime('%y%m%d%H%M%SZ') [13 octects]
+  uint64 creation_time_ms = 7;      // Rough current time (ms since epoch).
+}
+message IdentityStartAttestKeyResponse {
+  ErrorCode error_code = 1;
+  OperationHandle handle = 2;
+  bytes certificate_prologue = 3;
+}
+
+// IdentityFinishAttestKeyRequest
+message IdentityFinishAttestKeyRequest {
+  OperationHandle handle = 1;
+  bool use_km_attest_key = 2;
+}
+message IdentityFinishAttestKeyResponse {
+  ErrorCode error_code = 1;
+  bytes certificate_epilogue = 2;
+  ChipFusing chip_fusing = 3;
+  bool nodelocked_ro = 4;
 }
