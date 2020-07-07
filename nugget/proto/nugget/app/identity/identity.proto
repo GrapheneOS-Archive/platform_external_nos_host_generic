@@ -188,8 +188,10 @@ message ICsetAuthTokenRequest{
   uint32 hardwareAuthenticatorType = 4;
   uint64 timeStamp = 5;
   bytes mac = 6;
-  uint64 verificationTokenTimestamp =7;
-  bytes verificationTokenMac = 8;
+  uint64 verificationTokenChallenge = 7;
+  uint64 verificationTokenTimestamp =8;
+  uint32 verificationTokenSecurityLevel =9;
+  bytes verificationTokenMac = 10;
 }
 
 message ICsetAuthTokenResponse{
