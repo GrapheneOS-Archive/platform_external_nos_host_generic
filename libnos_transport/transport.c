@@ -70,7 +70,7 @@ extern int usleep (uint32_t usec);
  * expect a reboot to take around 100ms but we'll keep trying for 300ms to leave
  * plenty of margin.
  */
-#define RETRY_COUNT 60
+#define RETRY_COUNT 240
 #define RETRY_WAIT_TIME_US 5000
 
 /* In case of CRC error, try to retransmit */
