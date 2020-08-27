@@ -31,6 +31,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/ioctl.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 #include <unistd.h>
 
 /*****************************************************************************/
@@ -46,7 +48,8 @@ struct citadel_ioc_tpm_datagram {
 #define CITADEL_IOC_RESET           _IO(CITADEL_IOC_MAGIC, 2)
 /*****************************************************************************/
 
-#define DEV_CITADEL "/dev/citadel0"
+#define DEV_CITADEL   "/dev/citadel0"
+#define DEV_DAUNTLESS "/dev/gsc0"
 
 static pthread_mutex_t in_buf_mutex = PTHREAD_MUTEX_INITIALIZER;
 static uint8_t in_buf[MAX_DEVICE_TRANSFER];
@@ -203,24 +206,51 @@ static void close_device(void *ctx) {
     free(ctx);
 }
 
-int nos_device_open(const char *device_name, struct nos_device *dev) {
-    int fd, *new_fd;
+static const char *default_device(void) {
+    struct stat statbuf;
+    int rv;
 
-    fd = open(device_name ? device_name : DEV_CITADEL, O_RDWR);
+    rv = stat(DEV_CITADEL, &statbuf);
+    if (!rv) {
+        return DEV_CITADEL;
+    }
+
+    rv = stat(DEV_DAUNTLESS, &statbuf);
+    if (!rv) {
+        return DEV_DAUNTLESS;
+    }
+
+    return 0;
+}
+
+int nos_device_open(const char *device_name, struct nos_device *dev) {
+    int fd, *new_ctx;
+
+    if (!device_name) {
+        device_name = default_device();
+    }
+
+    if (!device_name) {
+      ALOGE("can't find device node\n");
+      return -ENODEV;
+    }
+
+    fd = open(device_name, O_RDWR);
     if (fd < 0) {
-        ALOGE("can't open device: %s", strerror(errno));
+        ALOGE("can't open device \"%s\": %s", device_name, strerror(errno));
         return -errno;
     }
 
-    new_fd = (int *)malloc(sizeof(int));
-    if (!new_fd) {
-        ALOGE("can't malloc new fd: %s", strerror(errno));
+    /* Our context is just a pointer to an int holding the fd */
+    new_ctx = (int *)malloc(sizeof(int));
+    if (!new_ctx) {
+        ALOGE("can't malloc new ctx: %s", strerror(errno));
         close(fd);
         return -ENOMEM;
     }
-    *new_fd = fd;
+    *new_ctx = fd;
 
-    dev->ctx = new_fd;
+    dev->ctx = new_ctx;
     dev->ops.read = read_datagram;
     dev->ops.write = write_datagram;
     dev->ops.wait_for_interrupt = wait_for_interrupt;

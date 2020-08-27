@@ -63,6 +63,7 @@ enum event_id {
   EVENT_ALERT = 1,     // Globalsec alert fired.
   EVENT_REBOOTED = 2,  // Device rebooted.
   EVENT_UPGRADED = 3,  // Device has upgraded.
+  EVENT_ALERT_V2 = 4,  // Globalsec Alertv2 fired
 };
 
 /* Please do not change the size of this struct */
@@ -83,6 +84,13 @@ struct event_record {
       uint32_t which0;
       uint32_t which1;
     } rebooted;
+    struct {
+      uint32_t alert_grp[4];
+      uint16_t camo_breaches[2];
+      uint16_t temp_min;
+      uint16_t temp_max;
+      uint32_t bus_err;
+    } alert_v2;
 
     /* uninterpreted */
     union {
