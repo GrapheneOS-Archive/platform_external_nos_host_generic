@@ -83,6 +83,32 @@ cc_library_static {
     ],
 }
 
+// A special target to be statically linkeed into fastboot hal.
+cc_library_static {
+    name: "libnos_for_fastboot",
+    recovery: true,
+    cflags: [
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-Wno-zero-length-array",
+    ],
+    export_include_dirs: [
+        "nugget/include",
+        "libnos/include",
+        "libnos_datagram/include",
+        "libnos_transport/include",
+    ],
+    srcs: [
+        "libnos/debug.cpp",
+        "libnos_transport/transport.c",
+        "libnos_transport/crc16.c",
+    ],
+    static_libs: [
+        "libbase",
+    ],
+}
+
 // A special target to be statically linkeed into recovery which is a system
 // (not vendor) component.
 cc_library_static {
@@ -98,6 +124,24 @@ cc_library_static {
     ],
     static_libs: [
         "libnos_for_recovery",
+    ],
+}
+
+// A special target to be statically linkeed into fastboot hal.
+cc_library_static {
+    name: "libnos_citadel_for_fastboot",
+    recovery: true,
+    cflags: [
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+    ],
+    srcs: [
+        ":libnos_client",
+        "libnos_datagram/citadel.c",
+    ],
+    static_libs: [
+        "libnos_for_fastboot",
     ],
 }
 
