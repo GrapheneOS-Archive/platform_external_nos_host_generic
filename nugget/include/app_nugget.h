@@ -264,6 +264,24 @@ enum nugget_ap_uart_passthru_cfg {
 
 #define NUGGET_PARAM_RDD_CFG 0x000e
 /*
+ * Enable/Disable the RDD SuzyQable Detection
+ *
+ * This always returns the current state of the RDD SuzyQable detection
+ * feature.
+ *
+ * The AP can request that the RDD SuzyQable detection to be disabled (0) or
+ * enabled (1).
+ *
+ * @param args         0     OR   1
+ * @param arg_len      0     OR   1 byte
+ * @param reply        current state (0 or 1)
+ * @param reply_len    1 byte
+ *
+ * @errors             APP_ERROR_BOGUS_ARGS
+ */
+
+#define NUGGET_PARAM_BOARD_ID 0x000f
+/*
  * Set / Get Board ID
  *
  * This sets or gets the Board ID of the device.
@@ -280,24 +298,6 @@ struct nugget_app_board_id {
   uint32_t flag;
   uint32_t inv;                         /* must equal ~type when setting */
 } __packed;
-#define NUGGET_PARAM_BOARD_ID 0x000f
-
-/*
- * Enable/Disable the RDD SuzyQable Deteaction
- *
- * This always returns the current state of the RDD SuezyQable detection
- * feature.
- *
- * The AP can request that the RDD SuezyQable detection to be disabled (0) or
- * enabled (1).
- *
- * @param args         0     OR   1
- * @param arg_len      0     OR   1 byte
- * @param reply        0     OR   1 current state
- * @param reply_len    1 byte
- *
- * @errors             APP_ERROR_BOGUS_ARGS
- */
 
 #define NUGGET_PARAM_GET_EVENT_RECORD 0x0010
 /*
@@ -308,6 +308,17 @@ struct nugget_app_board_id {
  * @param arg_len      0
  * @param reply        struct event_record
  * @param reply_len    sizeof struct event_record  OR  0
+ */
+
+#define NUGGET_PARAM_AP_IS_REBOOTING 0x0011
+/*
+ * This can be used to replace the GPIO signal for some boards, if the
+ * communication path is trusted. If not, it has no effect.
+ *
+ * @param args         <none>
+ * @param arg_len      0
+ * @param reply        <none>
+ * @param reply_len    0
  */
 
 /****************************************************************************/
