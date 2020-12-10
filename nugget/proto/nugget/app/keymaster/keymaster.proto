@@ -541,6 +541,7 @@ message IdentityStartAttestKeyRequest {
   bytes not_before = 5;      // strftime('%y%m%d%H%M%SZ') [13 octects]
   bytes not_after = 6;       // strftime('%y%m%d%H%M%SZ') [13 octects]
   uint64 creation_time_ms = 7;      // Rough current time (ms since epoch).
+  bool use_km_attest_key = 8;
 }
 message IdentityStartAttestKeyResponse {
   ErrorCode error_code = 1;
