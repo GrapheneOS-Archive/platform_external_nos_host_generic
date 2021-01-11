@@ -47,7 +47,7 @@ public:
     virtual bool IsOpen() const = 0;
 
     /**
-     * Call into and app running on Nugget.
+     * Call into an app running on Nugget.
      *
      * @param app_id   The ID of the app to call.
      * @param arg      Argument to pass to the app.
