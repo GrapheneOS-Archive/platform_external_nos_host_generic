@@ -91,7 +91,7 @@ public:
      */
     const std::string& DeviceName() const;
 
-private:
+protected:
     std::string device_name_;
     nos_device device_;
     bool open_;
