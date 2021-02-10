@@ -58,6 +58,10 @@ public:
     virtual uint32_t CallApp(uint32_t appId, uint16_t arg,
                              const std::vector<uint8_t>& request,
                              std::vector<uint8_t>* response) = 0;
+    /**
+     * Reset the device. Use with caution; context may be lost.
+     */
+    virtual uint32_t Reset() const = 0;
 };
 
 } // namespace nos
