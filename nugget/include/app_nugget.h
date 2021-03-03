@@ -321,6 +321,35 @@ struct nugget_app_board_id {
  * @param reply_len    0
  */
 
+#define FILE_ID_NUGGET_PERSIST 0
+#define NUGGET_PERSIST_VERSION_1 1
+struct nugget_persist_t {
+	uint8_t version;
+	uint8_t user_consent;
+	uint8_t reserved[2];
+};
+
+enum nugget_sjtag_user_consent_cfg {
+  NUGGET_SJTAG_USER_CONSENT_DISALLOW,             /* DISALLOW */
+  NUGGET_SJTAG_USER_CONSENT_ALLOW,                /* ALLOW */
+
+  NUGGET_SJTAG_USER_CONSENT_NUM_CFGS,
+};
+
+#define NUGGET_PARAM_SJTAG_USER_CONSENT 0x0012
+/*
+ * Set/Get the SJTAG USER CONSENT function
+ *
+ * This always returns the current state of the SJTAG USER CONSENT feature.
+ *
+ * @param args         <none>  OR  enum nugget_sjtag_user_consent_cfg
+ * @param arg_len        0     OR   1 byte
+ * @param reply        enum nugget_sjtag_user_consent_cfg
+ * @param reply_len    1 byte
+ *
+ * @errors             APP_ERROR_BOGUS_ARGS
+ */
+
 /****************************************************************************/
 /* Test related commands */
 
