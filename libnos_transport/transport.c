@@ -471,7 +471,7 @@ uint32_t nos_call_application(const struct nos_device *dev,
     return APP_ERROR_IO;
   }
 
-  NLOGD("Calling app %d with params 0x%04x", app_id, params);
+  NLOGD("Calling App %d with params 0x%04x", app_id, params);
 
   struct transport_status status;
   uint32_t status_code;
@@ -501,7 +501,7 @@ uint32_t nos_call_application(const struct nos_device *dev,
     NLOGW("App %d request checksum error", app_id);
   }
   if (status_code == APP_ERROR_CHECKSUM) {
-    NLOGE("App %d equest checksum failed too many times", app_id);
+    NLOGE("App %d request checksum failed too many times", app_id);
     status_code = APP_ERROR_IO;
   }
 
