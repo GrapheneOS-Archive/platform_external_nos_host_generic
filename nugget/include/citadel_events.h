@@ -72,6 +72,7 @@ enum event_id {
 enum upgrade_state_def {
   UPGRADE_SUCCESS = 0,
   UPGRADE_PW_MISMATCH = 1,
+  UPGRADE_EN_FW_FAIL =2,
 };
 
 /* Please do not change the size of this struct */
