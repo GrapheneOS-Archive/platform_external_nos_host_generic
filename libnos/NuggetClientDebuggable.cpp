@@ -21,16 +21,11 @@
 
 namespace nos {
 
-NuggetClientDebuggable::NuggetClientDebuggable(request_cb_t req_fn, response_cb_t resp_fn)
-  : request_cb_(req_fn), response_cb_(resp_fn) {}
-
-NuggetClientDebuggable::NuggetClientDebuggable(const std::string& device_name,
-                                               request_cb_t req_fn, response_cb_t resp_fn)
-  : NuggetClient(device_name), request_cb_(req_fn), response_cb_(resp_fn) {}
-
-NuggetClientDebuggable::NuggetClientDebuggable(const char* device_name,
-                                               request_cb_t req_fn, response_cb_t resp_fn)
-  : NuggetClient(device_name), request_cb_(req_fn), response_cb_(resp_fn) {}
+NuggetClientDebuggable::NuggetClientDebuggable(
+  const char* name, uint32_t config,
+  request_cb_t req_fn, response_cb_t resp_fn)
+  : NuggetClient(name, config),
+    request_cb_(req_fn), response_cb_(resp_fn) {}
 
 uint32_t NuggetClientDebuggable::CallApp(uint32_t appId, uint16_t arg,
                                          const std::vector<uint8_t>& request,

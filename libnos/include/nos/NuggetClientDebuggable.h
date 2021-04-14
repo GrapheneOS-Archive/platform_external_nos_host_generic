@@ -36,10 +36,7 @@ public:
   using response_cb_t = std::function<void(uint32_t, const std::vector<uint8_t>&)>;
 
   /* Need to pass the base constructor params up */
-  NuggetClientDebuggable(request_cb_t req_cb_ = 0, response_cb_t resp_cb_ = 0);
-  NuggetClientDebuggable(const std::string& device_name,
-                         request_cb_t req_cb_ = 0, response_cb_t resp_cb_ = 0);
-  NuggetClientDebuggable(const char* device_name,
+  NuggetClientDebuggable(const char* name = 0, uint32_t config = 0,
                          request_cb_t req_cb_ = 0, response_cb_t resp_cb_ = 0);
 
   /* We'll override this */
