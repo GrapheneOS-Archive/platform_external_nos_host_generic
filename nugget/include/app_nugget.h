@@ -350,6 +350,26 @@ enum nugget_sjtag_user_consent_cfg {
  * @errors             APP_ERROR_BOGUS_ARGS
  */
 
+enum nugget_sjtag_avb_boot_lock_result {
+   AVB_BOOT_LOCK_DISABLED,
+   AVB_BOOT_LOCK_ENABLED,
+   AVB_BOOT_LOCK_ERROR,
+};
+
+#define NUGGET_PARAM_SJTAG_ALLOW 0x0013
+/*
+ * Get the SJTAG ALLOW
+ *
+ * This always returns the current state of the SJTAG ALLOW feature.
+ *
+ * @param args         <none>
+ * @param arg_len        0
+ * @param reply        0(DISALLOW) OR 1(ALLOW)
+ * @param reply_len    1 byte
+ *
+ * @errors             APP_ERROR_BOGUS_ARGS
+ */
+
 /****************************************************************************/
 /* Test related commands */
 
