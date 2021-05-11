@@ -412,10 +412,11 @@ enum nugget_app_selftest_cmd {
 
 /*
  * This struct is specific to Citadel and Nugget OS, but it's enough for the
- * AP-side implementation to translate into the info required for the HAL
- * structs.
+ * AP-side implementation to translate into the info required for the power
+ * stats service.
  */
-struct nugget_app_low_power_stats {
+#define NUGGET_APP_LOW_POWER_STATS_MAGIC 0xC0DEACE1
+struct nugget_app_low_power_stats { /* version 1 */
   /* All times in usecs */
   uint64_t hard_reset_count;                    /* Cleared by power loss */
   uint64_t time_since_hard_reset;
@@ -428,6 +429,18 @@ struct nugget_app_low_power_stats {
   uint64_t time_spent_in_deep_sleep;
   uint64_t time_at_ap_reset;
   uint64_t time_at_ap_bootloader_done;
+  /*
+   * New fields for v1, used by factory tests. The caller can tell whether the
+   * firmare supports these fields by checking the v1_magic value.
+   */
+  uint32_t v1_magic; /* NUGGET_APP_LOW_POWER_STATS_MAGIC */
+  uint32_t temp;
+  struct {
+    unsigned int phone_on_l : 1;
+    unsigned int vol_up_l : 1;
+    unsigned int vol_dn_l : 1;
+    unsigned int _padding : 29; /* pad to 32 bits */
+  } signals;
 } __packed;
 
 #define NUGGET_PARAM_GET_LOW_POWER_STATS 0x200
