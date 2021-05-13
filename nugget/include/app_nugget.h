@@ -573,6 +573,21 @@ enum nugget_app_sleep_mode {
  * @param reply_len    0
  */
 
+#define NUGGET_PARAM_TRIGGER_PIN 0xF005
+/**
+ * Get/Set trigger pin level
+ *
+ * This command asks GSC to set the level (0|1) of an otherwise unused GPIO,
+ * to signal external test equipment.
+ *
+ * @param args         0     OR   1
+ * @param arg_len      0     OR   1 byte
+ * @param reply        current state (0 or 1)
+ * @param reply_len    1 byte
+ *
+ * @errors             APP_ERROR_BOGUS_ARGS
+ */
+
 #ifdef __cplusplus
 }
 #endif
