@@ -370,6 +370,48 @@ enum nugget_sjtag_avb_boot_lock_result {
  * @errors             APP_ERROR_BOGUS_ARGS
  */
 
+/*
+ * Persistent storage of arbitrary data, up to
+ * (FS_MAX_FILE_SIZE - sizeof(struct nugget_app_data)) bytes.
+ */
+struct nugget_app_storage {
+  uint32_t flags;  /* TBD, use zero for now */
+  uint8_t data[0]; /* Zero or more bytes */
+} __packed;
+
+#define NUGGET_PARAM_STORAGE_WRITE 0x0014
+/*
+ * Write arbitrary data.
+ *
+ * The current storage is erased, then new data (if any) is saved.
+ *
+ * .flags meaning is not yet defined; for now it must be 0x00000000
+ *        Possible usage could restrict reading to the bootloader,
+ *        erase data after N reads or reboots, etc.
+ *
+ * @param args         struct nugget_app_storage + zero or more bytes
+ * @param arg_len      To write: >  sizeof(struct nugget_app_storage)
+ *                     To erase: <= sizeof(struct nugget_app_storage)
+ * @param reply        <none>
+ * @param reply_len    0
+ *
+ * @errors             APP_ERROR_BOGUS_ARGS
+ */
+#define NUGGET_PARAM_STORAGE_READ 0x0015
+/*
+ * Read arbitrary data.
+ *
+ * On success, struct nugget_app_storage is returned, followed by zero
+ * or more bytes of .data
+ *
+ * @param args         <none>
+ * @param arg_len      0
+ * @param reply        struct nugget_app_storage + zero or more bytes
+ * @param reply_len    <varies>
+ *
+ * @errors             APP_ERROR_BOGUS_ARGS
+ */
+
 /****************************************************************************/
 /* Test related commands */
 
