@@ -31,7 +31,7 @@ enum TagType {
   ULONG = 0x50000;         /* 5 << 16 */
   DATE = 0x60000;          /* 6 << 16 */
   BOOL = 0x70000;          /* 7 << 16 */
-  /*  BIGNUM = 0x80000;         8 << 16 */  /* Unused. */
+  BIGNUM_ = 0x80000;       /* 8 << 16 */
   BYTES = 0x90000;         /* 9 << 16 */
   ULONG_REP = 0xA0000;     /* 10 << 16 */
 };
@@ -104,7 +104,9 @@ enum Tag {
   /* RESERVED: AUTH_TOKEN = 0x903ea; // (TagType:BYTES | 1002) */
   MAC_LENGTH = 0x303eb; // (TagType:UINT | 1003)
   RESET_SINCE_ID_ROTATION = 0x703ec; // (TagType:BOOL | 1004)
-  CONFIRMATION_TOKEN = 0x903ed;// (TagType:BYTES | 1005)
+  CONFIRMATION_TOKEN = 0x903ed; // (TagType:BYTES | 1005)
+  CERTIFICATE_SERIAL = 0x803ee; // (TagType:BIGNUM | 1006)
+  CERTIFICATE_SUBJECT = 0x903ef; // (TagType:BYTES | 1007)
 };
 
 enum Algorithm {
