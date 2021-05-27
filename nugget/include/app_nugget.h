@@ -375,8 +375,10 @@ enum nugget_sjtag_avb_boot_lock_result {
  * (FS_MAX_FILE_SIZE - sizeof(struct nugget_app_data)) bytes.
  */
 struct nugget_app_storage {
-  uint32_t flags;  /* TBD, use zero for now */
-  uint8_t data[0]; /* Zero or more bytes */
+  uint32_t flags; /* TBD, use zero for now */
+#ifndef __cplusplus
+  uint8_t data[]; /* Zero or more bytes */
+#endif
 } __packed;
 
 #define NUGGET_PARAM_STORAGE_WRITE 0x0014
