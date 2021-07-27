@@ -295,7 +295,7 @@ static uint32_t send_command(const struct transport_context *ctx) {
 
     /* Any further Writes needed to send all the args must set the MORE bit */
     command |= CMD_MORE_TO_COME;
-    args += ulen;
+    if (args) args += ulen;
     arg_len -= ulen;
   } while (arg_len);
 
