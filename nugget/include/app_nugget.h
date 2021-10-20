@@ -414,6 +414,28 @@ struct nugget_app_storage {
  * @errors             APP_ERROR_BOGUS_ARGS
  */
 
+#define GSC_DEBUG_DUMP_VERSION 0
+struct gsc_debug_dump_msg {
+	uint8_t timestamp[6];   // Bottom 48 bits of system time; enough for 8 years @ 1 us
+	uint8_t channel;        // log channel (task_id or system call)
+	uint8_t version;        // gsc_debug_dump_msg struct version
+	uint32_t error_code;    // error code
+	uint32_t reserved;      // reserved for other useful log
+};
+
+#define DEBUG_MESSAGE_MAX_COUNT 64
+#define DEBUG_MESSAGE_BUFFER_SIZE (DEBUG_MESSAGE_MAX_COUNT * sizeof(struct gsc_debug_dump_msg))
+
+#define NUGGET_PARAM_DEBUG_DUMP 0x0016
+/*
+ * Get GSC debug message from 1KB ring buffer
+ *
+ * @param args         <none>
+ * @param arg_len      0
+ * @param reply        recent debug buffer output
+ * @param reply_len    1KB
+ */
+
 /****************************************************************************/
 /* Test related commands */
 
