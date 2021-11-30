@@ -150,6 +150,7 @@ message ICinitializeRequest{
   bool testCredential = 1;
   bytes docType = 2;
   bytes encryptedCredentialKeys = 3;
+  uint32 oemHalVersion = 4;
 }
 
 message ICinitializeResponse{
@@ -281,6 +282,7 @@ message ICstartRetrieveEntryValueRequest{
 
 message ICstartRetrieveEntryValueResponse{
   AccessResult accessCheckResult = 1;
+  uint32 sessionCookie = 2;
 }
 
 // ICretrieveEntryValue
@@ -289,6 +291,7 @@ message ICretrieveEntryValueRequest{
   string nameSpace = 2;
   string name = 3;
   bytes accessControlProfileIds = 4;
+  uint32 sessionCookie = 5;
 }
 
 message ICretrieveEntryValueResponse{
