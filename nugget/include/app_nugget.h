@@ -436,6 +436,29 @@ struct gsc_debug_dump_msg {
  * @param reply_len    1KB
  */
 
+#define GSA_GSC_PAIRING_VERSION 0
+#define EC_P256_PUBLIC_KEY_SIZE 64
+#define EC_P256_PRIVATE_KEY_SIZE 32
+#define PSK_KEY_SIZE 32
+#define HAS_GSA_PUBKEY 0xa3
+struct gsa_gsc_pairing_persist_storage {
+	uint8_t version;
+	uint8_t has_gsa_public_key_provision;
+	uint8_t gsa_public_key[EC_P256_PUBLIC_KEY_SIZE];
+	uint8_t gsc_private_key[EC_P256_PRIVATE_KEY_SIZE];
+	uint8_t gsc_public_key[EC_P256_PUBLIC_KEY_SIZE];
+};
+
+#define NUGGET_PARAM_GSA_KEY_PROVISION 0x0017
+/*
+ * GSA key provision command
+ *
+ * @param args         gsa unique public key
+ * @param arg_len      32
+ * @param reply        gsc public key + sha256(pre-shared key)
+ * @param reply_len    64 + 32
+ */
+
 /****************************************************************************/
 /* Test related commands */
 
