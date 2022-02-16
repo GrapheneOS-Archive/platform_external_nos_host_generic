@@ -267,6 +267,10 @@ enum ErrorCode {
   STORAGE_KEY_UNSUPPORTED = 81;
   INCOMPATIBLE_MGF_DIGEST = 82;
   UNSUPPORTED_MGF_DIGEST = 83;
+  INVALID_MAC = 84;                       // RKP specific.
+  PRODUCTION_KEY_IN_TEST_REQUEST = 85;    // RKP specific.
+  TEST_KEY_IN_PRODUCTION_REQUEST = 86;    // RKP specific.
+  INVALID_EEK = 87;                       // RKP specific.
 };
 
 enum SecurityLevel {
