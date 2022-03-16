@@ -557,6 +557,7 @@ message IdentityStartAttestKeyRequest {
   bytes not_after = 6;       // strftime('%y%m%d%H%M%SZ') [15 octects]
   uint64 creation_time_ms = 7;      // Rough current time (ms since epoch).
   bool use_km_attest_key = 8;
+  bytes caller_issuer_subj_name = 9;
 }
 message IdentityStartAttestKeyResponse {
   ErrorCode error_code = 1;
@@ -568,6 +569,7 @@ message IdentityStartAttestKeyResponse {
 message IdentityFinishAttestKeyRequest {
   OperationHandle handle = 1;
   bool use_km_attest_key = 2;
+  KeyBlob caller_blob = 3;
 }
 message IdentityFinishAttestKeyResponse {
   ErrorCode error_code = 1;

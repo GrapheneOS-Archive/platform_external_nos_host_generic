@@ -449,6 +449,14 @@ struct gsa_gsc_pairing_persist_storage {
 	uint8_t gsc_public_key[EC_P256_PUBLIC_KEY_SIZE];
 };
 
+#define GSA_GSC_PSK_VERSION 0
+#define HAS_GSA_GSC_PSK 0xa5
+struct gsa_gsc_psk_persist_storage {
+	uint8_t version;
+	uint8_t has_gsa_gsc_psk_provision;
+	uint8_t gsa_gsc_psk[PSK_KEY_SIZE];
+};
+
 #define NUGGET_PARAM_GSA_KEY_PROVISION 0x0017
 /*
  * GSA key provision command
