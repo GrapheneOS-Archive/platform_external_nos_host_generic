@@ -551,8 +551,18 @@ struct secure_channel_retry_count_persist_storage {
  *
  * @param args         GSA EC public_key + AES_GCM256("MSGA") + AES_GSC_TAG
  * @param arg_len      64 + 4 + 16 bytes = 84
- * @param reply        GSC EC public_key + AES_GCM256("MSGB") + AES_GSC_TAG
- * @param reply_len    64 + 4 + 16 bytes = 84
+ * @param reply        GSC EC public_key + AES_GCM256("MSGB") + AES_GSC_TAG OR 1 byte error state
+ * @param reply_len    64 + 4 + 16 bytes = 84 OR 1
+ */
+
+#define NUGGET_PARAM_SECURE_TRANSPORT_REPORT_STATE 0x001a
+/*
+ * Secure transport report noise handshake state command
+ *
+ * @param args         GSA noise handshake state
+ * @param arg_len      1
+ * @param reply        <none>
+ * @param reply_len    0
  */
 
 /****************************************************************************/
