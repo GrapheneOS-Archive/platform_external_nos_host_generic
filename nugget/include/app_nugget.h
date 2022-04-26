@@ -467,6 +467,84 @@ struct gsa_gsc_psk_persist_storage {
  * @param reply_len    64 + 32
  */
 
+/**
+ * enum gsa_gsc_psk_state - GSA-GSC PSK state
+ * @GSA_GSC_PSK_STATE_UNKNOWN: Unknown state (initial state)
+ * @GSA_GSC_PSK_STATE_KEY_VERIFY_SUCCESS: GSA and GSC PSK match
+ * @GSA_GSC_PSK_STATE_KEY_MISMATCH: GSA and GSC PSK mismatch
+ * @GSA_GSC_PSK_STATE_GSA_INTERNAL_ERROR: GSA has internal error
+ * @GSA_GSC_PSK_STATE_GSA_HAS_NO_KEY: GSA has no PSK
+ * @GSA_GSC_PSK_STATE_GSA_CRYPTO_PRNG_FAIL: GSA crypto prng function fail
+ * @GSA_GSC_PSK_STATE_GSA_CRYPTO_HKDF_FAIL: GSA crypto HKDF function fail
+ * @GSA_GSC_PSK_STATE_GSA_CRYPTO_HMAC_FAIL: GSA crypto HMAC function fail
+ * @GSA_GSC_PSK_STATE_GSA_CRYPTO_DONE: GSA crypto operations complete
+ * @GSA_GSC_PSK_STATE_GSC_HAS_NO_KEY: GSC has no PSK
+ * @GSA_GSC_PSK_STATE_GSC_NOT_IN_BOOTLOADER: GSC is not in bootloader
+ * @GSA_GSC_PSK_STATE_GSC_INVALID_PARAMETER: GSC received invalid request data
+ * @GSA_GSC_PSK_STATE_GSC_INTERNAL_ERROR: GSC has internal error
+ * @GSA_GSC_PSK_STATE_GSC_CRYPTO_HKDF_FAIL: GSC crypto HKDF function fail
+ * @GSA_GSC_PSK_STATE_GSC_CRYPTO_HMAC_FAIL: GSC crypto HMAC function fail
+ * @GSA_GSC_PSK_STATE_GSC_EXCEED_MAX_RETRY_COUNT: exceed max psk verification retry count (100)
+ * @GSA_GSA_PSK_STATE_GSC_NOS_CALL_FAIL: GSC nos call fail
+ */
+enum gsa_gsc_psk_state {
+  GSA_GSC_PSK_STATE_UNKNOWN,
+  GSA_GSC_PSK_STATE_KEY_VERIFY_SUCCESS,
+  GSA_GSC_PSK_STATE_KEY_MISMATCH,
+  GSA_GSC_PSK_STATE_GSA_INTERNAL_ERROR,
+  GSA_GSC_PSK_STATE_GSA_HAS_NO_KEY,
+  GSA_GSC_PSK_STATE_GSA_CRYPTO_PRNG_FAIL,
+  GSA_GSC_PSK_STATE_GSA_CRYPTO_HKDF_FAIL,
+  GSA_GSC_PSK_STATE_GSA_CRYPTO_HMAC_FAIL,
+  GSA_GSC_PSK_STATE_GSA_CRYPTO_DONE,
+  GSA_GSC_PSK_STATE_GSC_HAS_NO_KEY,
+  GSA_GSC_PSK_STATE_GSC_NOT_IN_BOOTLOADER,
+  GSA_GSC_PSK_STATE_GSC_INVALID_PARAMETER,
+  GSA_GSC_PSK_STATE_GSC_INTERNAL_ERROR,
+  GSA_GSC_PSK_STATE_GSC_CRYPTO_HKDF_FAIL,
+  GSA_GSC_PSK_STATE_GSC_CRYPTO_HMAC_FAIL,
+  GSA_GSC_PSK_STATE_GSC_EXCEED_MAX_RETRY_COUNT,
+  GSA_GSA_PSK_STATE_GSC_NOS_CALL_FAIL,
+};
+
+#define VERIFY_PSK_REQ_HEADER_SIZE 17
+#define VERIFY_PSK_REQ_VERSION 0
+#define VERIFY_PSK_NONCE_SIZE 32
+#define VERIFY_PSK_HMAC_SIZE 32
+/**
+ * struct verify_psk_request - verify gsa-gsc pre-shared key request
+ * @version: struct verify_psk_request version
+ * @header:  header of verify_psk_request
+ * @nonce: 12 bytes random number
+ * @gsa_psk_state: GSA pre-shared key state
+ * @hmac: hmac = HMAC-SHA256(key = derived-psk, data = version || header ||
+ * nonce || gsa_psk_state)
+ */
+struct verify_psk_request {
+    char header[VERIFY_PSK_REQ_HEADER_SIZE];
+    uint8_t version;
+    uint8_t nonce[VERIFY_PSK_NONCE_SIZE];
+    uint8_t gsa_psk_state;
+    uint8_t hmac[VERIFY_PSK_HMAC_SIZE];
+};
+
+#define VERIFY_SECURE_CHANNEL_RETRY_COUNT_VERSION 0
+struct secure_channel_retry_count_persist_storage {
+	uint8_t version;
+	uint8_t verify_psk_retry_count;
+	uint8_t reserved[2];
+};
+
+#define NUGGET_PARAM_VERIFY_GSA_GSC_PSK 0x0018
+/*
+ * Verify GSA GSC pre-shared key command
+ *
+ * @param args         struct verify_psk_request
+ * @param arg_len      63 bytes
+ * @param reply        psk verification result
+ * @param reply_len    1 bytes
+ */
+
 /****************************************************************************/
 /* Test related commands */
 
