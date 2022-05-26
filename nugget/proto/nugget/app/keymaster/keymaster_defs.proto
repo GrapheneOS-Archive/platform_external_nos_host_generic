@@ -321,6 +321,7 @@ enum ChipFusing {
     FUSING_PVT_1 = 3;   // Strongbox gen v1 certs.
     FUSING_D_PVT = 4;   // Dauntless gen v0 certs.
     FUSING_D_PVT_1 = 5; // Dauntless gen v1 certs.
+    FUSING_D_PVT_2 = 6; // Dauntless gen v2 certs (D3M2).
 }
 
 enum CertificateStatus {
