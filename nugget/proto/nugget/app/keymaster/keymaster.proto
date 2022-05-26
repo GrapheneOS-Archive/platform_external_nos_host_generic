@@ -413,6 +413,7 @@ message SetBootStateRequest {
   uint32 system_version = 4;         // Deprecated.
   uint32 system_security_level = 5;  // Patch level of the boot partition.
   bytes boot_hash = 6;               // This is a SHA256 digest.
+  uint32 boot_security_level = 7;
 }
 message SetBootStateResponse {
   // Specified in keymaster_defs.proto:ErrorCode
