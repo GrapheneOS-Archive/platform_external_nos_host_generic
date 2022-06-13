@@ -29,8 +29,8 @@ service Identity {
   option (nugget.protobuf.app_id) = "IDENTITY";
   option (nugget.protobuf.app_name) = "Identity";
   option (nugget.protobuf.app_version) = 1;
-  option (nugget.protobuf.request_buffer_size) = 1024;
-  option (nugget.protobuf.response_buffer_size) = 1024;
+  option (nugget.protobuf.request_buffer_size) = 2048;
+  option (nugget.protobuf.response_buffer_size) = 2048;
 
   // RPCs for the Identity HAL
   rpc WICinitialize (WICinitializeRequest) returns (WICinitializeResponse);
