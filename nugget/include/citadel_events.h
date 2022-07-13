@@ -59,12 +59,14 @@ enum event_priority {
  * Add to the list, but NEVER change or delete existing entries.
  */
 enum event_id {
-  EVENT_NONE = 0,      // Unused ID, used as empty marker.
-  EVENT_ALERT = 1,     // Globalsec alert fired.
-  EVENT_REBOOTED = 2,  // Device rebooted.
-  EVENT_UPGRADED = 3,  // Device has upgraded.
-  EVENT_ALERT_V2 = 4,  // Globalsec Alertv2 fired
+  EVENT_NONE = 0,          // Unused ID, used as empty marker.
+  EVENT_ALERT = 1,         // Globalsec alert fired.
+  EVENT_REBOOTED = 2,      // Device rebooted.
+  EVENT_UPGRADED = 3,      // Device has upgraded.
+  EVENT_ALERT_V2 = 4,      // Globalsec Alertv2 fired
   EVENT_SEC_CH_STATE = 5,  // Update GSA-GSC secure channel state.
+  EVENT_V1_NO_SUPPORT =
+      6  // Report a VXX event that can't fit in struct small_event_record.
 };
 
 /*
