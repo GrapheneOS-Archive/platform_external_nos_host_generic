@@ -521,7 +521,7 @@ enum gsa_gsc_psk_state {
  * nonce || gsa_psk_state)
  */
 struct verify_psk_request {
-    char header[VERIFY_PSK_REQ_HEADER_SIZE];
+    uint8_t header[VERIFY_PSK_REQ_HEADER_SIZE];
     uint8_t version;
     uint8_t nonce[VERIFY_PSK_NONCE_SIZE];
     uint8_t gsa_psk_state;
@@ -540,9 +540,29 @@ struct secure_channel_retry_count_persist_storage {
  * Verify GSA GSC pre-shared key command
  *
  * @param args         struct verify_psk_request
- * @param arg_len      63 bytes
+ * @param arg_len      83 bytes
  * @param reply        psk verification result
  * @param reply_len    1 bytes
+ */
+
+#define NUGGET_PARAM_SECURE_TRANSPORT_HANDSHAKE 0x0019
+/*
+ * Secure transport handshak (noise protocol) command
+ *
+ * @param args         GSA EC public_key + AES_GCM256("MSGA") + AES_GSC_TAG
+ * @param arg_len      64 + 4 + 16 bytes = 84
+ * @param reply        GSC EC public_key + AES_GCM256("MSGB") + AES_GSC_TAG OR 1 byte error state
+ * @param reply_len    64 + 4 + 16 bytes = 84 OR 1
+ */
+
+#define NUGGET_PARAM_SECURE_TRANSPORT_REPORT_STATE 0x001a
+/*
+ * Secure transport report noise handshake state command
+ *
+ * @param args         GSA noise handshake state
+ * @param arg_len      1
+ * @param reply        <none>
+ * @param reply_len    0
  */
 
 /****************************************************************************/
