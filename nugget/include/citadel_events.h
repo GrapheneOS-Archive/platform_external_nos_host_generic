@@ -31,7 +31,7 @@ extern "C" {
  * When Citadel needs to tell the AP something without waiting to be asked, the
  * process is as follows:
  *
- *   1. Citadel adds an event_record to its internal queue, then asserts
+ *   1. Citadel adds an event_report to its internal queue, then asserts
  *      the CTDL_AP_IRQ signal to notify the AP.
  *
  *   2. The AP (citadeld) requests pending events from Citadel until they've
@@ -66,7 +66,7 @@ enum event_id {
   EVENT_ALERT_V2 = 4,      // Globalsec Alertv2 fired
   EVENT_SEC_CH_STATE = 5,  // Update GSA-GSC secure channel state.
   EVENT_V1_NO_SUPPORT =
-      6  // Report a VXX event that can't fit in struct small_event_record.
+      6  // Report a VXX event that can't fit in struct event_report.
 };
 
 /*
@@ -87,8 +87,8 @@ enum hdr_flags {
 };
 
 /* Please do not change the size of this struct */
-#define EVENT_RECORD_SIZE 64
-struct event_record {
+#define EVENT_REPORT_SIZE 64
+struct event_report {
   uint64_t reset_count;                 /* zeroed by Citadel power cycle */
   uint64_t uptime_usecs;                /* since last Citadel reset */
   uint32_t id;
@@ -127,10 +127,10 @@ struct event_record {
   } event;
 } __packed;
 /* Please do not change the size of this struct */
-static_assert(sizeof(struct event_record) == EVENT_RECORD_SIZE,
+static_assert(sizeof(struct event_report) == EVENT_REPORT_SIZE,
               "Muting the Immutable");
 
-struct big_event_record {
+struct big_event_report {
   struct hdr {
     /* Redundant w.r.t. to v1 event records */
     uint64_t reset_count;

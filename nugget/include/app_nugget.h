@@ -299,15 +299,15 @@ struct nugget_app_board_id {
   uint32_t inv;                         /* must equal ~type when setting */
 } __packed;
 
-#define NUGGET_PARAM_GET_EVENT_RECORD 0x0010
+#define NUGGET_PARAM_GET_EVENT_REPORT 0x0010
 /*
- * This retrieves one pending event_record (defined in citadel_events.h).
+ * This retrieves one pending event_report (defined in citadel_events.h).
  * If none are pending, it returns nothing.
  *
  * @param args         <none>
  * @param arg_len      0
- * @param reply        struct event_record
- * @param reply_len    sizeof struct event_record  OR  0
+ * @param reply        struct event_report
+ * @param reply_len    sizeof struct event_report  OR  0
  */
 
 #define NUGGET_PARAM_AP_IS_REBOOTING 0x0011
@@ -564,15 +564,15 @@ struct secure_channel_retry_count_persist_storage {
  * @param reply        <none>
  * @param reply_len    0
  */
-#define NUGGET_PARAM_GET_BIG_EVENT_RECORD 0x001b
+#define NUGGET_PARAM_GET_BIG_EVENT_REPORT 0x001b
 /*
- * This retrieves one pending big_event_record (defined in citadel_events.h).
+ * This retrieves one pending big_event_report (defined in citadel_events.h).
  * If none are pending, it returns nothing.
  *
  * @param args         <none>
  * @param arg_len      0
- * @param reply        struct big_event_record
- * @param reply_len    sizeof struct big_event_record  OR  0
+ * @param reply        struct big_event_report
+ * @param reply_len    sizeof struct big_event_report  OR  0
  */
 
 /****************************************************************************/
