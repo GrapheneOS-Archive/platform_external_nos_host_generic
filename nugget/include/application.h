@@ -239,7 +239,7 @@ struct transport_status {
 
 /* Valid range of lengths for the status message */
 #define STATUS_MIN_LENGTH 0x10
-#define STATUS_MAX_LENGTH 0xff
+#define STATUS_MAX_LENGTH (sizeof(struct transport_status)) /* 0x10 */
 
 /* Flags used in the status message */
 #define STATUS_FLAG_WORKING 0x0001 /* added in v1 */
